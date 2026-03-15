@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "T-Cardio Pro",
+    "slug": "t-cardio-pro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "tcardio",
+    "ios": { "supportsTablet": true },
+    "android": { "package": "com.tcardio.pro" }
+  }
+}

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # ==================== DATABASE ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: tcardio-postgres
+    environment:
+      POSTGRES_USER: tcardio
+      POSTGRES_PASSWORD: tcardio_dev_2024
+      POSTGRES_DB: tcardio_pro
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tcardio -d tcardio_pro"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ==================== CACHE ====================
+  redis:
+    image: redis:7-alpine
+    container_name: tcardio-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ==================== STORAGE ====================
+  minio:
+    image: minio/minio:latest
+    container_name: tcardio-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

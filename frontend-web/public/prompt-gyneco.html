@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-Gyneco Plus - Prompt Claude Code</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f0a1a;color:#e2e8f0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.7}
+.container{max-width:960px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#1a0a2e 0%,#2d1b4e 50%,#1a0a2e 100%);border-bottom:2px solid #a855f7}
+header h1{font-size:2.2rem;background:linear-gradient(90deg,#c084fc,#e879f9,#f0abfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{color:#a78bfa;font-size:1.1rem}
+.copy-bar{position:sticky;top:0;z-index:100;background:rgba(15,10,26,0.95);backdrop-filter:blur(10px);padding:12px 20px;border-bottom:1px solid #a855f720;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.copy-btn{background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.copy-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px #a855f740}
+.copy-btn.copied{background:linear-gradient(135deg,#22c55e,#16a34a)}
+#prompt-content{padding:30px 0}
+.section{background:#1a1025;border:1px solid #a855f715;border-radius:16px;padding:28px;margin-bottom:24px}
+.section h2{color:#c084fc;font-size:1.4rem;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #a855f720}
+.section h3{color:#e879f9;font-size:1.1rem;margin:18px 0 10px}
+.section h4{color:#d8b4fe;font-size:1rem;margin:14px 0 8px}
+.section p,.section li{color:#cbd5e1;font-size:0.95rem}
+.section ul,.section ol{padding-left:24px;margin:8px 0}
+.section li{margin:4px 0}
+.section code{background:#2d1b4e;color:#e879f9;padding:2px 8px;border-radius:4px;font-size:0.88rem;font-family:'Fira Code','Consolas',monospace}
+.section pre{background:#120a1f;border:1px solid #a855f720;border-radius:10px;padding:18px;overflow-x:auto;margin:12px 0;font-size:0.85rem;line-height:1.6}
+.section pre code{background:none;padding:0;color:#d8b4fe}
+.badge{display:inline-block;background:#a855f720;color:#c084fc;padding:3px 10px;border-radius:6px;font-size:0.82rem;font-weight:600;margin:2px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}header h1{font-size:1.6rem}.section{padding:18px}}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #a855f715;font-size:0.9rem}
+th{color:#c084fc;font-weight:600}
+td{color:#cbd5e1}
+.highlight{background:#a855f710;border-left:3px solid #a855f7;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+</style>
+</head>
+<body>
+
+<header>
+<h1>T-Gyneco Plus</h1>
+<p>Prompt complet pour Claude Code - Application de telemedecine gynecologique</p>
+</header>
+
+<div class="copy-bar">
+<button class="copy-btn" onclick="copyPrompt()">Copier tout le prompt</button>
+<button class="copy-btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5)" onclick="downloadPrompt()">Telecharger (.txt)</button>
+</div>
+
+<div class="container">
+<div id="prompt-content">
+
+<!-- ==================== SECTION 1 ==================== -->
+<div class="section">
+<h2>1. Presentation du Projet</h2>
+<div class="highlight">
+<p><strong>Nom :</strong> T-Gyneco Plus</p>
+<p><strong>Description :</strong> Plateforme de telemedecine gynecologique complete permettant le suivi du cycle menstruel, de la grossesse, de la fertilite, de la contraception, des depistages et de la menopause. L'application connecte les patientes avec leurs gynecologues et sages-femmes pour un suivi medical continu, avec analyse IA des donnees, teleconsultation video, messagerie, ordonnances electroniques et paiement Mobile Money.</p>
+<p><strong>Marche cible :</strong> Afrique de l'Ouest francophone (Benin, Togo, Cote d'Ivoire, Senegal)</p>
+<p><strong>Langue :</strong> Francais (sans accents dans le code, avec accents dans l'UI)</p>
+<p><strong>Monnaie :</strong> XOF (Franc CFA)</p>
+</div>
+</div>
+
+<!-- ==================== SECTION 2 ==================== -->
+<div class="section">
+<h2>2. Stack Technique</h2>
+<div class="grid-2">
+<div>
+<h4>Backend</h4>
+<ul>
+<li><code>NestJS 10</code> - Framework API REST</li>
+<li><code>TypeScript</code> - Langage</li>
+<li><code>Prisma ORM 5</code> - ORM PostgreSQL</li>
+<li><code>PostgreSQL 15</code> - Base de donnees</li>
+<li><code>Redis 7</code> - Cache & temps reel</li>
+<li><code>MinIO</code> - Stockage objets (fichiers, rapports, echographies)</li>
+<li><code>Socket.IO</code> - Communication temps reel</li>
+<li><code>DeepSeek API</code> - Analyse IA gynecologique</li>
+<li><code>OpenAI Vision</code> - OCR documents medicaux</li>
+<li><code>JWT</code> - Authentification avec refresh tokens</li>
+<li><code>pdf-lib</code> - Generation PDF</li>
+<li><code>web-push</code> - Notifications push</li>
+<li><code>nodemailer</code> - Emails</li>
+</ul>
+</div>
+<div>
+<h4>Frontend Web</h4>
+<ul>
+<li><code>Next.js 14</code> - Framework React (App Router)</li>
+<li><code>React 18</code> - UI</li>
+<li><code>Tailwind CSS</code> - Styling (theme dark mauve/rose)</li>
+<li><code>TanStack Query</code> - Data fetching & cache</li>
+<li><code>Zustand</code> - State management</li>
+<li><code>Chart.js</code> - Graphiques (cycles, temperature, poids)</li>
+<li><code>React Hook Form + Zod</code> - Formulaires</li>
+<li><code>Socket.IO Client</code> - Temps reel</li>
+<li><code>Axios</code> - Client HTTP</li>
+<li><code>Lucide React</code> - Icones</li>
+<li><code>date-fns</code> - Manipulation dates</li>
+</ul>
+<h4>Mobile</h4>
+<ul>
+<li><code>Capacitor 8</code> - Wrapper Android APK</li>
+<li><code>WebView</code> - Charge le site web</li>
+</ul>
+</div>
+</div>
+<h4>DevOps & Deploiement</h4>
+<ul>
+<li><code>Docker</code> + <code>Docker Compose</code> - Conteneurisation</li>
+<li><code>Nginx</code> - Reverse proxy + SSL</li>
+<li><code>Certbot</code> - Certificats Let's Encrypt</li>
+<li>VPS Linux (Ubuntu 20+)</li>
+</ul>
+</div>
+
+<!-- ==================== SECTION 3 ==================== -->
+<div class="section">
+<h2>3. Architecture du Projet</h2>
+<pre><code>t-gyneco/
+├── backend/
+│   ├── prisma/
+│   │   └── schema.prisma
+│   ├── src/
+│   │   ├── app.module.ts
+│   │   ├── main.ts
+│   │   ├── config/
+│   │   │   ├── database.config.ts
+│   │   │   ├── auth.config.ts
+│   │   │   ├── ai.config.ts
+│   │   │   ├── storage.config.ts
+│   │   │   ├── redis.config.ts
+│   │   │   └── payment.config.ts
+│   │   ├── core/
+│   │   │   ├── prisma/prisma.service.ts
+│   │   │   ├── guards/ (jwt-auth, roles)
+│   │   │   └── decorators/ (current-user)
+│   │   └── modules/
+│   │       ├── auth/
+│   │       ├── patients/
+│   │       ├── doctors/
+│   │       ├── cycles/              ← Suivi menstruel
+│   │       ├── pregnancy/           ← Suivi grossesse
+│   │       ├── fertility/           ← Calendrier fertilite
+│   │       ├── contraception/       ← Suivi contraception
+│   │       ├── screenings/          ← Depistages & examens
+│   │       ├── menopause/           ← Suivi menopause
+│   │       ├── ai-engine/
+│   │       ├── analytics/
+│   │       ├── teleconsultation/
+│   │       ├── messaging/
+│   │       ├── reports/
+│   │       ├── prescriptions/
+│   │       ├── payment/
+│   │       ├── notifications/
+│   │       ├── storage/
+│   │       ├── chatbot/
+│   │       └── admin/
+│   ├── Dockerfile
+│   └── package.json
+├── frontend-web/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── login/page.tsx
+│   │   │   ├── register/page.tsx
+│   │   │   ├── forgot-password/page.tsx
+│   │   │   ├── reset-password/page.tsx
+│   │   │   └── verify-email/page.tsx
+│   │   ├── (dashboard)/
+│   │   │   ├── layout.tsx
+│   │   │   ├── dashboard/page.tsx
+│   │   │   ├── cycles/page.tsx          ← Journal menstruel
+│   │   │   ├── cycles/add/page.tsx      ← Saisie cycle
+│   │   │   ├── pregnancy/page.tsx       ← Suivi grossesse
+│   │   │   ├── fertility/page.tsx       ← Calendrier fertilite
+│   │   │   ├── contraception/page.tsx   ← Suivi contraception
+│   │   │   ├── screenings/page.tsx      ← Depistages
+│   │   │   ├── analytics/page.tsx
+│   │   │   ├── ai-analysis/page.tsx
+│   │   │   ├── reports/page.tsx
+│   │   │   ├── prescriptions/page.tsx
+│   │   │   ├── teleconsultations/page.tsx
+│   │   │   ├── messaging/page.tsx
+│   │   │   ├── notifications/page.tsx
+│   │   │   ├── chatbot/page.tsx
+│   │   │   ├── credits/page.tsx
+│   │   │   ├── momo-pay/page.tsx
+│   │   │   ├── abonnement/page.tsx
+│   │   │   ├── profile/page.tsx
+│   │   │   ├── my-doctor/page.tsx
+│   │   │   ├── doctor/
+│   │   │   │   ├── dashboard/page.tsx
+│   │   │   │   ├── patients/page.tsx
+│   │   │   │   ├── patients/[id]/page.tsx
+│   │   │   │   ├── reports/page.tsx
+│   │   │   │   ├── teleconsultations/page.tsx
+│   │   │   │   └── agenda/page.tsx
+│   │   │   └── admin/
+│   │   │       ├── dashboard/page.tsx
+│   │   │       ├── users/page.tsx
+│   │   │       ├── doctors/page.tsx
+│   │   │       ├── payments/page.tsx
+│   │   │       ├── ai-config/page.tsx
+│   │   │       ├── audit/page.tsx
+│   │   │       └── communication/page.tsx
+│   │   └── download/page.tsx
+│   ├── components/
+│   │   ├── charts/ (CycleChart, TemperatureChart, WeightChart, etc.)
+│   │   ├── onboarding/OnboardingWizard.tsx
+│   │   └── teleconsultation/
+│   ├── hooks/
+│   ├── lib/ (api.ts, chart-config.ts, query-client.ts)
+│   ├── stores/ (authStore.ts)
+│   ├── public/ (logo, icons, sw.js)
+│   ├── capacitor.config.ts
+│   ├── android/ (Capacitor Android)
+│   ├── Dockerfile
+│   ├── next.config.js
+│   └── package.json
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── deploy.sh
+├── nginx/
+│   ├── nginx.conf
+│   └── conf.d/default.conf
+└── package.json</code></pre>
+</div>
+
+<!-- ==================== SECTION 4 ==================== -->
+<div class="section">
+<h2>4. Roles Utilisateurs</h2>
+<table>
+<tr><th>Role</th><th>Description</th><th>Permissions</th></tr>
+<tr><td><span class="badge">PATIENTE</span></td><td>Femme utilisant l'application pour son suivi gynecologique</td><td>Saisir cycles, suivi grossesse, fertilite, contraception, teleconsultation, messagerie, rapports</td></tr>
+<tr><td><span class="badge">MEDECIN</span></td><td>Medecin generaliste avec competences gynecologiques</td><td>Voir patientes liees, teleconsultation, prescriptions, rapports, notes medicales</td></tr>
+<tr><td><span class="badge">GYNECOLOGUE</span></td><td>Specialiste en gynecologie-obstetrique</td><td>Memes droits que MEDECIN + suivi grossesse avance, echographies, chirurgie</td></tr>
+<tr><td><span class="badge">SAGE_FEMME</span></td><td>Sage-femme (suivi grossesse et accouchement)</td><td>Suivi grossesse, accouchement, post-partum, prescriptions limitees</td></tr>
+<tr><td><span class="badge">ADMIN</span></td><td>Administrateur systeme</td><td>Gestion utilisateurs, verification medecins, paiements, configuration IA, audit</td></tr>
+</table>
+</div>
+
+<!-- ==================== SECTION 5 ==================== -->
+<div class="section">
+<h2>5. Schema Base de Donnees (Prisma)</h2>
+<pre><code>// ==================== ENUMS ====================
+
+enum Role {
+  PATIENTE
+  MEDECIN
+  GYNECOLOGUE
+  SAGE_FEMME
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum LinkStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  ENDED
+}
+
+enum CyclePhase {
+  MENSTRUATION
+  FOLLICULAIRE
+  OVULATION
+  LUTEALE
+}
+
+enum FlowIntensity {
+  SPOTTING       // Traces
+  LEGER          // Leger
+  MOYEN          // Normal
+  ABONDANT       // Abondant
+  TRES_ABONDANT  // Tres abondant
+}
+
+enum CycleSymptom {
+  CRAMPES
+  MAUX_TETE
+  FATIGUE
+  BALLONNEMENTS
+  ACNE
+  SENSIBILITE_SEINS
+  SAUTES_HUMEUR
+  NAUSEES
+  DOULEURS_DOS
+  INSOMNIE
+  APPETIT_AUGMENTE
+  PERTES_BLANCHES
+  DOULEURS_OVULATION
+  IRRITABILITE
+  ANXIETE
+  DEPRESSION
+}
+
+enum PregnancyStatus {
+  EN_COURS
+  ACCOUCHEE
+  FAUSSE_COUCHE
+  IVG
+  GROSSESSE_EXTRA_UTERINE
+  TERMINE
+}
+
+enum ContraceptionType {
+  PILULE
+  STERILET_CUIVRE
+  STERILET_HORMONAL
+  IMPLANT
+  PATCH
+  ANNEAU_VAGINAL
+  PRESERVATIF
+  DIAPHRAGME
+  METHODE_NATURELLE
+  INJECTION
+  AUCUNE
+}
+
+enum ScreeningType {
+  FROTTIS_CERVICAL
+  MAMMOGRAPHIE
+  ECHOGRAPHIE_PELVIENNE
+  ECHOGRAPHIE_MAMMAIRE
+  DENSITOMETRIE_OSSEUSE
+  BILAN_HORMONAL
+  TEST_HPV
+  COLPOSCOPIE
+  BIOPSIE
+  ECHOGRAPHIE_GROSSESSE
+  PRISE_SANG
+  AUTRE
+}
+
+enum ScreeningResult {
+  NORMAL
+  ANORMAL
+  EN_ATTENTE
+  A_SURVEILLER
+  NECESSSITE_SUIVI
+}
+
+enum MenopauseSymptom {
+  BOUFFEES_CHALEUR
+  SUEURS_NOCTURNES
+  SECHERESSE_VAGINALE
+  TROUBLES_SOMMEIL
+  PRISE_POIDS
+  DOULEURS_ARTICULAIRES
+  PERTE_LIBIDO
+  INCONTINENCE
+  SAUTES_HUMEUR
+  ANXIETE
+  FATIGUE
+  PEAU_SECHE
+  CHEVEUX_FRAGILES
+  OSTEOPOROSE
+}
+
+enum RiskLevel {
+  FAIBLE
+  MODERE
+  ELEVE
+  CRITIQUE
+}
+
+enum AlertType {
+  URGENCE
+  IA_RISQUE
+  DEPISTAGE_DU
+  SYSTEME
+  CYCLE
+  GROSSESSE
+  RAPPORT
+}
+
+enum AlertSeverity {
+  INFO
+  ATTENTION
+  IMPORTANT
+  URGENT
+}
+
+enum TeleconsultationStatus {
+  PLANIFIEE
+  ACTIVE
+  TERMINEE
+  ANNULEE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentType {
+  SUBSCRIPTION
+  CREDIT_PURCHASE
+  MOMO_LOCAL
+}
+
+enum SubscriptionPlan {
+  BASIC
+  PRO
+}
+
+enum CreditType {
+  PURCHASE
+  DEBIT_TELECONSULTATION
+  DEBIT_URGENCE
+  REFUND
+  ADMIN_ADJUSTMENT
+  BONUS
+}
+
+enum ReportType {
+  HEBDOMADAIRE
+  MENSUEL
+  TRIMESTRIEL
+  PERSONNALISE
+  URGENCE
+  GROSSESSE
+}
+
+enum NoteType {
+  GENERAL
+  TELECONSULTATION
+  URGENCE
+  SUIVI
+  GROSSESSE
+  POST_PARTUM
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  passwordHash         String
+  role                 Role
+  status               AccountStatus @default(PENDING)
+  emailVerified        Boolean   @default(false)
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?
+  onboardingCompleted  Boolean   @default(false)
+  lastLoginAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  patient              Patient?
+  doctor               Doctor?
+  refreshTokens        RefreshToken[]
+  verificationCodes    VerificationCode[]
+  pushSubscriptions    PushSubscription[]
+  auditLogs            AuditLog[]
+  alerts               Alert[]
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  token       String   @unique
+  deviceInfo  String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model VerificationCode {
+  id        String   @id @default(uuid())
+  userId    String
+  code      String
+  type      String   // EMAIL_VERIFY, PASSWORD_RESET
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Patient {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  firstName        String?
+  lastName         String?
+  dateOfBirth      DateTime?
+  phone            String?
+  address          String?
+  bloodType        String?  // A+, A-, B+, B-, AB+, AB-, O+, O-
+  height           Float?   // cm
+  weight           Float?   // kg
+  allergies        String?
+  medications      String?
+  medicalHistory   String?
+  emergencyContact String?
+  emergencyPhone   String?
+  gravida          Int      @default(0) // Nombre de grossesses
+  para             Int      @default(0) // Nombre d'accouchements
+  menarche         Int?     // Age des premieres regles
+  menopauseAge     Int?     // Age de la menopause (si applicable)
+  isPregnant       Boolean  @default(false)
+  isMenopausal     Boolean  @default(false)
+  language         String   @default("fr")
+  timezone         String   @default("Africa/Porto-Novo")
+  photoUrl         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id])
+  doctorLinks      PatientDoctorLink[]
+  cycles           CycleEntry[]
+  pregnancies      Pregnancy[]
+  contraception    Contraception?
+  screenings       Screening[]
+  menopauseEntries MenopauseEntry[]
+  temperatureReadings TemperatureReading[]
+  aiAnalyses       AiAnalysis[]
+  reports          Report[]
+  creditBalance    CreditBalance?
+  payments         Payment[]
+  conversations    Conversation[]
+  chatConversations ChatConversation[]
+  measurementReminder MeasurementReminder?
+}
+
+model Doctor {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  firstName        String?
+  lastName         String?
+  specialty        String?  // Gynecologie, Obstetrique, Sage-femme
+  rppsNumber       String?  // Numero RPPS / Ordre des medecins
+  phone            String?
+  address          String?
+  bio              String?
+  verificationStatus String @default("PENDING") // PENDING, VERIFIED, REJECTED
+  verifiedAt       DateTime?
+  photoUrl         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id])
+  patientLinks     PatientDoctorLink[]
+  availabilities   DoctorAvailability[]
+  unavailabilities DoctorUnavailability[]
+  teleconsultations Teleconsultation[]
+  medicalNotes     MedicalNote[]
+  prescriptions    Prescription[]
+  reports          Report[]     @relation("DoctorReports")
+  invitationTokens InvitationToken[]
+}
+
+model PatientDoctorLink {
+  id          String     @id @default(uuid())
+  patientId   String
+  doctorId    String
+  status      LinkStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  patient     Patient    @relation(fields: [patientId], references: [id])
+  doctor      Doctor     @relation(fields: [doctorId], references: [id])
+  @@unique([patientId, doctorId])
+}
+
+model InvitationToken {
+  id        String    @id @default(uuid())
+  doctorId  String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  usedBy    String?
+  createdAt DateTime  @default(now())
+  doctor    Doctor    @relation(fields: [doctorId], references: [id])
+}
+
+// ==================== CYCLE MENSTRUEL ====================
+
+model CycleEntry {
+  id           String         @id @default(uuid())
+  patientId    String
+  startDate    DateTime       // Premier jour des regles
+  endDate      DateTime?      // Dernier jour des regles
+  cycleLength  Int?           // Duree totale du cycle (jours)
+  periodLength Int?           // Duree des regles (jours)
+  flow         FlowIntensity  @default(MOYEN)
+  symptoms     CycleSymptom[] // Liste des symptomes
+  painLevel    Int            @default(0) // 0-10
+  notes        String?
+  isRegular    Boolean?
+  phase        CyclePhase?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  patient      Patient        @relation(fields: [patientId], references: [id])
+}
+
+model TemperatureReading {
+  id          String   @id @default(uuid())
+  patientId   String
+  temperature Float    // Temperature basale en Celsius
+  measuredAt  DateTime
+  method      String?  // BUCCAL, VAGINAL, RECTAL
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  patient     Patient  @relation(fields: [patientId], references: [id])
+}
+
+// ==================== GROSSESSE ====================
+
+model Pregnancy {
+  id                String          @id @default(uuid())
+  patientId         String
+  startDate         DateTime        // Date des dernieres regles (DDR)
+  dueDate           DateTime?       // Date prevue d'accouchement (DPA)
+  status            PregnancyStatus @default(EN_COURS)
+  endDate           DateTime?       // Date de fin de grossesse
+  deliveryType      String?         // VOIE_BASSE, CESARIENNE, INSTRUMENTALE
+  babyWeight        Float?          // Poids du bebe (grammes)
+  babyGender        String?         // MASCULIN, FEMININ, INDETERMINE
+  complications     String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  patient           Patient         @relation(fields: [patientId], references: [id])
+  appointments      PregnancyAppointment[]
+  weightEntries     PregnancyWeight[]
+  ultrasounds       Ultrasound[]
+}
+
+model PregnancyAppointment {
+  id            String    @id @default(uuid())
+  pregnancyId   String
+  weekNumber    Int       // Semaine de grossesse (SA)
+  appointmentDate DateTime
+  type          String    // CONSULTATION, ECHOGRAPHIE, PRISE_SANG, MONITORING, PREPARATION
+  description   String?
+  results       String?
+  completed     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  pregnancy     Pregnancy @relation(fields: [pregnancyId], references: [id])
+}
+
+model PregnancyWeight {
+  id           String    @id @default(uuid())
+  pregnancyId  String
+  weekNumber   Int
+  weight       Float     // kg
+  bloodPressureSys Int?  // Tension systolique
+  bloodPressureDia Int?  // Tension diastolique
+  notes        String?
+  measuredAt   DateTime
+  createdAt    DateTime  @default(now())
+
+  pregnancy    Pregnancy @relation(fields: [pregnancyId], references: [id])
+}
+
+model Ultrasound {
+  id           String    @id @default(uuid())
+  pregnancyId  String
+  weekNumber   Int       // SA
+  type         String    // T1 (12SA), T2 (22SA), T3 (32SA), COMPLEMENTAIRE
+  date         DateTime
+  results      String?
+  measurements String?   // JSON: LCC, BIP, PC, PA, LF
+  imageUrl     String?   // Stockee sur MinIO
+  doctorName   String?
+  notes        String?
+  createdAt    DateTime  @default(now())
+
+  pregnancy    Pregnancy @relation(fields: [pregnancyId], references: [id])
+}
+
+// ==================== CONTRACEPTION ====================
+
+model Contraception {
+  id           String            @id @default(uuid())
+  patientId    String            @unique
+  type         ContraceptionType
+  startDate    DateTime
+  endDate      DateTime?
+  brand        String?           // Marque du produit
+  dosage       String?
+  sideEffects  String?           // Effets secondaires observes
+  satisfaction Int?              // 1-5
+  nextRenewal  DateTime?         // Prochain renouvellement
+  reminderEnabled Boolean        @default(true)
+  reminderTime String?           // HH:mm
+  notes        String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  patient      Patient           @relation(fields: [patientId], references: [id])
+}
+
+// ==================== DEPISTAGES & EXAMENS ====================
+
+model Screening {
+  id           String           @id @default(uuid())
+  patientId    String
+  type         ScreeningType
+  date         DateTime
+  result       ScreeningResult  @default(EN_ATTENTE)
+  details      String?
+  doctorName   String?
+  facility     String?          // Etablissement
+  nextDueDate  DateTime?        // Prochain depistage prevu
+  fileUrl      String?          // Document/image stocke sur MinIO
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  patient      Patient          @relation(fields: [patientId], references: [id])
+}
+
+// ==================== MENOPAUSE ====================
+
+model MenopauseEntry {
+  id           String             @id @default(uuid())
+  patientId    String
+  date         DateTime
+  symptoms     MenopauseSymptom[]
+  severity     Int                @default(5) // 1-10
+  treatment    String?            // THS, phytotherapie, etc.
+  notes        String?
+  createdAt    DateTime           @default(now())
+
+  patient      Patient            @relation(fields: [patientId], references: [id])
+}
+
+// ==================== IA & ANALYSE ====================
+
+model AiAnalysis {
+  id               String    @id @default(uuid())
+  patientId        String
+  analysisType     String    // CYCLE, GROSSESSE, FERTILITE, DEPISTAGE, GENERAL
+  riskLevel        RiskLevel @default(FAIBLE)
+  confidenceScore  Float?
+  patientSummary   String?   @db.Text // Resume pour la patiente
+  doctorSummary    String?   @db.Text // Resume pour le medecin
+  recommendations  String?   @db.Text
+  rawResponse      String?   @db.Text
+  promptVersion    String?
+  processingTimeMs Int?
+  tokenUsage       Int?
+  createdAt        DateTime  @default(now())
+
+  patient          Patient   @relation(fields: [patientId], references: [id])
+}
+
+model PromptVersion {
+  id        String   @id @default(uuid())
+  version   String   @unique
+  prompt    String   @db.Text
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AiThreshold {
+  id          String   @id @default(uuid())
+  metricName  String   @unique // ex: cycle_irregulier, temperature_anormale
+  value       Float
+  riskLevel   RiskLevel
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+// ==================== ALERTES ====================
+
+model Alert {
+  id          String        @id @default(uuid())
+  userId      String
+  type        AlertType
+  severity    AlertSeverity @default(INFO)
+  title       String
+  message     String
+  data        Json?
+  read        Boolean       @default(false)
+  readAt      DateTime?
+  createdAt   DateTime      @default(now())
+
+  user        User          @relation(fields: [userId], references: [id])
+}
+
+// ==================== TELECONSULTATION ====================
+
+model Teleconsultation {
+  id            String                  @id @default(uuid())
+  doctorId      String
+  patientId     String
+  scheduledAt   DateTime
+  status        TeleconsultationStatus  @default(PLANIFIEE)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  summary       String?
+  roomId        String?
+  creditCost    Int                     @default(5000)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  doctor        Doctor                  @relation(fields: [doctorId], references: [id])
+  messages      TeleconsultationMessage[]
+}
+
+model TeleconsultationMessage {
+  id                 String           @id @default(uuid())
+  teleconsultationId String
+  senderUserId       String
+  content            String
+  fileUrl            String?
+  createdAt          DateTime         @default(now())
+
+  teleconsultation   Teleconsultation @relation(fields: [teleconsultationId], references: [id])
+}
+
+model DoctorAvailability {
+  id           String @id @default(uuid())
+  doctorId     String
+  dayOfWeek    Int    // 0=Dimanche, 1=Lundi...6=Samedi
+  startTime    String // HH:mm
+  endTime      String // HH:mm
+  slotDuration Int    @default(30) // minutes
+
+  doctor       Doctor @relation(fields: [doctorId], references: [id])
+}
+
+model DoctorUnavailability {
+  id        String   @id @default(uuid())
+  doctorId  String
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+// ==================== NOTES & RAPPORTS ====================
+
+model MedicalNote {
+  id        String   @id @default(uuid())
+  doctorId  String
+  patientId String
+  type      NoteType @default(GENERAL)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model Report {
+  id               String     @id @default(uuid())
+  patientId        String
+  doctorId         String?
+  reportType       ReportType @default(MENSUEL)
+  title            String?
+  summary          String?    @db.Text
+  periodStart      DateTime
+  periodEnd        DateTime
+  riskLevel        RiskLevel?
+  filePath         String?
+  fileSizeBytes    Int?
+  fileHash         String?
+  downloadCount    Int        @default(0)
+  lastDownloadedAt DateTime?
+  signedAt         DateTime?
+  signedBy         String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  patient          Patient    @relation(fields: [patientId], references: [id])
+  doctor           Doctor?    @relation("DoctorReports", fields: [doctorId], references: [id])
+}
+
+model Prescription {
+  id                 String    @id @default(uuid())
+  doctorId           String
+  patientId          String
+  teleconsultationId String?
+  medications        Json      // [{name, dosage, frequency, duration, notes}]
+  diagnosis          String?
+  notes              String?
+  filePath           String?
+  signedAt           DateTime?
+  createdAt          DateTime  @default(now())
+
+  doctor             Doctor    @relation(fields: [doctorId], references: [id])
+}
+
+// ==================== MESSAGERIE ====================
+
+model Conversation {
+  id        String          @id @default(uuid())
+  patientId String
+  doctorId  String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  patient   Patient         @relation(fields: [patientId], references: [id])
+  messages  DirectMessage[]
+  @@unique([patientId, doctorId])
+}
+
+model DirectMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderUserId   String
+  content        String
+  fileUrl        String?
+  read           Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model ChatConversation {
+  id        String        @id @default(uuid())
+  patientId String
+  title     String?
+  createdAt DateTime      @default(now())
+
+  patient   Patient       @relation(fields: [patientId], references: [id])
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id             String           @id @default(uuid())
+  conversationId String
+  role           String           // USER, ASSISTANT, SYSTEM
+  content        String           @db.Text
+  tokenUsage     Int?
+  createdAt      DateTime         @default(now())
+
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+}
+
+// ==================== PAIEMENT & CREDITS ====================
+
+model CreditBalance {
+  id           String              @id @default(uuid())
+  patientId    String              @unique
+  balance      Int                 @default(0)
+  updatedAt    DateTime            @updatedAt
+
+  patient      Patient             @relation(fields: [patientId], references: [id])
+  transactions CreditTransaction[]
+}
+
+model CreditTransaction {
+  id          String        @id @default(uuid())
+  balanceId   String
+  type        CreditType
+  amount      Int
+  description String?
+  createdAt   DateTime      @default(now())
+
+  balance     CreditBalance @relation(fields: [balanceId], references: [id])
+}
+
+model Subscription {
+  id          String           @id @default(uuid())
+  patientId   String
+  plan        SubscriptionPlan
+  startDate   DateTime         @default(now())
+  endDate     DateTime
+  isActive    Boolean          @default(true)
+  autoRenew   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  patientId     String
+  amount        Int           // en XOF
+  type          PaymentType
+  status        PaymentStatus @default(PENDING)
+  reference     String        @unique
+  paymentMethod String?       // MOMO_MTN, MOMO_AIRTEL, FEDAPAY
+  metadata      Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  patient       Patient       @relation(fields: [patientId], references: [id])
+}
+
+// ==================== RAPPELS & NOTIFICATIONS ====================
+
+model MeasurementReminder {
+  id          String   @id @default(uuid())
+  patientId   String   @unique
+  frequency   String   @default("ONCE_DAILY") // ONCE_DAILY, TWICE_DAILY
+  times       String[] // ["08:00", "20:00"]
+  channel     String   @default("IN_APP") // EMAIL, IN_APP, BOTH
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient     Patient  @relation(fields: [patientId], references: [id])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// ==================== ADMIN ====================
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String   // CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, AI_ANALYSIS
+  entity    String?  // User, Patient, Cycle, Pregnancy, etc.
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model AdminMessage {
+  id         String   @id @default(uuid())
+  targetRole String?  // PATIENTE, MEDECIN, GYNECOLOGUE, SAGE_FEMME, null=tous
+  targetId   String?
+  title      String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model Advertisement {
+  id        String   @id @default(uuid())
+  type      String   // POPUP, TICKER
+  title     String
+  content   String   @db.Text
+  imageUrl  String?
+  targetUrl String?
+  target    String   @default("ALL") // ALL, PATIENTE, MEDECIN
+  priority  Int      @default(0)
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}</code></pre>
+</div>
+
+<!-- ==================== SECTION 6 ==================== -->
+<div class="section">
+<h2>6. Fonctionnalites Detaillees</h2>
+
+<h3>6.1 Suivi du Cycle Menstruel</h3>
+<ul>
+<li>Saisie du premier et dernier jour des regles</li>
+<li>Intensite du flux (spotting, leger, moyen, abondant, tres abondant)</li>
+<li>Symptomes multiples (crampes, maux de tete, fatigue, ballonnements, acne, sensibilite seins, etc.)</li>
+<li>Niveau de douleur (echelle 0-10)</li>
+<li>Prediction du prochain cycle base sur l'historique (moyenne glissante)</li>
+<li>Detection de cycles irreguliers (alerte IA si ecart > 7 jours)</li>
+<li>Graphique d'evolution de la duree des cycles</li>
+<li>Phase actuelle du cycle (menstruation, folliculaire, ovulation, luteale)</li>
+<li>Historique complet avec pagination</li>
+<li>Notes libres par cycle</li>
+</ul>
+
+<h3>6.2 Suivi de Grossesse</h3>
+<ul>
+<li>Creation de grossesse avec date des dernieres regles (DDR)</li>
+<li>Calcul automatique de la DPA (date prevue d'accouchement = DDR + 280 jours)</li>
+<li>Semaine de grossesse actuelle (SA) calculee automatiquement</li>
+<li>Suivi du poids semaine par semaine avec graphique de courbe de poids</li>
+<li>Suivi de la tension arterielle pendant la grossesse</li>
+<li>Calendrier des rendez-vous prenataux (consultations, echographies, prises de sang, monitoring)</li>
+<li>3 echographies obligatoires : T1 (12 SA), T2 (22 SA), T3 (32 SA)</li>
+<li>Upload et stockage des images d'echographie (MinIO)</li>
+<li>Mesures foetales (LCC, BIP, PC, PA, LF) en JSON</li>
+<li>Suivi des complications (diabete gestationnel, pre-eclampsie, etc.)</li>
+<li>Fin de grossesse : accouchement (voie basse/cesarienne), poids bebe, sexe</li>
+<li>Compteur de grossesses (gravida) et accouchements (para)</li>
+</ul>
+
+<h3>6.3 Calendrier de Fertilite</h3>
+<ul>
+<li>Calcul de la fenetre fertile basee sur l'historique des cycles</li>
+<li>Date d'ovulation estimee (longueur du cycle - 14 jours)</li>
+<li>Suivi de la temperature basale (courbe de temperature)</li>
+<li>Methodes de mesure : buccale, vaginale, rectale</li>
+<li>Detection du pic de temperature post-ovulatoire</li>
+<li>Calendrier visuel avec jours fertiles colores</li>
+<li>Predictions basees sur les 6 derniers cycles minimum</li>
+<li>Alertes de fenetre fertile (notification push)</li>
+</ul>
+
+<h3>6.4 Suivi Contraception</h3>
+<ul>
+<li>Type de contraception (pilule, sterilet, implant, patch, anneau, preservatif, etc.)</li>
+<li>Marque et dosage du produit</li>
+<li>Date de debut et rappel de renouvellement</li>
+<li>Rappel quotidien pour la pilule (heure configurable)</li>
+<li>Suivi des effets secondaires</li>
+<li>Score de satisfaction (1-5)</li>
+<li>Historique des changements de contraception</li>
+</ul>
+
+<h3>6.5 Depistages & Examens</h3>
+<ul>
+<li>Types : frottis cervical, mammographie, echographie pelvienne/mammaire, densitometrie osseuse, bilan hormonal, test HPV, colposcopie, biopsie</li>
+<li>Resultats : normal, anormal, en attente, a surveiller, necessite suivi</li>
+<li>Upload de documents/resultats (PDF, images) sur MinIO</li>
+<li>Rappels automatiques selon les recommandations (frottis tous les 3 ans, mammographie tous les 2 ans apres 50 ans)</li>
+<li>Historique complet avec filtres par type</li>
+<li>Alerte quand un depistage est du</li>
+</ul>
+
+<h3>6.6 Suivi Menopause</h3>
+<ul>
+<li>Journal des symptomes (bouffees de chaleur, sueurs nocturnes, secheresse, troubles sommeil, etc.)</li>
+<li>Severite des symptomes (echelle 1-10)</li>
+<li>Suivi des traitements (THS, phytotherapie, complements)</li>
+<li>Graphique d'evolution des symptomes dans le temps</li>
+<li>Detecte automatiquement la menopause si absence de regles > 12 mois</li>
+</ul>
+
+<h3>6.7 Analyse IA (DeepSeek)</h3>
+<ul>
+<li>Analyse des donnees de cycle (regularite, duree, symptomes recurrents)</li>
+<li>Analyse de la grossesse (prise de poids, tension, risques)</li>
+<li>Analyse de fertilite (patterns de temperature, predictions)</li>
+<li>Resume pour la patiente (langage simple) et pour le medecin (langage medical)</li>
+<li>Niveau de risque : FAIBLE, MODERE, ELEVE, CRITIQUE</li>
+<li>Score de confiance de l'analyse</li>
+<li>Recommandations personnalisees</li>
+<li>Filtrage des recommandations medicamenteuses (l'IA ne prescrit pas)</li>
+<li>Historique des analyses avec pagination</li>
+</ul>
+
+<h3>6.8 Teleconsultation Video</h3>
+<ul>
+<li>Planification avec creneaux disponibles du medecin</li>
+<li>Disponibilites hebdomadaires configurables par le medecin</li>
+<li>Periodes d'indisponibilite (conges, absences)</li>
+<li>Video WebRTC avec signaling Socket.IO</li>
+<li>Chat textuel pendant la consultation</li>
+<li>Envoi de fichiers (max 10 MB)</li>
+<li>Resume de fin de consultation</li>
+<li>Cout : 5000 credits (configurable)</li>
+</ul>
+
+<h3>6.9 Messagerie Directe</h3>
+<ul>
+<li>Conversations patiente-medecin persistantes</li>
+<li>Messages texte + pieces jointes</li>
+<li>Statut de lecture avec horodatage</li>
+<li>Compteur de messages non lus</li>
+</ul>
+
+<h3>6.10 Ordonnances Electroniques</h3>
+<ul>
+<li>Creation par le medecin (medicaments, posologie, duree)</li>
+<li>Generation PDF avec signature electronique et numero RPPS</li>
+<li>Telechargement par la patiente</li>
+<li>Lien optionnel vers une teleconsultation</li>
+</ul>
+
+<h3>6.11 Rapports PDF</h3>
+<ul>
+<li>Types : hebdomadaire, mensuel, trimestriel, personnalise, urgence, grossesse</li>
+<li>Contenu : statistiques, graphiques, analyses IA, notes medicales</li>
+<li>Signature electronique du medecin</li>
+<li>Stockage sur MinIO, telechargement avec token JWT</li>
+<li>Compteur de telechargements</li>
+</ul>
+
+<h3>6.12 Paiement Mobile Money (MoMo)</h3>
+<ul>
+<li>Packs credits :
+  <ul>
+  <li>Essentiel : 5 000 XOF → 5 000 credits</li>
+  <li>Standard : 10 000 XOF → 10 500 credits (+500 bonus)</li>
+  <li>Premium : 25 000 XOF → 27 500 credits (+2 500 bonus)</li>
+  <li>Mega : 50 000 XOF → 57 000 credits (+7 000 bonus)</li>
+  </ul>
+</li>
+<li>Abonnements : BASIC (2 000 XOF/an), PRO (5 000 XOF/an)</li>
+<li>Code USSD genere automatiquement pour MTN MoMo</li>
+<li>Validation manuelle par l'admin</li>
+<li>Historique des paiements et transactions de credits</li>
+</ul>
+
+<h3>6.13 Chatbot IA</h3>
+<ul>
+<li>Assistant gynecologique alimente par DeepSeek</li>
+<li>Questions sur les cycles, grossesse, contraception, menopause</li>
+<li>Contexte patient (historique des mesures)</li>
+<li>Ne donne jamais de prescription ni de diagnostic</li>
+<li>Historique des conversations</li>
+</ul>
+
+<h3>6.14 Notifications</h3>
+<ul>
+<li>Push notifications (web-push, service worker)</li>
+<li>Rappels de prise de pilule, rendez-vous, depistages</li>
+<li>Alertes IA (risque eleve detecte)</li>
+<li>Notifications de teleconsultation (planifiee, demarree)</li>
+<li>Notifications admin (messages systeme)</li>
+<li>Gestion lu/non lu</li>
+</ul>
+
+<h3>6.15 Panel Admin</h3>
+<ul>
+<li>Dashboard avec statistiques globales (patientes, medecins, teleconsultations, revenus)</li>
+<li>Gestion des utilisateurs (liste, recherche, suspension, suppression)</li>
+<li>Verification des medecins/gynecologues (approuver/rejeter)</li>
+<li>Validation des paiements MoMo</li>
+<li>Configuration des seuils IA</li>
+<li>Envoi de messages aux utilisateurs</li>
+<li>Logs d'audit complets</li>
+<li>Attribution de credits bonus et abonnements gratuits</li>
+</ul>
+</div>
+
+<!-- ==================== SECTION 7 ==================== -->
+<div class="section">
+<h2>7. API Endpoints</h2>
+<pre><code>// ==================== AUTH ====================
+POST   /api/v1/auth/register
+POST   /api/v1/auth/login
+POST   /api/v1/auth/verify-email
+POST   /api/v1/auth/forgot-password
+POST   /api/v1/auth/reset-password
+POST   /api/v1/auth/refresh
+POST   /api/v1/auth/logout
+GET    /api/v1/auth/me
+
+// ==================== PATIENTS ====================
+GET    /api/v1/patients/profile
+PUT    /api/v1/patients/profile
+POST   /api/v1/patients/onboarding
+
+// ==================== CYCLES ====================
+POST   /api/v1/cycles                    // Nouvelle entree de cycle
+GET    /api/v1/cycles                    // Historique des cycles
+GET    /api/v1/cycles/current            // Cycle en cours
+GET    /api/v1/cycles/predictions        // Predictions prochain cycle
+GET    /api/v1/cycles/stats?days=90      // Statistiques
+POST   /api/v1/cycles/temperature        // Saisie temperature basale
+GET    /api/v1/cycles/temperature?days=30 // Historique temperatures
+
+// ==================== GROSSESSE ====================
+POST   /api/v1/pregnancy                 // Declarer une grossesse
+GET    /api/v1/pregnancy/current         // Grossesse en cours
+PUT    /api/v1/pregnancy/:id             // Mettre a jour
+POST   /api/v1/pregnancy/:id/weight      // Ajouter poids
+GET    /api/v1/pregnancy/:id/weight      // Historique poids
+POST   /api/v1/pregnancy/:id/appointment // Ajouter RDV
+GET    /api/v1/pregnancy/:id/appointments // Liste RDV
+POST   /api/v1/pregnancy/:id/ultrasound  // Ajouter echographie
+GET    /api/v1/pregnancy/:id/ultrasounds // Liste echographies
+PATCH  /api/v1/pregnancy/:id/end         // Fin de grossesse
+
+// ==================== FERTILITE ====================
+GET    /api/v1/fertility/calendar        // Calendrier fertilite
+GET    /api/v1/fertility/window          // Fenetre fertile actuelle
+GET    /api/v1/fertility/ovulation       // Date ovulation estimee
+
+// ==================== CONTRACEPTION ====================
+GET    /api/v1/contraception             // Contraception actuelle
+POST   /api/v1/contraception             // Definir contraception
+PUT    /api/v1/contraception             // Modifier
+DELETE /api/v1/contraception             // Arreter
+
+// ==================== DEPISTAGES ====================
+POST   /api/v1/screenings               // Ajouter un depistage
+GET    /api/v1/screenings               // Historique
+GET    /api/v1/screenings/due           // Depistages a faire
+PUT    /api/v1/screenings/:id           // Mettre a jour resultat
+
+// ==================== MENOPAUSE ====================
+POST   /api/v1/menopause/entries        // Ajouter une entree
+GET    /api/v1/menopause/entries        // Historique
+GET    /api/v1/menopause/stats          // Statistiques symptomes
+
+// ==================== IA ====================
+POST   /api/v1/ai/analyze               // Lancer analyse
+GET    /api/v1/ai/latest                // Derniere analyse
+GET    /api/v1/ai/history               // Historique
+
+// ==================== ANALYTICS ====================
+GET    /api/v1/analytics/chart-data?days=30
+GET    /api/v1/analytics/trends?days=30
+GET    /api/v1/analytics/variability?days=30
+GET    /api/v1/analytics/patient/:id/chart-data?days=30
+
+// ==================== TELECONSULTATION ====================
+POST   /api/v1/teleconsultations/schedule
+GET    /api/v1/teleconsultations/doctor
+GET    /api/v1/teleconsultations/patient
+PATCH  /api/v1/teleconsultations/:id/status
+POST   /api/v1/teleconsultations/:id/messages
+
+// ==================== MEDECINS ====================
+GET    /api/v1/doctors/profile
+PATCH  /api/v1/doctors/profile
+POST   /api/v1/doctors/invitations/generate
+POST   /api/v1/doctors/invitations/redeem
+GET    /api/v1/doctors/patients
+GET    /api/v1/doctors/patients/:id
+GET    /api/v1/doctors/availability
+POST   /api/v1/doctors/availability
+DELETE /api/v1/doctors/availability/:id
+POST   /api/v1/doctors/unavailability
+
+// ==================== RAPPORTS ====================
+POST   /api/v1/reports/generate
+POST   /api/v1/reports/generate/my
+GET    /api/v1/reports/my
+GET    /api/v1/reports/doctor
+GET    /api/v1/reports/:id/download
+PATCH  /api/v1/reports/:id/sign
+
+// ==================== ORDONNANCES ====================
+POST   /api/v1/prescriptions
+GET    /api/v1/prescriptions/doctor
+GET    /api/v1/prescriptions/patient
+GET    /api/v1/prescriptions/:id/download
+
+// ==================== MESSAGERIE ====================
+GET    /api/v1/messaging/conversations
+POST   /api/v1/messaging/conversations
+GET    /api/v1/messaging/conversations/:id/messages
+POST   /api/v1/messaging/conversations/:id/messages
+PATCH  /api/v1/messaging/conversations/:id/read
+
+// ==================== CHATBOT ====================
+POST   /api/v1/chatbot/conversations
+GET    /api/v1/chatbot/conversations
+POST   /api/v1/chatbot/conversations/:id/messages
+GET    /api/v1/chatbot/conversations/:id/messages
+
+// ==================== PAIEMENT ====================
+GET    /api/v1/payments/packages
+GET    /api/v1/payments/plans
+POST   /api/v1/payments/momo/initiate
+POST   /api/v1/payments/momo/declare-paid
+GET    /api/v1/payments/history
+GET    /api/v1/payments/credits/balance
+
+// ==================== NOTIFICATIONS ====================
+GET    /api/v1/notifications
+PATCH  /api/v1/notifications/:id/read
+PATCH  /api/v1/notifications/read-all
+GET    /api/v1/notifications/unread-count
+POST   /api/v1/notifications/push/subscribe
+
+// ==================== ADMIN ====================
+GET    /api/v1/admin/stats
+GET    /api/v1/admin/users
+PATCH  /api/v1/admin/users/:id/status
+GET    /api/v1/admin/doctors/pending
+PATCH  /api/v1/admin/doctors/:id/verify
+GET    /api/v1/admin/payments/pending
+PATCH  /api/v1/admin/payments/:id/confirm
+PATCH  /api/v1/admin/payments/:id/reject
+POST   /api/v1/admin/messages
+GET    /api/v1/admin/audit-logs
+POST   /api/v1/admin/users/:id/grant-subscription
+POST   /api/v1/admin/users/:id/add-credits
+GET    /api/v1/admin/ai/thresholds
+PUT    /api/v1/admin/ai/thresholds</code></pre>
+</div>
+
+<!-- ==================== SECTION 8 ==================== -->
+<div class="section">
+<h2>8. Design & Theme</h2>
+<div class="highlight">
+<p><strong>Theme :</strong> Dark mode avec palette mauve/rose/violet</p>
+<p><strong>Couleur primaire :</strong> <code>#a855f7</code> (violet-500) au lieu du cyan de T-Cardio</p>
+<p><strong>Couleur secondaire :</strong> <code>#e879f9</code> (fuchsia-400)</p>
+<p><strong>Background :</strong> <code>#0f0a1a</code> (dark purple)</p>
+<p><strong>Cards :</strong> <code>#1a1025</code> avec bordures <code>#a855f715</code></p>
+<p><strong>Texte :</strong> <code>#e2e8f0</code> (slate-200), <code>#94a3b8</code> (slate-400)</p>
+<p><strong>Succes :</strong> <code>#22c55e</code> | <strong>Warning :</strong> <code>#f59e0b</code> | <strong>Danger :</strong> <code>#ef4444</code></p>
+</div>
+<p>Le design doit etre <strong>mobile-first</strong> et responsive. L'interface doit etre intuitive pour des utilisatrices en Afrique de l'Ouest. Police system-ui. Icones Lucide React.</p>
+
+<h3>Composants UI</h3>
+<ul>
+<li><code>.glass-card</code> — Cartes avec background semi-transparent et bordure subtile</li>
+<li><code>.glow-btn</code> — Boutons avec gradient violet et effet glow au hover</li>
+<li><code>.glass-input</code> — Inputs avec fond sombre et bordure violet subtile</li>
+<li>Navigation bottom bar (5 onglets) : Accueil, Cycle, Teleconsult, Profil, Plus</li>
+<li>Sidebar desktop avec toutes les sections</li>
+</ul>
+</div>
+
+<!-- ==================== SECTION 9 ==================== -->
+<div class="section">
+<h2>9. Deploiement (Docker Compose Production)</h2>
+<pre><code>version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tgyneco}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-tgyneco_pro}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tgyneco}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 365d
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      OPENAI_VISION_API_KEY: ${OPENAI_VISION_API_KEY}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: tgyneco-files
+
+  frontend:
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    restart: always
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:</code></pre>
+
+<h3>Variables d'environnement (.env.production)</h3>
+<pre><code>POSTGRES_USER=tgyneco
+POSTGRES_PASSWORD=MotDePasseSecurise2026
+POSTGRES_DB=tgyneco_pro
+REDIS_PASSWORD=RedisSecretGyneco2026
+JWT_SECRET=JwtSecretGyneco2026SuperLong
+JWT_REFRESH_SECRET=JwtRefreshGyneco2026SuperLong
+DEEPSEEK_API_KEY=sk-xxx
+DEEPSEEK_MODEL=deepseek-chat
+OPENAI_VISION_API_KEY=sk-xxx
+MINIO_ACCESS_KEY=miniogyneco
+MINIO_SECRET_KEY=MinioSecretGyneco2026
+MINIO_BUCKET=tgyneco-files
+NEXT_PUBLIC_API_URL=https://VOTRE_DOMAINE/api/v1
+ALLOWED_ORIGINS=https://VOTRE_DOMAINE,capacitor://localhost
+ENCRYPTION_KEY=EncryptionKeyGyneco2026</code></pre>
+</div>
+
+<!-- ==================== SECTION 10 ==================== -->
+<div class="section">
+<h2>10. Instructions pour Claude Code</h2>
+<div class="highlight">
+<p><strong>IMPORTANT :</strong> Cree l'application complete de A a Z en suivant ce prompt. L'application doit etre fonctionnelle et deployable en production.</p>
+</div>
+
+<h3>Ordre de developpement recommande</h3>
+<ol>
+<li><strong>Phase 1 — Fondations :</strong> Structure projet, configuration Docker, Prisma schema, module Auth (register, login, JWT, email verification, password reset, refresh tokens)</li>
+<li><strong>Phase 2 — Modules Patient/Medecin :</strong> Profils, onboarding, liaison patient-medecin, tokens d'invitation</li>
+<li><strong>Phase 3 — Suivi Gynecologique :</strong> Cycles menstruels (CRUD + predictions + stats), temperature basale, contraception, depistages, menopause</li>
+<li><strong>Phase 4 — Grossesse :</strong> Declaration, suivi poids, RDV, echographies, fin de grossesse</li>
+<li><strong>Phase 5 — Fertilite & Analytics :</strong> Calendrier fertilite, fenetre fertile, ovulation, graphiques Chart.js, tendances</li>
+<li><strong>Phase 6 — IA :</strong> Integration DeepSeek (analyse cycles, grossesse, fertilite), chatbot IA, analyse de risque</li>
+<li><strong>Phase 7 — Communication :</strong> Teleconsultation (scheduling, WebRTC, chat), messagerie directe, notifications push</li>
+<li><strong>Phase 8 — Documents :</strong> Rapports PDF (generation, signature, download), ordonnances electroniques</li>
+<li><strong>Phase 9 — Paiement :</strong> Credits, abonnements, paiement MoMo (USSD), validation admin</li>
+<li><strong>Phase 10 — Admin :</strong> Dashboard admin, gestion utilisateurs, verification medecins, configuration IA, audit logs</li>
+<li><strong>Phase 11 — Frontend complet :</strong> Toutes les pages Next.js avec design dark mauve, responsive mobile-first, graphiques</li>
+<li><strong>Phase 12 — Deploiement :</strong> Docker Compose production, Nginx, SSL Let's Encrypt, Capacitor APK Android</li>
+</ol>
+
+<h3>Regles de code</h3>
+<ul>
+<li>TypeScript strict partout</li>
+<li>Pas d'accents dans le code, uniquement dans les strings UI</li>
+<li>Validation DTO avec class-validator (backend)</li>
+<li>Validation formulaires avec Zod (frontend)</li>
+<li>Gestion d'erreurs robuste avec try/catch</li>
+<li>Rate limiting (100 req/min global, 10 req/min auth)</li>
+<li>CORS configure pour Capacitor</li>
+<li>Helmet pour les headers de securite</li>
+<li>Compression des reponses</li>
+<li>Audit logging pour toutes les actions</li>
+<li>API versionnee (/api/v1/)</li>
+<li>Pagination sur toutes les listes</li>
+<li>Responsive mobile-first</li>
+</ul>
+
+<h3>Serveur de deploiement</h3>
+<pre><code>SSH: ssh -p 2215 root@161.35.110.36
+Domaine: a configurer
+Repertoire: /opt/tgyneco</code></pre>
+</div>
+
+</div><!-- fin prompt-content -->
+</div>
+
+<div style="text-align:center;padding:40px 20px;color:#64748b;font-size:0.85rem">
+<p>T-Gyneco Plus — Prompt genere pour Claude Code</p>
+<p>Base sur l'architecture de T-Cardio Plus, adapte pour la gynecologie</p>
+</div>
+
+<script>
+function getPromptText(){
+  const el = document.getElementById('prompt-content');
+  // Get text content, clean up whitespace
+  let text = '';
+  const sections = el.querySelectorAll('.section');
+  sections.forEach(s => {
+    text += s.innerText + '\n\n';
+  });
+  return text.trim();
+}
+
+function copyPrompt(){
+  const text = getPromptText();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copie !';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copier tout le prompt';
+      btn.classList.remove('copied');
+    }, 3000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copie !';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copier tout le prompt';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+
+function downloadPrompt(){
+  const text = getPromptText();
+  const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'prompt-t-gyneco-plus.txt';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 1000);
+}
+</script>
+</body>
+</html>

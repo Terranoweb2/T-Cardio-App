@@ -1,0 +1,5 @@
+{
+  "patient": { "version": "1.1.0", "size": "3.1 MB", "date": "2026-02-14" },
+  "medecin": { "version": "1.0.0", "size": "3.1 MB", "date": "2026-02-13" },
+  "admin": { "version": "1.0.0", "size": "3.1 MB", "date": "2026-02-13" }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "t-cardio-pro",
+  "version": "1.0.0",
+  "description": "T-Cardio Pro - Plateforme intelligente de suivi cardiovasculaire",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "backend"
+  ],
+  "scripts": {
+    "backend:dev": "npm run start:dev --workspace=backend",
+    "backend:build": "npm run build --workspace=backend",
+    "web:dev": "cd frontend-web && npm run dev",
+    "web:build": "cd frontend-web && npm run build",
+    "mobile:dev": "cd frontend-mobile && npm start",
+    "db:migrate": "npm run prisma:migrate --workspace=backend",
+    "db:seed": "npm run prisma:seed --workspace=backend",
+    "db:studio": "npm run prisma:studio --workspace=backend",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

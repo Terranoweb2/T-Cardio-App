@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+package-lock.json
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Prisma
+backend/prisma/migrations/*.sql.bak
+
+# Mobile
+frontend-mobile/.expo/
+frontend-mobile/android/
+frontend-mobile/ios/
+
+# Storage
+uploads/
+
+# APK binaries
+*.apk
+
+# Large image files (keep logos, exclude raw photos)
+tensiometer*.jpg
+tensiometer*.psd
+africa-humanitarian.jpg
+
+# Android wrapper build artifacts
+android-wrapper/app/build/
+android-wrapper/.gradle/
+android-wrapper/build/
+android-wrapper/local.properties
+
+# Capacitor generated
+frontend-web/android/
+frontend-web/ios/
+
+# Claude/Agent internal
+.agent/
+.agents/
+.claude/
+skills-lock.json
+
+# Demo
+demo-video/
+
+# APK output folder
+apk-output/

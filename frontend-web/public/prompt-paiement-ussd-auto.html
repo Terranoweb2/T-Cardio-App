@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement USSD Automatique - Prompt Claude Code</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0f1a;color:#e2e8f0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.7}
+.container{max-width:960px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#0a1628 0%,#1a2a4e 50%,#0a1628 100%);border-bottom:2px solid #f59e0b}
+header h1{font-size:2.2rem;background:linear-gradient(90deg,#f59e0b,#fbbf24,#fcd34d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{color:#fbbf24;font-size:1.1rem}
+header .subtitle{color:#94a3b8;font-size:0.9rem;margin-top:6px}
+.copy-bar{position:sticky;top:0;z-index:100;background:rgba(10,15,26,0.95);backdrop-filter:blur(10px);padding:12px 20px;border-bottom:1px solid #f59e0b20;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.copy-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;padding:12px 28px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.copy-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px #f59e0b40}
+.copy-btn.copied{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+#prompt-content{padding:30px 0}
+.section{background:#0f1729;border:1px solid #f59e0b15;border-radius:16px;padding:28px;margin-bottom:24px}
+.section h2{color:#fbbf24;font-size:1.4rem;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f59e0b20}
+.section h3{color:#f59e0b;font-size:1.1rem;margin:18px 0 10px}
+.section h4{color:#fcd34d;font-size:1rem;margin:14px 0 8px}
+.section p,.section li{color:#cbd5e1;font-size:0.95rem}
+.section ul,.section ol{padding-left:24px;margin:8px 0}
+.section li{margin:4px 0}
+.section code{background:#1a2744;color:#fbbf24;padding:2px 8px;border-radius:4px;font-size:0.88rem;font-family:'Fira Code','Consolas',monospace}
+.section pre{background:#060d1a;border:1px solid #f59e0b20;border-radius:10px;padding:18px;overflow-x:auto;margin:12px 0;font-size:0.85rem;line-height:1.6}
+.section pre code{background:none;padding:0;color:#fcd34d}
+.badge{display:inline-block;background:#f59e0b20;color:#fbbf24;padding:3px 10px;border-radius:6px;font-size:0.82rem;font-weight:600;margin:2px}
+.warn{background:#ef444410;border-left:3px solid #ef4444;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+.highlight{background:#f59e0b10;border-left:3px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+.success{background:#22c55e10;border-left:3px solid #22c55e;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #f59e0b15;font-size:0.9rem}
+th{color:#fbbf24;font-weight:600}
+td{color:#cbd5e1}
+.flow-step{display:flex;align-items:flex-start;gap:12px;margin:12px 0;padding:12px;background:#0a1225;border-radius:10px}
+.flow-step .step-num{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:700;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.9rem}
+.flow-step .step-content{flex:1}
+.flow-step .step-content strong{color:#fbbf24}
+@media(max-width:768px){header h1{font-size:1.6rem}.section{padding:18px}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Paiement USSD Automatique</h1>
+<p>Prompt Claude Code - Systeme de paiement MoMo automatique en arriere-plan</p>
+<div class="subtitle">Le patient entre seulement son PIN MoMo. L'appel USSD est invisible et automatique. Aucun numero affiche.</div>
+</header>
+
+<div class="copy-bar">
+<button class="copy-btn" onclick="copyPrompt()">Copier tout le prompt</button>
+<button class="copy-btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff" onclick="downloadPrompt()">Telecharger (.txt)</button>
+</div>
+
+<div class="container">
+<div id="prompt-content">
+
+<!-- ======================== SECTION 1 ======================== -->
+<div class="section">
+<h2>1. Objectif Principal</h2>
+
+<div class="highlight">
+<strong>COMPORTEMENT ATTENDU :</strong> Quand le patient clique "Payer", une popup apparait et demande UNIQUEMENT son code PIN MoMo (4 ou 5 chiffres). Il valide. L'appel USSD se fait automatiquement EN ARRIERE-PLAN. Le patient ne voit JAMAIS le numero USSD, ne voit JAMAIS le dialer du telephone. Il voit seulement un spinner "Paiement en cours..." puis "Paiement reussi !" ou "Echec".
+</div>
+
+<h3>Ce que voit le patient (UX)</h3>
+<ol>
+<li>Il clique sur "Payer 5 000 XOF"</li>
+<li>Une modale s'ouvre : "Entrez votre code PIN MoMo" avec un champ masque (****)</li>
+<li>Il tape son PIN et appuie sur "Confirmer"</li>
+<li>Un spinner s'affiche : "Paiement en cours..."</li>
+<li>Apres 5-15 secondes : "Paiement reussi !" avec une coche verte</li>
+<li>Ses credits ou abonnement sont immediatement actifs</li>
+</ol>
+
+<h3>Ce qui se passe en arriere-plan (invisible)</h3>
+<ol>
+<li>Le frontend envoie le PIN au plugin Capacitor natif Android</li>
+<li>Le plugin natif compose le code USSD en arriere-plan via <code>TelephonyManager.sendUssdRequest()</code></li>
+<li>L'API Android execute l'appel USSD sans ouvrir le dialer</li>
+<li>La reponse USSD est interceptee programmatiquement</li>
+<li>Le resultat est renvoye au frontend via le bridge Capacitor</li>
+<li>Le backend est notifie et active le service</li>
+</ol>
+
+<h3>Stack Technique</h3>
+<ul>
+<li><strong>Frontend</strong> : Next.js 14 (Capacitor WebView)</li>
+<li><strong>Plugin Natif</strong> : Plugin Capacitor Android custom en Java/Kotlin</li>
+<li><strong>API Android</strong> : <code>TelephonyManager.sendUssdRequest()</code> (API 26+, Android 8.0+)</li>
+<li><strong>Backend</strong> : NestJS + Prisma + PostgreSQL</li>
+<li><strong>Securite</strong> : PIN jamais stocke, jamais envoye au serveur, utilise uniquement dans l'appel USSD local</li>
+</ul>
+</div>
+
+<!-- ======================== SECTION 2 ======================== -->
+<div class="section">
+<h2>2. Architecture du Systeme</h2>
+
+<h3>Schema Global</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────────────┐
+│                    APPLICATION ANDROID                       │
+│                                                             │
+│  ┌──────────────┐    ┌──────────────────────┐              │
+│  │  Next.js      │    │  Plugin Capacitor     │              │
+│  │  WebView      │───>│  UssdPaymentPlugin    │              │
+│  │              │    │                      │              │
+│  │  PIN: ****   │    │  ┌──────────────┐    │              │
+│  │  [Confirmer] │    │  │ TelephonyMgr │    │              │
+│  │              │<───│  │ sendUssd()   │    │              │
+│  │  Paiement OK │    │  │ (arriere-    │    │              │
+│  └──────────────┘    │  │  plan)       │    │              │
+│                      │  └──────────────┘    │              │
+│                      └──────────────────────┘              │
+│                                                             │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ API REST
+                       v
+┌──────────────────────────────────────────────────────────────┐
+│                    SERVEUR BACKEND                            │
+│                                                              │
+│  NestJS ──> PaymentService ──> PostgreSQL                    │
+│         ──> WebSocket (notification temps reel)              │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<h3>Structure des Fichiers</h3>
+<pre><code># ===== Plugin Capacitor Natif Android =====
+android/
+  app/src/main/java/com/tcardio/plugins/ussdpayment/
+    UssdPaymentPlugin.java          # Plugin Capacitor principal
+    UssdService.java                # Service d'execution USSD
+    UssdResponseCallback.java       # Callback reponse USSD
+    UssdCodeBuilder.java            # Constructeur de codes USSD par operateur
+    SimDetector.java                # Detection operateur SIM (Orange, MTN, Wave, Moov)
+    EncryptionHelper.java           # Chiffrement PIN en memoire
+
+# ===== Frontend (dans l'app Capacitor) =====
+frontend-web/
+  components/payment/
+    PaymentModal.tsx                # Modale de paiement avec saisie PIN
+    PinInput.tsx                    # Composant de saisie PIN (masque, 4-5 chiffres)
+    PaymentProgress.tsx             # Spinner + etapes de progression
+    PaymentResult.tsx               # Resultat succes/echec
+    OperatorBadge.tsx               # Badge operateur detecte (Orange, MTN, etc.)
+  lib/
+    ussd-payment.ts                 # Bridge vers le plugin Capacitor
+    payment-config.ts               # Configuration des operateurs et codes USSD
+
+# ===== Backend =====
+backend/src/modules/payment/
+    payment.controller.ts
+    payment.service.ts
+    dto/
+      confirm-ussd-payment.dto.ts
+      initiate-ussd-payment.dto.ts</code></pre>
+</div>
+
+<!-- ======================== SECTION 3 ======================== -->
+<div class="section">
+<h2>3. Plugin Capacitor Android - UssdPaymentPlugin</h2>
+
+<div class="warn">
+<strong>IMPORTANT :</strong> Le PIN MoMo ne doit JAMAIS quitter l'appareil. Il est utilise uniquement dans l'appel USSD local via TelephonyManager. Il n'est JAMAIS envoye au serveur backend.
+</div>
+
+<h3>3.1 Enregistrement du Plugin</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/app/MainActivity.java
+package com.tcardio.app;
+
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+import com.tcardio.plugins.ussdpayment.UssdPaymentPlugin;
+
+public class MainActivity extends BridgeActivity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        // Enregistrer le plugin USSD
+        registerPlugin(UssdPaymentPlugin.class);
+        super.onCreate(savedInstanceState);
+    }
+}</code></pre>
+
+<h3>3.2 Plugin Principal</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/plugins/ussdpayment/UssdPaymentPlugin.java
+package com.tcardio.plugins.ussdpayment;
+
+import android.Manifest;
+import android.content.Context;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.telephony.TelephonyManager;
+import android.telecom.TelecomManager;
+
+import com.getcapacitor.JSObject;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+
+@CapacitorPlugin(
+    name = "UssdPayment",
+    permissions = {
+        @Permission(
+            alias = "phone",
+            strings = { Manifest.permission.CALL_PHONE }
+        )
+    }
+)
+public class UssdPaymentPlugin extends Plugin {
+
+    private UssdService ussdService;
+    private SimDetector simDetector;
+
+    @Override
+    public void load() {
+        Context context = getContext();
+        this.simDetector = new SimDetector(context);
+        this.ussdService = new UssdService(context);
+    }
+
+    // ---- Detecter l'operateur de la carte SIM ----
+    @PluginMethod
+    public void detectOperator(PluginCall call) {
+        try {
+            SimDetector.SimInfo simInfo = simDetector.detect();
+            JSObject result = new JSObject();
+            result.put("operator", simInfo.operator);         // ORANGE, MTN, MOOV, WAVE, FREE, UNKNOWN
+            result.put("operatorName", simInfo.operatorName);  // "Orange CI", "MTN CI", etc.
+            result.put("countryCode", simInfo.countryCode);    // ci, sn, ml, bf, cm
+            result.put("phoneNumber", simInfo.phoneNumber);    // Peut etre null
+            result.put("supportsUssd", simInfo.supportsUssd);  // true si Android 8.0+
+            call.resolve(result);
+        } catch (Exception e) {
+            call.reject("Erreur detection operateur: " + e.getMessage());
+        }
+    }
+
+    // ---- Executer le paiement USSD en arriere-plan ----
+    @PluginMethod
+    public void executePayment(PluginCall call) {
+        // Verifier la permission CALL_PHONE
+        if (!hasPermission(Manifest.permission.CALL_PHONE)) {
+            requestPermissionForAlias("phone", call, "phonePermissionCallback");
+            return;
+        }
+
+        // Verifier Android 8.0+ (API 26)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            call.reject("Android 8.0 ou superieur requis pour le paiement automatique");
+            return;
+        }
+
+        // Recuperer les parametres
+        String pin = call.getString("pin");
+        int amount = call.getInt("amount", 0);
+        String receiverNumber = call.getString("receiverNumber");
+        String reference = call.getString("reference", "");
+        String operator = call.getString("operator", "");   // Force un operateur specifique
+
+        if (pin == null || pin.length() < 4 || pin.length() > 5) {
+            call.reject("PIN invalide (4-5 chiffres requis)");
+            return;
+        }
+        if (amount <= 0) {
+            call.reject("Montant invalide");
+            return;
+        }
+        if (receiverNumber == null || receiverNumber.isEmpty()) {
+            call.reject("Numero recepteur manquant");
+            return;
+        }
+
+        // Detecter l'operateur si pas force
+        SimDetector.SimInfo simInfo = simDetector.detect();
+        String detectedOperator = operator.isEmpty() ? simInfo.operator : operator;
+
+        // Construire le code USSD
+        String ussdCode = UssdCodeBuilder.build(
+            detectedOperator,
+            simInfo.countryCode,
+            receiverNumber,
+            amount,
+            pin,
+            reference
+        );
+
+        if (ussdCode == null) {
+            call.reject("Operateur non supporte: " + detectedOperator);
+            return;
+        }
+
+        // Executer l'appel USSD en arriere-plan
+        ussdService.execute(ussdCode, new UssdResponseCallback() {
+            @Override
+            public void onSuccess(String ussdResponse) {
+                JSObject result = new JSObject();
+                result.put("success", true);
+                result.put("operator", detectedOperator);
+                result.put("amount", amount);
+                result.put("reference", reference);
+                // Parser la reponse USSD pour verifier le succes
+                result.put("ussdResponse", sanitizeResponse(ussdResponse));
+                result.put("confirmed", isPaymentConfirmed(ussdResponse, detectedOperator));
+                call.resolve(result);
+            }
+
+            @Override
+            public void onFailure(String errorCode, String errorMessage) {
+                JSObject result = new JSObject();
+                result.put("success", false);
+                result.put("errorCode", errorCode);
+                result.put("errorMessage", errorMessage);
+                call.resolve(result);   // resolve pas reject, pour gerer cote JS
+            }
+
+            @Override
+            public void onTimeout() {
+                JSObject result = new JSObject();
+                result.put("success", false);
+                result.put("errorCode", "TIMEOUT");
+                result.put("errorMessage", "Delai d'attente depasse (30s)");
+                call.resolve(result);
+            }
+        });
+    }
+
+    // ---- Verifier si l'appareil supporte USSD auto ----
+    @PluginMethod
+    public void checkSupport(PluginCall call) {
+        JSObject result = new JSObject();
+        result.put("supported", Build.VERSION.SDK_INT >= Build.VERSION_CODES.O);
+        result.put("androidVersion", Build.VERSION.SDK_INT);
+        result.put("minRequired", Build.VERSION_CODES.O);  // 26
+        result.put("hasCallPermission", hasPermission(Manifest.permission.CALL_PHONE));
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void requestPhonePermission(PluginCall call) {
+        requestPermissionForAlias("phone", call, "phonePermissionCallback");
+    }
+
+    @com.getcapacitor.annotation.PermissionCallback
+    private void phonePermissionCallback(PluginCall call) {
+        if (hasPermission(Manifest.permission.CALL_PHONE)) {
+            JSObject result = new JSObject();
+            result.put("granted", true);
+            call.resolve(result);
+        } else {
+            call.reject("Permission CALL_PHONE refusee par l'utilisateur");
+        }
+    }
+
+    // Nettoyer la reponse USSD (retirer les donnees sensibles)
+    private String sanitizeResponse(String response) {
+        if (response == null) return "";
+        // Ne retourner que les mots cles succes/echec, pas les details du compte
+        return response.replaceAll("[0-9]{5,}", "***");
+    }
+
+    // Verifier dans la reponse USSD si le paiement a reussi
+    private boolean isPaymentConfirmed(String response, String operator) {
+        if (response == null) return false;
+        String lower = response.toLowerCase();
+        // Mots cles de succes selon l'operateur
+        return lower.contains("succes") ||
+               lower.contains("effectue") ||
+               lower.contains("confirme") ||
+               lower.contains("reussi") ||
+               lower.contains("successful") ||
+               lower.contains("transaction id") ||
+               lower.contains("merci");
+    }
+}</code></pre>
+
+<h3>3.3 Service d'Execution USSD</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/plugins/ussdpayment/UssdService.java
+package com.tcardio.plugins.ussdpayment;
+
+import android.content.Context;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.telephony.TelephonyManager;
+
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(api = Build.VERSION_CODES.O)
+public class UssdService {
+
+    private final Context context;
+    private final TelephonyManager telephonyManager;
+    private static final int USSD_TIMEOUT_MS = 30000;  // 30 secondes
+
+    public UssdService(Context context) {
+        this.context = context;
+        this.telephonyManager = (TelephonyManager)
+            context.getSystemService(Context.TELEPHONY_SERVICE);
+    }
+
+    /**
+     * Execute un code USSD en arriere-plan via TelephonyManager.
+     * NE OUVRE PAS LE DIALER. L'appel est completement invisible.
+     *
+     * @param ussdCode  Le code USSD complet (ex: *144*1*1*0197548441*5000*REF*1234#)
+     * @param callback  Callback pour le resultat
+     */
+    public void execute(String ussdCode, UssdResponseCallback callback) {
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+
+        // Timer de timeout
+        Runnable timeoutRunnable = () -> callback.onTimeout();
+        mainHandler.postDelayed(timeoutRunnable, USSD_TIMEOUT_MS);
+
+        try {
+            // sendUssdRequest execute l'appel USSD en arriere-plan
+            // SANS ouvrir le dialer du telephone
+            telephonyManager.sendUssdRequest(
+                ussdCode,
+                new TelephonyManager.UssdResponseCallback() {
+                    @Override
+                    public void onReceiveUssdResponse(
+                        TelephonyManager manager,
+                        String request,
+                        CharSequence response
+                    ) {
+                        // Annuler le timeout
+                        mainHandler.removeCallbacks(timeoutRunnable);
+                        // Succes : reponse USSD recue
+                        callback.onSuccess(response.toString());
+                    }
+
+                    @Override
+                    public void onReceiveUssdResponseFailed(
+                        TelephonyManager manager,
+                        String request,
+                        int failureCode
+                    ) {
+                        // Annuler le timeout
+                        mainHandler.removeCallbacks(timeoutRunnable);
+
+                        String errorMessage;
+                        String errorCode;
+                        switch (failureCode) {
+                            case TelephonyManager.USSD_ERROR_SERVICE_UNAVAIL:
+                                errorCode = "SERVICE_UNAVAILABLE";
+                                errorMessage = "Service USSD indisponible";
+                                break;
+                            case TelephonyManager.USSD_RETURN_FAILURE:
+                                errorCode = "USSD_FAILURE";
+                                errorMessage = "Echec de la requete USSD (PIN incorrect ou solde insuffisant)";
+                                break;
+                            default:
+                                errorCode = "UNKNOWN_ERROR";
+                                errorMessage = "Erreur USSD inconnue (code: " + failureCode + ")";
+                        }
+                        callback.onFailure(errorCode, errorMessage);
+                    }
+                },
+                mainHandler
+            );
+        } catch (SecurityException e) {
+            mainHandler.removeCallbacks(timeoutRunnable);
+            callback.onFailure("PERMISSION_DENIED", "Permission CALL_PHONE non accordee");
+        } catch (Exception e) {
+            mainHandler.removeCallbacks(timeoutRunnable);
+            callback.onFailure("EXECUTION_ERROR", e.getMessage());
+        }
+    }
+}</code></pre>
+
+<h3>3.4 Callback Interface</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/plugins/ussdpayment/UssdResponseCallback.java
+package com.tcardio.plugins.ussdpayment;
+
+public interface UssdResponseCallback {
+    void onSuccess(String ussdResponse);
+    void onFailure(String errorCode, String errorMessage);
+    void onTimeout();
+}</code></pre>
+
+<h3>3.5 Constructeur de Codes USSD par Operateur</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/plugins/ussdpayment/UssdCodeBuilder.java
+package com.tcardio.plugins.ussdpayment;
+
+/**
+ * Construit le code USSD complet selon l'operateur et le pays.
+ * Le PIN est insere directement dans le code USSD pour paiement automatique.
+ * Le numero recepteur est configure sur le serveur, le patient ne le voit JAMAIS.
+ */
+public class UssdCodeBuilder {
+
+    /**
+     * Construit le code USSD de transfert d'argent.
+     *
+     * @param operator        ORANGE, MTN, MOOV, WAVE, FREE
+     * @param countryCode     ci, sn, ml, bf, cm, tg, gn, bj
+     * @param receiverNumber  Numero du compte recepteur (de l'application)
+     * @param amount          Montant en XOF (entier, multiple de 5)
+     * @param pin             Code PIN du client (4-5 chiffres)
+     * @param reference       Reference de la transaction (optionnel)
+     * @return Code USSD complet ou null si operateur non supporte
+     */
+    public static String build(
+        String operator,
+        String countryCode,
+        String receiverNumber,
+        int amount,
+        String pin,
+        String reference
+    ) {
+        if (operator == null) return null;
+
+        switch (operator.toUpperCase()) {
+
+            // ===== ORANGE MONEY =====
+            case "ORANGE":
+                return buildOrangeMoney(countryCode, receiverNumber, amount, pin);
+
+            // ===== MTN MOMO =====
+            case "MTN":
+                return buildMtnMomo(countryCode, receiverNumber, amount, pin);
+
+            // ===== MOOV MONEY =====
+            case "MOOV":
+                return buildMoovMoney(countryCode, receiverNumber, amount, pin);
+
+            // ===== FREE MONEY (Senegal) =====
+            case "FREE":
+                return buildFreeMoney(receiverNumber, amount, pin);
+
+            default:
+                return null;
+        }
+    }
+
+    // ----- Orange Money -----
+    private static String buildOrangeMoney(String country, String receiver, int amount, String pin) {
+        switch (country.toLowerCase()) {
+            case "ci":  // Cote d'Ivoire
+                // Format: #144*1*1*NUMERO*MONTANT*PIN#
+                return "#144*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "sn":  // Senegal
+                // Format: #144*1*NUMERO*MONTANT*PIN#
+                return "#144*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "ml":  // Mali
+                // Format: #144*1*1*NUMERO*MONTANT*PIN#
+                return "#144*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "bf":  // Burkina Faso
+                // Format: #144*1*1*NUMERO*MONTANT*PIN#
+                return "#144*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "cm":  // Cameroun
+                // Format: #150*1*1*NUMERO*MONTANT*PIN#
+                return "#150*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "gn":  // Guinee
+                // Format: #144*1*1*NUMERO*MONTANT*PIN#
+                return "#144*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            default:
+                return "#144*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+        }
+    }
+
+    // ----- MTN MoMo -----
+    private static String buildMtnMomo(String country, String receiver, int amount, String pin) {
+        switch (country.toLowerCase()) {
+            case "ci":  // Cote d'Ivoire
+                // Format: *133*1*1*NUMERO*MONTANT*PIN#
+                return "*133*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "cm":  // Cameroun
+                // Format: *126*1*NUMERO*MONTANT*PIN#
+                return "*126*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "bj":  // Benin
+                // Format: *880*1*NUMERO*MONTANT*PIN#
+                return "*880*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "gn":  // Guinee
+                // Format: *133*1*1*NUMERO*MONTANT*PIN#
+                return "*133*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            default:
+                return "*133*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+        }
+    }
+
+    // ----- Moov Money -----
+    private static String buildMoovMoney(String country, String receiver, int amount, String pin) {
+        switch (country.toLowerCase()) {
+            case "ci":  // Cote d'Ivoire
+                // Format: *155*1*1*NUMERO*MONTANT*PIN#
+                return "*155*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "bf":  // Burkina Faso
+                // Format: *555*1*1*NUMERO*MONTANT*PIN#
+                return "*555*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "tg":  // Togo
+                // Format: *155*1*NUMERO*MONTANT*PIN#
+                return "*155*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "bj":  // Benin
+                // Format: *155*1*NUMERO*MONTANT*PIN#
+                return "*155*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            case "ml":  // Mali
+                // Format: *155*1*1*NUMERO*MONTANT*PIN#
+                return "*155*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+
+            default:
+                return "*155*1*1*" + receiver + "*" + amount + "*" + pin + "#";
+        }
+    }
+
+    // ----- Free Money (Senegal uniquement) -----
+    private static String buildFreeMoney(String receiver, int amount, String pin) {
+        // Format: #555*1*NUMERO*MONTANT*PIN#
+        return "#555*1*" + receiver + "*" + amount + "*" + pin + "#";
+    }
+}</code></pre>
+
+<h3>3.6 Detection Automatique de l'Operateur SIM</h3>
+<pre><code>// android/app/src/main/java/com/tcardio/plugins/ussdpayment/SimDetector.java
+package com.tcardio.plugins.ussdpayment;
+
+import android.content.Context;
+import android.telephony.TelephonyManager;
+
+/**
+ * Detecte automatiquement l'operateur de la carte SIM inseree.
+ * Utilise le MCC/MNC (Mobile Country Code / Mobile Network Code).
+ */
+public class SimDetector {
+
+    private final TelephonyManager telephonyManager;
+
+    public SimDetector(Context context) {
+        this.telephonyManager = (TelephonyManager)
+            context.getSystemService(Context.TELEPHONY_SERVICE);
+    }
+
+    public SimInfo detect() {
+        String simOperator = telephonyManager.getSimOperator();    // MCC+MNC (ex: "61203")
+        String simOperatorName = telephonyManager.getSimOperatorName();
+        String simCountry = telephonyManager.getSimCountryIso();   // "ci", "sn", etc.
+
+        SimInfo info = new SimInfo();
+        info.countryCode = simCountry != null ? simCountry.toLowerCase() : "ci";
+        info.operatorName = simOperatorName != null ? simOperatorName : "Inconnu";
+        info.supportsUssd = android.os.Build.VERSION.SDK_INT >= 26;
+
+        // Recuperer numero si disponible
+        try {
+            info.phoneNumber = telephonyManager.getLine1Number();
+        } catch (SecurityException e) {
+            info.phoneNumber = null;
+        }
+
+        // Identifier l'operateur par MCC/MNC
+        if (simOperator != null && simOperator.length() >= 5) {
+            info.operator = identifyByMccMnc(simOperator, info.countryCode);
+        } else {
+            // Fallback : identifier par nom
+            info.operator = identifyByName(simOperatorName);
+        }
+
+        return info;
+    }
+
+    private String identifyByMccMnc(String mccmnc, String country) {
+        // MCC 612 = Cote d'Ivoire
+        // MCC 608 = Senegal
+        // MCC 610 = Mali (corrige)
+        // MCC 613 = Burkina Faso
+        // MCC 624 = Cameroun
+        // MCC 615 = Togo
+        // MCC 611 = Guinee
+        // MCC 616 = Benin
+
+        switch (mccmnc) {
+            // === COTE D'IVOIRE (612) ===
+            case "61203": return "ORANGE";       // Orange CI
+            case "61205": return "MTN";          // MTN CI
+            case "61202": return "MOOV";         // Moov CI
+            case "61206": return "ORANGE";       // Orange CI alt
+
+            // === SENEGAL (608) ===
+            case "60801": return "ORANGE";       // Orange SN (Sonatel)
+            case "60802": return "FREE";         // Free SN (Tigo)
+            case "60803": return "ORANGE";       // Expresso -> fallback Orange
+
+            // === MALI (610) ===
+            case "61001": return "ORANGE";       // Orange Mali (Malitel)
+            case "61002": return "MOOV";         // Moov Mali
+
+            // === BURKINA FASO (613) ===
+            case "61301": return "ORANGE";       // Orange BF (ONATEL)
+            case "61302": return "MOOV";         // Moov BF
+
+            // === CAMEROUN (624) ===
+            case "62401": return "MTN";          // MTN CM
+            case "62402": return "ORANGE";       // Orange CM
+
+            // === TOGO (615) ===
+            case "61501": return "MOOV";         // Moov TG (Togo Cellulaire)
+            case "61503": return "MOOV";         // Moov TG
+
+            // === GUINEE (611) ===
+            case "61101": return "ORANGE";       // Orange GN (Cellcom -> Orange)
+            case "61102": return "MTN";          // MTN GN (Areeba)
+
+            // === BENIN (616) ===
+            case "61601": return "MTN";          // MTN BJ (Libercom)
+            case "61602": return "MOOV";         // Moov BJ
+            case "61604": return "MTN";          // MTN BJ
+
+            default: return "UNKNOWN";
+        }
+    }
+
+    private String identifyByName(String name) {
+        if (name == null) return "UNKNOWN";
+        String lower = name.toLowerCase();
+        if (lower.contains("orange")) return "ORANGE";
+        if (lower.contains("mtn"))    return "MTN";
+        if (lower.contains("moov"))   return "MOOV";
+        if (lower.contains("wave"))   return "WAVE";
+        if (lower.contains("free") || lower.contains("tigo")) return "FREE";
+        if (lower.contains("airtel")) return "AIRTEL";
+        return "UNKNOWN";
+    }
+
+    public static class SimInfo {
+        public String operator;       // ORANGE, MTN, MOOV, WAVE, FREE, UNKNOWN
+        public String operatorName;   // Nom complet ex: "Orange CI"
+        public String countryCode;    // ci, sn, ml, bf, cm, tg, gn, bj
+        public String phoneNumber;    // Peut etre null
+        public boolean supportsUssd;
+    }
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 4 ======================== -->
+<div class="section">
+<h2>4. Permissions Android (AndroidManifest.xml)</h2>
+
+<pre><code>&lt;!-- android/app/src/main/AndroidManifest.xml --&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+
+    &lt;!-- Permission pour executer les appels USSD en arriere-plan --&gt;
+    &lt;uses-permission android:name="android.permission.CALL_PHONE" /&gt;
+
+    &lt;!-- Permission pour detecter l'operateur SIM --&gt;
+    &lt;uses-permission android:name="android.permission.READ_PHONE_STATE" /&gt;
+
+    &lt;!-- Android 8.0+ requis pour sendUssdRequest --&gt;
+    &lt;uses-feature android:name="android.hardware.telephony" android:required="true" /&gt;
+
+    &lt;application ...&gt;
+        &lt;activity android:name=".MainActivity" ...&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;</code></pre>
+
+<div class="warn">
+<strong>Permissions Runtime :</strong> La permission <code>CALL_PHONE</code> est une permission dangereuse. Elle doit etre demandee a l'utilisateur au moment de l'execution (runtime permission). Le plugin gere cela automatiquement via <code>requestPermissionForAlias()</code>. La premiere fois que le patient clique "Payer", Android affichera "Autoriser T-Cardio a passer des appels ?".
+</div>
+</div>
+
+<!-- ======================== SECTION 5 ======================== -->
+<div class="section">
+<h2>5. Bridge TypeScript - Frontend vers Plugin Natif</h2>
+
+<pre><code>// frontend-web/lib/ussd-payment.ts
+import { registerPlugin } from '@capacitor/core';
+
+// Interface TypeScript du plugin natif
+interface UssdPaymentPlugin {
+  detectOperator(): Promise&lt;{
+    operator: string;       // ORANGE, MTN, MOOV, FREE, UNKNOWN
+    operatorName: string;
+    countryCode: string;
+    phoneNumber: string | null;
+    supportsUssd: boolean;
+  }&gt;;
+
+  executePayment(options: {
+    pin: string;
+    amount: number;
+    receiverNumber: string;
+    reference: string;
+    operator?: string;       // Forcer un operateur
+  }): Promise&lt;{
+    success: boolean;
+    operator: string;
+    amount: number;
+    reference: string;
+    ussdResponse?: string;
+    confirmed?: boolean;      // True si reponse USSD indique succes
+    errorCode?: string;
+    errorMessage?: string;
+  }&gt;;
+
+  checkSupport(): Promise&lt;{
+    supported: boolean;
+    androidVersion: number;
+    minRequired: number;
+    hasCallPermission: boolean;
+  }&gt;;
+
+  requestPhonePermission(): Promise&lt;{
+    granted: boolean;
+  }&gt;;
+}
+
+// Enregistrer le plugin
+const UssdPayment = registerPlugin&lt;UssdPaymentPlugin&gt;('UssdPayment');
+
+export default UssdPayment;
+
+// ===== Helper pour le paiement complet =====
+export async function processUssdPayment(params: {
+  pin: string;
+  amount: number;
+  receiverNumber: string;
+  reference: string;
+}): Promise&lt;{
+  success: boolean;
+  confirmed: boolean;
+  operator: string;
+  errorMessage?: string;
+}&gt; {
+  // 1. Verifier le support
+  const support = await UssdPayment.checkSupport();
+  if (!support.supported) {
+    return {
+      success: false,
+      confirmed: false,
+      operator: 'UNKNOWN',
+      errorMessage: 'Votre telephone ne supporte pas le paiement automatique (Android 8.0+ requis)',
+    };
+  }
+
+  // 2. Demander la permission si necessaire
+  if (!support.hasCallPermission) {
+    try {
+      await UssdPayment.requestPhonePermission();
+    } catch {
+      return {
+        success: false,
+        confirmed: false,
+        operator: 'UNKNOWN',
+        errorMessage: 'Permission telephonique refusee. Activez-la dans les parametres.',
+      };
+    }
+  }
+
+  // 3. Executer le paiement
+  const result = await UssdPayment.executePayment(params);
+
+  return {
+    success: result.success,
+    confirmed: result.confirmed || false,
+    operator: result.operator,
+    errorMessage: result.errorMessage,
+  };
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 6 ======================== -->
+<div class="section">
+<h2>6. Frontend - Modale de Paiement avec Saisie PIN</h2>
+
+<h3>6.1 Composant PinInput</h3>
+<pre><code>// frontend-web/components/payment/PinInput.tsx
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+
+interface PinInputProps {
+  length?: number;          // 4 ou 5 chiffres
+  onComplete: (pin: string) => void;
+  disabled?: boolean;
+}
+
+export function PinInput({ length = 4, onComplete, disabled }: PinInputProps) {
+  const [digits, setDigits] = useState&lt;string[]&gt;(Array(length).fill(''));
+  const inputRefs = useRef&lt;(HTMLInputElement | null)[]&gt;([]);
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;  // Chiffres uniquement
+
+    const newDigits = [...digits];
+    newDigits[index] = value.slice(-1);   // Un seul chiffre
+    setDigits(newDigits);
+
+    // Auto-focus champ suivant
+    if (value && index < length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Verifier si complet
+    const pin = newDigits.join('');
+    if (pin.length === length && newDigits.every(d => d !== '')) {
+      onComplete(pin);
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !digits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  return (
+    &lt;div className="flex gap-3 justify-center my-6"&gt;
+      {digits.map((digit, i) => (
+        &lt;input
+          key={i}
+          ref={(el) => { inputRefs.current[i] = el; }}
+          type="password"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          onChange={(e) => handleChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          disabled={disabled}
+          className="w-14 h-16 text-center text-2xl font-bold
+                     bg-gray-800 border-2 border-gray-600 rounded-xl
+                     text-white focus:border-amber-500 focus:outline-none
+                     disabled:opacity-50"
+          autoComplete="off"
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+<h3>6.2 Modale de Paiement Principale</h3>
+<pre><code>// frontend-web/components/payment/PaymentModal.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { PinInput } from './PinInput';
+import UssdPayment, { processUssdPayment } from '@/lib/ussd-payment';
+import api from '@/lib/api';
+
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  amount: number;
+  description: string;       // "Abonnement Pro" ou "Pack Standard"
+  packageId: string;
+  type: 'SUBSCRIPTION' | 'CREDIT_PURCHASE';
+  onSuccess: () => void;
+}
+
+type PaymentStep = 'pin' | 'processing' | 'success' | 'error';
+
+export function PaymentModal({
+  isOpen, onClose, amount, description, packageId, type, onSuccess
+}: PaymentModalProps) {
+  const [step, setStep] = useState&lt;PaymentStep&gt;('pin');
+  const [operator, setOperator] = useState&lt;string&gt;('');
+  const [operatorName, setOperatorName] = useState&lt;string&gt;('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [supported, setSupported] = useState(true);
+
+  // Detecter l'operateur au montage
+  useEffect(() => {
+    if (isOpen) {
+      setStep('pin');
+      setErrorMessage('');
+      detectOperator();
+    }
+  }, [isOpen]);
+
+  const detectOperator = async () => {
+    try {
+      const info = await UssdPayment.detectOperator();
+      setOperator(info.operator);
+      setOperatorName(info.operatorName);
+      setSupported(info.supportsUssd);
+    } catch {
+      setSupported(false);
+    }
+  };
+
+  const handlePinComplete = async (pin: string) => {
+    setStep('processing');
+
+    try {
+      // 1. Creer le paiement cote serveur (statut PENDING)
+      const { data: payment } = await api.post('/payments/ussd/initiate', {
+        type,
+        packageId,
+        amount,
+        operator,
+      });
+
+      // 2. Executer l'appel USSD en arriere-plan
+      // Le PIN reste sur l'appareil, JAMAIS envoye au serveur
+      const result = await processUssdPayment({
+        pin,
+        amount,
+        receiverNumber: payment.receiverNumber,   // Fourni par le serveur
+        reference: payment.reference,
+      });
+
+      if (result.success && result.confirmed) {
+        // 3. Confirmer le paiement au serveur
+        await api.post(`/payments/ussd/${payment.paymentId}/confirm`, {
+          operator: result.operator,
+          ussdConfirmed: true,
+        });
+
+        setStep('success');
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+        }, 2000);
+
+      } else {
+        // Paiement echoue
+        setErrorMessage(
+          result.errorMessage || 'Paiement echoue. Verifiez votre PIN et votre solde.'
+        );
+        setStep('error');
+
+        // Notifier le serveur de l'echec
+        await api.post(`/payments/ussd/${payment.paymentId}/failed`, {
+          errorCode: 'USSD_FAILED',
+          errorMessage: result.errorMessage,
+        });
+      }
+
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Erreur inattendue');
+      setStep('error');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    &lt;div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"&gt;
+      &lt;div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm mx-4 border border-gray-700"&gt;
+
+        {/* Header */}
+        &lt;div className="text-center mb-4"&gt;
+          &lt;h2 className="text-xl font-bold text-white"&gt;Paiement Mobile Money&lt;/h2&gt;
+          &lt;p className="text-gray-400 text-sm mt-1"&gt;{description}&lt;/p&gt;
+          &lt;p className="text-2xl font-bold text-amber-400 mt-2"&gt;
+            {amount.toLocaleString()} XOF
+          &lt;/p&gt;
+          {operatorName && (
+            &lt;span className="inline-block bg-amber-500/20 text-amber-300
+                            px-3 py-1 rounded-full text-sm mt-2"&gt;
+              {operatorName}
+            &lt;/span&gt;
+          )}
+        &lt;/div&gt;
+
+        {/* Etape: Saisie PIN */}
+        {step === 'pin' && (
+          &lt;div&gt;
+            &lt;p className="text-center text-gray-300 mb-2"&gt;
+              Entrez votre code PIN Mobile Money
+            &lt;/p&gt;
+            &lt;PinInput length={4} onComplete={handlePinComplete} /&gt;
+            &lt;p className="text-center text-gray-500 text-xs mt-3"&gt;
+              Votre PIN est securise et ne quitte jamais votre telephone
+            &lt;/p&gt;
+            &lt;button onClick={onClose}
+              className="w-full mt-4 py-2 text-gray-400 text-sm"&gt;
+              Annuler
+            &lt;/button&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* Etape: Traitement en cours */}
+        {step === 'processing' && (
+          &lt;div className="text-center py-8"&gt;
+            &lt;div className="w-16 h-16 border-4 border-amber-500 border-t-transparent
+                          rounded-full animate-spin mx-auto"&gt;&lt;/div&gt;
+            &lt;p className="text-white mt-4 font-medium"&gt;Paiement en cours...&lt;/p&gt;
+            &lt;p className="text-gray-400 text-sm mt-2"&gt;
+              Ne fermez pas l'application
+            &lt;/p&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* Etape: Succes */}
+        {step === 'success' && (
+          &lt;div className="text-center py-8"&gt;
+            &lt;div className="w-16 h-16 bg-green-500 rounded-full flex items-center
+                          justify-center mx-auto"&gt;
+              &lt;svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24"
+                   stroke="currentColor"&gt;
+                &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3}
+                      d="M5 13l4 4L19 7" /&gt;
+              &lt;/svg&gt;
+            &lt;/div&gt;
+            &lt;p className="text-green-400 mt-4 text-lg font-bold"&gt;Paiement reussi !&lt;/p&gt;
+            &lt;p className="text-gray-400 text-sm mt-2"&gt;
+              Votre {type === 'SUBSCRIPTION' ? 'abonnement' : 'credit'} est actif
+            &lt;/p&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* Etape: Erreur */}
+        {step === 'error' && (
+          &lt;div className="text-center py-6"&gt;
+            &lt;div className="w-16 h-16 bg-red-500 rounded-full flex items-center
+                          justify-center mx-auto"&gt;
+              &lt;svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24"
+                   stroke="currentColor"&gt;
+                &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3}
+                      d="M6 18L18 6M6 6l12 12" /&gt;
+              &lt;/svg&gt;
+            &lt;/div&gt;
+            &lt;p className="text-red-400 mt-4 font-bold"&gt;Paiement echoue&lt;/p&gt;
+            &lt;p className="text-gray-400 text-sm mt-2"&gt;{errorMessage}&lt;/p&gt;
+            &lt;div className="flex gap-3 mt-6"&gt;
+              &lt;button onClick={() => setStep('pin')}
+                className="flex-1 py-3 bg-amber-500 text-black font-bold rounded-xl"&gt;
+                Reessayer
+              &lt;/button&gt;
+              &lt;button onClick={onClose}
+                className="flex-1 py-3 bg-gray-700 text-white rounded-xl"&gt;
+                Annuler
+              &lt;/button&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        )}
+
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 7 ======================== -->
+<div class="section">
+<h2>7. Backend - Endpoints Paiement USSD</h2>
+
+<h3>API Endpoints</h3>
+<table>
+<tr><th>Methode</th><th>Endpoint</th><th>Description</th></tr>
+<tr><td><span class="badge">POST</span></td><td><code>/payments/ussd/initiate</code></td><td>Creer un paiement PENDING, retourne le numero recepteur et la reference</td></tr>
+<tr><td><span class="badge">POST</span></td><td><code>/payments/ussd/:id/confirm</code></td><td>Le frontend confirme que l'USSD a reussi</td></tr>
+<tr><td><span class="badge">POST</span></td><td><code>/payments/ussd/:id/failed</code></td><td>Le frontend signale un echec USSD</td></tr>
+<tr><td><span class="badge">POST</span></td><td><code>/payments/ussd/:id/verify</code></td><td>Admin verifie manuellement si besoin</td></tr>
+</table>
+
+<h3>Controller</h3>
+<pre><code>// backend/src/modules/payment/payment.controller.ts
+
+@Controller('payments/ussd')
+@UseGuards(JwtAuthGuard)
+export class UssdPaymentController {
+  constructor(private paymentService: PaymentService) {}
+
+  // Initier un paiement USSD - retourne le numero recepteur et reference
+  @Post('initiate')
+  @Roles('PATIENT', 'PATIENTE')
+  async initiate(@CurrentUser() user: User, @Body() dto: InitiateUssdDto) {
+    const payment = await this.paymentService.createUssdPayment(user.id, dto);
+
+    return {
+      paymentId: payment.id,
+      reference: payment.momoReference,        // TC-XXXX-XXXX
+      receiverNumber: payment.momoReceiverNumber, // Numero de l'app
+      amount: payment.amount,
+      currency: payment.currency,
+    };
+    // NOTE: Le numero recepteur est envoye au plugin natif qui construit le code USSD.
+    // Le patient ne voit JAMAIS ce numero dans l'interface.
+  }
+
+  // Le frontend confirme le succes USSD
+  @Post(':id/confirm')
+  @Roles('PATIENT', 'PATIENTE')
+  async confirm(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: ConfirmUssdDto,
+  ) {
+    return this.paymentService.confirmUssdPayment(id, user.id, dto);
+  }
+
+  // Le frontend signale un echec
+  @Post(':id/failed')
+  @Roles('PATIENT', 'PATIENTE')
+  async failed(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() dto: { errorCode: string; errorMessage: string },
+  ) {
+    return this.paymentService.failUssdPayment(id, user.id, dto);
+  }
+}</code></pre>
+
+<h3>Service</h3>
+<pre><code>// backend/src/modules/payment/payment.service.ts
+
+@Injectable()
+export class PaymentService {
+
+  async createUssdPayment(patientId: string, dto: InitiateUssdDto) {
+    const pkg = this.getPackageOrPlan(dto.packageId, dto.type);
+    const reference = this.generateReference();
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        patientId,
+        type: dto.type,
+        amount: pkg.price,
+        currency: 'XOF',
+        status: 'PENDING',
+        provider: 'MOMO_LOCAL',
+        description: `Paiement ${pkg.name}`,
+        momoReference: reference,
+        momoReceiverNumber: this.config.get('payment.momoReceiverNumber'),
+        metadata: { packageId: dto.packageId, operator: dto.operator },
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min pour USSD auto
+      },
+    });
+
+    // Log evenement
+    await this.logEvent(payment.id, 'USSD_INITIATED', null, 'PENDING');
+
+    return payment;
+  }
+
+  async confirmUssdPayment(paymentId: string, patientId: string, dto: ConfirmUssdDto) {
+    // Verrou Redis pour eviter double traitement
+    const lock = await this.redis.set(`payment:confirm:${paymentId}`, '1', 'EX', 30, 'NX');
+    if (!lock) throw new ConflictException('Paiement deja en cours de traitement');
+
+    try {
+      const payment = await this.prisma.payment.findFirstOrThrow({
+        where: { id: paymentId, patientId, status: 'PENDING' },
+      });
+
+      await this.prisma.$transaction(async (tx) => {
+        // 1. Mettre a jour le paiement
+        await tx.payment.update({
+          where: { id: paymentId },
+          data: {
+            status: 'PROCESSING',   // En attente de verification admin/auto
+            channel: this.mapOperator(dto.operator),
+            completedAt: new Date(),
+          },
+        });
+
+        // 2. Logger
+        await this.logEvent(paymentId, 'USSD_CONFIRMED_BY_CLIENT', 'PENDING', 'PROCESSING');
+
+        // 3. Option A: Auto-validation (si on fait confiance a la reponse USSD)
+        if (dto.ussdConfirmed) {
+          await tx.payment.update({
+            where: { id: paymentId },
+            data: { status: 'COMPLETED' },
+          });
+
+          // Activer abonnement ou credits
+          const meta = payment.metadata as any;
+          if (payment.type === 'SUBSCRIPTION') {
+            await this.subscriptionService.activate(patientId, meta.packageId, paymentId, payment.amount);
+          } else {
+            const pkg = this.getPackage(meta.packageId);
+            await this.creditService.addCredits(patientId, pkg.credits + pkg.bonus, paymentId);
+          }
+
+          await this.logEvent(paymentId, 'PAYMENT_COMPLETED', 'PROCESSING', 'COMPLETED');
+          this.notificationGateway.sendToUser(patientId, 'payment:completed', {
+            paymentId, amount: payment.amount,
+          });
+        }
+        // Option B: Attente validation admin (voir section admin dashboard)
+      });
+
+      return { success: true, status: dto.ussdConfirmed ? 'COMPLETED' : 'PROCESSING' };
+
+    } finally {
+      await this.redis.del(`payment:confirm:${paymentId}`);
+    }
+  }
+
+  async failUssdPayment(paymentId: string, patientId: string, dto: any) {
+    await this.prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: 'FAILED',
+        failedAt: new Date(),
+        providerRawData: dto,
+      },
+    });
+    await this.logEvent(paymentId, 'USSD_FAILED', 'PENDING', 'FAILED');
+    return { success: true };
+  }
+
+  private generateReference(): string {
+    const ts = Date.now().toString(36).toUpperCase().slice(-4);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `TC-${ts}-${rand}`;
+  }
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 8 ======================== -->
+<div class="section">
+<h2>8. Configuration des Numeros Recepteurs</h2>
+
+<pre><code># .env
+# Numero Mobile Money recepteur de l'application
+# C'est CE numero qui recoit les paiements des patients
+# Le patient ne le voit JAMAIS, il est utilise uniquement dans le code USSD en arriere-plan
+MOMO_RECEIVER_NUMBER=0197548441
+
+# Numeros alternatifs par operateur (si differents)
+MOMO_RECEIVER_ORANGE=0197548441
+MOMO_RECEIVER_MTN=0597548441
+MOMO_RECEIVER_MOOV=0197548441
+MOMO_RECEIVER_WAVE=0197548441</code></pre>
+
+<h3>Configuration Dynamique (optionnel)</h3>
+<pre><code>// config/payment.config.ts
+export const paymentConfig = () => ({
+  ussd: {
+    // Numero recepteur par defaut
+    defaultReceiver: process.env.MOMO_RECEIVER_NUMBER,
+
+    // Numero recepteur par operateur (si l'application a des comptes differents)
+    receiverByOperator: {
+      ORANGE: process.env.MOMO_RECEIVER_ORANGE || process.env.MOMO_RECEIVER_NUMBER,
+      MTN:    process.env.MOMO_RECEIVER_MTN    || process.env.MOMO_RECEIVER_NUMBER,
+      MOOV:   process.env.MOMO_RECEIVER_MOOV   || process.env.MOMO_RECEIVER_NUMBER,
+      WAVE:   process.env.MOMO_RECEIVER_WAVE   || process.env.MOMO_RECEIVER_NUMBER,
+      FREE:   process.env.MOMO_RECEIVER_NUMBER,
+    },
+
+    // Timeout des sessions USSD
+    sessionTimeout: 5 * 60 * 1000,   // 5 minutes (USSD est rapide)
+
+    // Auto-valider si la reponse USSD confirme le succes
+    autoValidate: true,
+
+    // Si false, tous les paiements USSD necessitent validation admin
+    // Si true, les paiements confirmes par USSD sont valides automatiquement
+  },
+});</code></pre>
+</div>
+
+<!-- ======================== SECTION 9 ======================== -->
+<div class="section">
+<h2>9. Securite</h2>
+
+<div class="warn">
+<strong>REGLES DE SECURITE CRITIQUES</strong>
+</div>
+
+<h3>Protection du PIN</h3>
+<ul>
+<li>Le PIN MoMo est saisi dans le frontend et envoye UNIQUEMENT au plugin natif Android local</li>
+<li>Le PIN n'est <strong>JAMAIS</strong> envoye au serveur backend via l'API</li>
+<li>Le PIN n'est <strong>JAMAIS</strong> stocke en memoire apres l'appel USSD</li>
+<li>Le PIN n'est <strong>JAMAIS</strong> ecrit dans les logs (ni frontend, ni backend)</li>
+<li>Le PIN est utilise une seule fois : dans <code>UssdCodeBuilder.build()</code> pour construire le code USSD</li>
+<li>Apres l'appel <code>sendUssdRequest()</code>, la variable PIN est mise a null</li>
+</ul>
+
+<h3>Protection du Numero Recepteur</h3>
+<ul>
+<li>Le numero recepteur est stocke uniquement dans les variables d'environnement du serveur</li>
+<li>Il est transmis au frontend UNIQUEMENT lors de l'initiation du paiement (reponse API)</li>
+<li>Il n'est <strong>JAMAIS affiche</strong> dans l'interface utilisateur</li>
+<li>Le frontend le passe au plugin natif qui construit le code USSD en arriere-plan</li>
+<li>Le patient ne voit que : montant + champ PIN + bouton confirmer</li>
+</ul>
+
+<h3>Anti-Fraude</h3>
+<ul>
+<li>Maximum 3 tentatives de paiement echouees par patient par heure</li>
+<li>Verrou Redis pour empecher les doubles confirmations</li>
+<li>Expiration automatique des paiements PENDING apres 5 minutes</li>
+<li>Log de tous les evenements de paiement (PaymentEvent)</li>
+<li>Verification admin optionnelle pour les gros montants (> 25 000 XOF)</li>
+<li>Alerte admin en cas de 5+ echecs consecutifs pour un patient</li>
+</ul>
+
+<pre><code>// Anti-fraude : limiter les tentatives
+async checkRateLimit(patientId: string): Promise&lt;boolean&gt; {
+  const key = `payment:attempts:${patientId}`;
+  const attempts = await this.redis.incr(key);
+  if (attempts === 1) {
+    await this.redis.expire(key, 3600); // Reset apres 1 heure
+  }
+  return attempts <= 3; // Max 3 par heure
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 10 ======================== -->
+<div class="section">
+<h2>10. Gestion des Cas Limites</h2>
+
+<h3>Cas 1 : Telephone ne supporte pas USSD auto (Android < 8.0)</h3>
+<pre><code>// Fallback : afficher le code USSD manuellement
+if (!support.supported) {
+  // Afficher les instructions MoMo classiques
+  // (comme dans le prompt precedent prompt-paiement-momo.html)
+  showManualUssdInstructions(ussdCode, receiverNumber, amount, reference);
+}</code></pre>
+
+<h3>Cas 2 : Permission CALL_PHONE refusee</h3>
+<pre><code>// Proposer d'aller dans les parametres
+if (!support.hasCallPermission) {
+  showDialog(
+    "Permission requise",
+    "Pour le paiement automatique, autorisez l'acces telephonique.",
+    [
+      { text: "Parametres", action: () => openAppSettings() },
+      { text: "Paiement manuel", action: () => showManualInstructions() },
+    ]
+  );
+}</code></pre>
+
+<h3>Cas 3 : USSD echoue mais paiement effectue (cas rare)</h3>
+<pre><code>// Si USSD retourne une erreur mais que le paiement a ete debite:
+// 1. Le paiement reste en statut PENDING/FAILED cote serveur
+// 2. Le patient contacte le support
+// 3. L'admin peut verifier et confirmer manuellement via:
+//    POST /payments/ussd/{id}/verify (admin only)
+// 4. L'admin a acces au dashboard "Paiements en attente de verification"</code></pre>
+
+<h3>Cas 4 : Double SIM</h3>
+<pre><code>// SimDetector utilise la SIM par defaut pour les appels
+// Si le patient a 2 SIMs avec 2 operateurs differents :
+// - Afficher un selecteur d'operateur avant la saisie du PIN
+// - Utiliser SubscriptionManager (API 22+) pour lister toutes les SIMs
+// - Permettre au patient de choisir quelle SIM utiliser</code></pre>
+
+<h3>Cas 5 : Pas de reseau / mode avion</h3>
+<pre><code>// Verifier la connectivite avant l'appel USSD
+const networkStatus = await Network.getStatus();
+if (!networkStatus.connected) {
+  setErrorMessage('Pas de connexion reseau. Verifiez votre connexion.');
+  return;
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 11 ======================== -->
+<div class="section">
+<h2>11. Codes USSD par Operateur - Reference Complete</h2>
+
+<div class="highlight">
+<strong>Format general :</strong> <code>*CODE_OPERATEUR*OPTION_TRANSFERT*NUMERO_RECEPTEUR*MONTANT*PIN#</code>
+</div>
+
+<table>
+<tr><th>Operateur</th><th>Pays</th><th>Format USSD</th></tr>
+<tr><td>Orange Money</td><td>Cote d'Ivoire</td><td><code>#144*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Orange Money</td><td>Senegal</td><td><code>#144*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Orange Money</td><td>Mali</td><td><code>#144*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Orange Money</td><td>Burkina Faso</td><td><code>#144*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Orange Money</td><td>Cameroun</td><td><code>#150*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Orange Money</td><td>Guinee</td><td><code>#144*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>MTN MoMo</td><td>Cote d'Ivoire</td><td><code>*133*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>MTN MoMo</td><td>Cameroun</td><td><code>*126*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>MTN MoMo</td><td>Benin</td><td><code>*880*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>MTN MoMo</td><td>Guinee</td><td><code>*133*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Moov Money</td><td>Cote d'Ivoire</td><td><code>*155*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Moov Money</td><td>Burkina Faso</td><td><code>*555*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Moov Money</td><td>Togo</td><td><code>*155*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Moov Money</td><td>Benin</td><td><code>*155*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Moov Money</td><td>Mali</td><td><code>*155*1*1*{numero}*{montant}*{pin}#</code></td></tr>
+<tr><td>Free Money</td><td>Senegal</td><td><code>#555*1*{numero}*{montant}*{pin}#</code></td></tr>
+</table>
+
+<div class="warn">
+<strong>IMPORTANT :</strong> Les formats USSD peuvent changer sans preavis. Stocker les formats dans une table de configuration en base de donnees (ou fichier JSON) pour permettre la mise a jour sans redeploiement. Tester les codes USSD en sandbox ou avec de petits montants avant la production.
+</div>
+</div>
+
+<!-- ======================== SECTION 12 ======================== -->
+<div class="section">
+<h2>12. Resume du Flux Complet</h2>
+
+<div class="flow-step"><div class="step-num">1</div><div class="step-content"><strong>Patient ouvre la page Paiement</strong> - Choisit un plan ou pack de credits, clique "Payer"</div></div>
+<div class="flow-step"><div class="step-num">2</div><div class="step-content"><strong>Modale s'ouvre</strong> - Affiche montant, operateur detecte automatiquement (Orange, MTN, etc.), champ PIN masque</div></div>
+<div class="flow-step"><div class="step-num">3</div><div class="step-content"><strong>Patient saisit son PIN</strong> - 4 ou 5 chiffres, champs individuels avec auto-focus</div></div>
+<div class="flow-step"><div class="step-num">4</div><div class="step-content"><strong>Frontend appelle POST /payments/ussd/initiate</strong> - Backend cree un paiement PENDING, retourne le numero recepteur et la reference. Le numero recepteur n'est PAS affiche.</div></div>
+<div class="flow-step"><div class="step-num">5</div><div class="step-content"><strong>Plugin natif construit le code USSD</strong> - <code>UssdCodeBuilder.build(operator, country, receiver, amount, pin, ref)</code> - Le code USSD contient le PIN et le numero recepteur mais n'est JAMAIS affiche.</div></div>
+<div class="flow-step"><div class="step-num">6</div><div class="step-content"><strong>TelephonyManager.sendUssdRequest()</strong> - L'appel USSD s'execute en arriere-plan. Pas de dialer. Pas de popup. Invisible.</div></div>
+<div class="flow-step"><div class="step-num">7</div><div class="step-content"><strong>Reponse USSD interceptee</strong> - Le plugin analyse la reponse pour detecter "succes" ou "echec"</div></div>
+<div class="flow-step"><div class="step-num">8</div><div class="step-content"><strong>Si succes</strong> - Frontend appelle POST /payments/ussd/{id}/confirm. Backend active l'abonnement ou ajoute les credits. Notification temps reel.</div></div>
+<div class="flow-step"><div class="step-num">9</div><div class="step-content"><strong>Si echec</strong> - Frontend affiche l'erreur. Bouton "Reessayer". Le patient peut re-saisir son PIN.</div></div>
+<div class="flow-step"><div class="step-num">10</div><div class="step-content"><strong>Patient voit "Paiement reussi !"</strong> - Coche verte, service active. Tout le processus prend 5-15 secondes.</div></div>
+</div>
+
+</div><!-- /prompt-content -->
+</div><!-- /container -->
+
+<script>
+function copyPrompt(){const c=document.getElementById('prompt-content').innerText;navigator.clipboard.writeText(c).then(()=>{const b=document.querySelector('.copy-btn');b.textContent='Copie !';b.classList.add('copied');setTimeout(()=>{b.textContent='Copier tout le prompt';b.classList.remove('copied')},3000)})}
+function downloadPrompt(){const c=document.getElementById('prompt-content').innerText;const b=new Blob([c],{type:'text/plain;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='prompt-paiement-ussd-auto.txt';a.click();URL.revokeObjectURL(u)}
+</script>
+</body>
+</html>

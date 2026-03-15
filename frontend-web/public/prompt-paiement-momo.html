@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Systeme de Paiement Mobile Money - Prompt Claude Code</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0f1a;color:#e2e8f0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.7}
+.container{max-width:960px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#0a1628 0%,#1a2a4e 50%,#0a1628 100%);border-bottom:2px solid #f59e0b}
+header h1{font-size:2.2rem;background:linear-gradient(90deg,#f59e0b,#fbbf24,#fcd34d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+header p{color:#fbbf24;font-size:1.1rem}
+header .subtitle{color:#94a3b8;font-size:0.9rem;margin-top:6px}
+.copy-bar{position:sticky;top:0;z-index:100;background:rgba(10,15,26,0.95);backdrop-filter:blur(10px);padding:12px 20px;border-bottom:1px solid #f59e0b20;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.copy-btn{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;padding:12px 28px;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s}
+.copy-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px #f59e0b40}
+.copy-btn.copied{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}
+#prompt-content{padding:30px 0}
+.section{background:#0f1729;border:1px solid #f59e0b15;border-radius:16px;padding:28px;margin-bottom:24px}
+.section h2{color:#fbbf24;font-size:1.4rem;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f59e0b20}
+.section h3{color:#f59e0b;font-size:1.1rem;margin:18px 0 10px}
+.section h4{color:#fcd34d;font-size:1rem;margin:14px 0 8px}
+.section p,.section li{color:#cbd5e1;font-size:0.95rem}
+.section ul,.section ol{padding-left:24px;margin:8px 0}
+.section li{margin:4px 0}
+.section code{background:#1a2744;color:#fbbf24;padding:2px 8px;border-radius:4px;font-size:0.88rem;font-family:'Fira Code','Consolas',monospace}
+.section pre{background:#060d1a;border:1px solid #f59e0b20;border-radius:10px;padding:18px;overflow-x:auto;margin:12px 0;font-size:0.85rem;line-height:1.6}
+.section pre code{background:none;padding:0;color:#fcd34d}
+.badge{display:inline-block;background:#f59e0b20;color:#fbbf24;padding:3px 10px;border-radius:6px;font-size:0.82rem;font-weight:600;margin:2px}
+.badge-green{background:#22c55e20;color:#4ade80}
+.badge-blue{background:#3b82f620;color:#60a5fa}
+.badge-red{background:#ef444420;color:#f87171}
+.badge-purple{background:#a855f720;color:#c084fc}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}header h1{font-size:1.6rem}.section{padding:18px}}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #f59e0b15;font-size:0.9rem}
+th{color:#fbbf24;font-weight:600}
+td{color:#cbd5e1}
+.highlight{background:#f59e0b10;border-left:3px solid #f59e0b;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+.warn{background:#ef444410;border-left:3px solid #ef4444;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+.success{background:#22c55e10;border-left:3px solid #22c55e;padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+.flow-step{display:flex;align-items:flex-start;gap:12px;margin:12px 0;padding:12px;background:#0a1225;border-radius:10px}
+.flow-step .step-num{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;font-weight:700;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.9rem}
+.flow-step .step-content{flex:1}
+.flow-step .step-content strong{color:#fbbf24}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Systeme de Paiement Mobile Money</h1>
+<p>Prompt complet pour Claude Code - Integration MoMo pour applications de telemedecine</p>
+<div class="subtitle">Compatible T-Cardio Plus, T-Gyneco Plus et toute application NestJS/Next.js</div>
+</header>
+
+<div class="copy-bar">
+<button class="copy-btn" onclick="copyPrompt()">Copier tout le prompt</button>
+<button class="copy-btn" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff" onclick="downloadPrompt()">Telecharger (.txt)</button>
+</div>
+
+<div class="container">
+<div id="prompt-content">
+
+<!-- ======================== SECTION 1 : PRESENTATION ======================== -->
+<div class="section">
+<h2>1. Presentation du Systeme de Paiement</h2>
+
+<p>Implemente un systeme de paiement Mobile Money (MoMo) complet pour une application de telemedecine en Afrique de l'Ouest francophone. Le systeme gere les abonnements, les achats de credits de consultation, et les paiements via plusieurs operateurs Mobile Money.</p>
+
+<h3>Objectifs</h3>
+<ul>
+<li>Supporter <strong>CinetPay</strong> comme aggregateur principal (Orange Money, MTN MoMo, Wave, Moov, Free Money)</li>
+<li>Supporter <strong>PayDunya</strong> comme aggregateur secondaire/fallback</li>
+<li>Conserver le mode <strong>MoMo Local USSD</strong> (paiement manuel avec confirmation admin)</li>
+<li>Gerer les <strong>abonnements</strong> (plans mensuels/annuels)</li>
+<li>Gerer les <strong>credits de consultation</strong> (achat de packs)</li>
+<li>Gerer les <strong>remboursements</strong> et <strong>decaissements</strong> (payout vers operateurs)</li>
+<li>Dashboard admin pour gestion et suivi des transactions</li>
+<li>Webhooks securises pour confirmation automatique</li>
+</ul>
+
+<h3>Pays et Operateurs Supportes</h3>
+<table>
+<tr><th>Pays</th><th>Operateurs</th><th>Devise</th></tr>
+<tr><td>Cote d'Ivoire</td><td>Orange Money, MTN MoMo, Wave, Moov Money</td><td>XOF</td></tr>
+<tr><td>Senegal</td><td>Wave, Orange Money, Free Money</td><td>XOF</td></tr>
+<tr><td>Mali</td><td>Orange Money, Moov Money</td><td>XOF</td></tr>
+<tr><td>Burkina Faso</td><td>Orange Money, Moov Money</td><td>XOF</td></tr>
+<tr><td>Cameroun</td><td>Orange Money, MTN MoMo, Express Union</td><td>XAF</td></tr>
+<tr><td>Togo</td><td>Moov Money, TMoney</td><td>XOF</td></tr>
+<tr><td>Guinee Conakry</td><td>Orange Money, MTN MoMo</td><td>GNF</td></tr>
+<tr><td>Benin</td><td>MTN MoMo, Moov Money</td><td>XOF</td></tr>
+<tr><td>Niger</td><td>Airtel Money, Moov Money</td><td>XOF</td></tr>
+</table>
+</div>
+
+<!-- ======================== SECTION 2 : ARCHITECTURE ======================== -->
+<div class="section">
+<h2>2. Architecture du Module de Paiement</h2>
+
+<h3>Stack Technique</h3>
+<ul>
+<li><strong>Backend</strong> : NestJS (TypeScript), Prisma ORM, PostgreSQL</li>
+<li><strong>Frontend</strong> : Next.js 14 (App Router), TailwindCSS</li>
+<li><strong>Cache</strong> : Redis (pour verrouillage de transactions et cache de tokens)</li>
+<li><strong>Queue</strong> : Bull/BullMQ (pour traitement asynchrone des webhooks)</li>
+<li><strong>Notifications</strong> : WebSocket (Socket.io) + Push notifications</li>
+</ul>
+
+<h3>Structure des Modules</h3>
+<pre><code>backend/src/modules/
+  payment/
+    payment.module.ts
+    payment.controller.ts
+    payment.service.ts
+    dto/
+      initiate-payment.dto.ts
+      verify-payment.dto.ts
+      momo-initiate.dto.ts
+      refund.dto.ts
+    providers/
+      cinetpay.provider.ts        # Integration CinetPay
+      paydunya.provider.ts        # Integration PayDunya
+      momo-local.provider.ts      # USSD local / manuel
+      payment-provider.interface.ts  # Interface commune
+    guards/
+      webhook-signature.guard.ts  # Verification signature webhook
+    processors/
+      webhook.processor.ts        # Queue processor pour webhooks
+    entities/
+      payment-event.entity.ts     # Log de tous les evenements
+  subscription/
+    subscription.module.ts
+    subscription.controller.ts
+    subscription.service.ts
+    subscription.scheduler.ts     # Cron: expiration, renouvellement, rappels
+  credit/
+    credit.module.ts
+    credit.controller.ts
+    credit.service.ts
+  payout/
+    payout.module.ts
+    payout.controller.ts
+    payout.service.ts             # Decaissement vers medecins</code></pre>
+
+<h3>Pattern Provider (Strategy)</h3>
+<p>Utilise le pattern Strategy pour supporter plusieurs passerelles de paiement de maniere interchangeable :</p>
+<pre><code>// payment-provider.interface.ts
+export interface PaymentProvider {
+  readonly name: string;
+
+  // Collection (recevoir un paiement)
+  initiatePayment(params: InitiateParams): Promise&lt;InitiateResult&gt;;
+  verifyPayment(transactionId: string): Promise&lt;VerifyResult&gt;;
+  handleWebhook(payload: any, headers: Record&lt;string, string&gt;): Promise&lt;WebhookResult&gt;;
+
+  // Remboursement
+  refundPayment?(transactionId: string, amount?: number): Promise&lt;RefundResult&gt;;
+
+  // Decaissement (payer un medecin)
+  disburseFunds?(params: DisburseParams): Promise&lt;DisburseResult&gt;;
+}
+
+export interface InitiateParams {
+  amount: number;
+  currency: 'XOF' | 'XAF' | 'GNF';
+  description: string;
+  transactionId: string;        // ID interne unique
+  customerPhone?: string;
+  customerEmail?: string;
+  customerName?: string;
+  notifyUrl: string;            // URL webhook
+  returnUrl: string;            // URL retour client
+  channels?: 'MOBILE_MONEY' | 'ALL';
+  metadata?: Record&lt;string, any&gt;;
+}
+
+export interface InitiateResult {
+  success: boolean;
+  providerTransactionId: string;
+  paymentUrl?: string;          // URL de checkout
+  ussdCode?: string;            // Pour MoMo local
+  expiresAt?: Date;
+}
+
+export interface VerifyResult {
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'REFUNDED';
+  providerTransactionId: string;
+  amount: number;
+  currency: string;
+  paymentMethod?: string;       // OM, MOMO, WAVE, etc.
+  operatorTransactionId?: string;
+  paidAt?: Date;
+  rawData?: any;
+}
+
+export interface WebhookResult {
+  verified: boolean;
+  transactionId: string;        // ID interne
+  status: 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'REFUNDED';
+  amount: number;
+  paymentMethod?: string;
+  operatorTransactionId?: string;
+}
+
+export interface DisburseParams {
+  amount: number;
+  currency: 'XOF' | 'XAF' | 'GNF';
+  recipientPhone: string;
+  recipientName: string;
+  withdrawMode: string;         // orange-money-senegal, mtn-ci, wave, etc.
+  description: string;
+  transactionId: string;
+}
+
+export interface RefundResult {
+  success: boolean;
+  refundId: string;
+  amount: number;
+  status: string;
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 3 : SCHEMA PRISMA ======================== -->
+<div class="section">
+<h2>3. Schema de Base de Donnees (Prisma)</h2>
+
+<pre><code>// prisma/schema.prisma
+
+// ==================== ENUMS ====================
+
+enum PaymentStatus {
+  PENDING           // En attente de paiement
+  PROCESSING        // Paiement en cours de traitement
+  COMPLETED         // Paiement reussi
+  FAILED            // Paiement echoue
+  CANCELLED         // Annule par l'utilisateur
+  REFUNDED          // Rembourse
+  PARTIALLY_REFUNDED // Partiellement rembourse
+  EXPIRED           // Expire (timeout)
+}
+
+enum PaymentType {
+  SUBSCRIPTION      // Abonnement
+  CREDIT_PURCHASE   // Achat de credits
+  MOMO_LOCAL        // Paiement USSD local
+  CONSULTATION_FEE  // Frais de consultation directe
+}
+
+enum PaymentProvider {
+  CINETPAY          // Aggregateur CinetPay
+  PAYDUNYA          // Aggregateur PayDunya
+  MOMO_LOCAL        // USSD local (confirmation admin)
+  FREE_GRANT        // Attribution gratuite admin
+}
+
+enum PaymentChannel {
+  ORANGE_MONEY
+  MTN_MOMO
+  WAVE
+  MOOV_MONEY
+  FREE_MONEY
+  TMONEY
+  AIRTEL_MONEY
+  EXPRESS_UNION
+  VISA
+  MASTERCARD
+  UNKNOWN
+}
+
+enum SubscriptionPlan {
+  BASIC             // Plan basique
+  PRO               // Plan professionnel
+  PREMIUM           // Plan premium
+}
+
+enum SubscriptionStatus {
+  PENDING           // En attente de paiement
+  ACTIVE            // Abonnement actif
+  EXPIRED           // Expire
+  CANCELLED         // Annule
+  SUSPENDED         // Suspendu (impaye)
+  GRACE_PERIOD      // Periode de grace (3 jours apres expiration)
+}
+
+enum CreditTransactionType {
+  PURCHASE                // Achat de credits
+  DEBIT_TELECONSULTATION  // Debit pour teleconsultation
+  DEBIT_EMERGENCY         // Debit pour urgence
+  DEBIT_REPORT            // Debit pour generation rapport
+  REFUND                  // Remboursement
+  ADMIN_ADJUSTMENT        // Ajustement admin
+  BONUS                   // Bonus promotionnel
+  REFERRAL_BONUS          // Bonus parrainage
+  EXPIRY                  // Expiration de credits
+}
+
+enum PayoutStatus {
+  PENDING           // En attente
+  PROCESSING        // En cours
+  COMPLETED         // Envoye
+  FAILED            // Echoue
+  CANCELLED         // Annule
+}
+
+enum WebhookEventStatus {
+  RECEIVED          // Recu
+  PROCESSING        // En traitement
+  PROCESSED         // Traite avec succes
+  FAILED            // Echec de traitement
+  DUPLICATE         // Doublon ignore
+}
+
+// ==================== MODELS ====================
+
+model Payment {
+  id                    String          @id @default(uuid())
+
+  // Relations
+  patientId             String
+  patient               Patient         @relation(fields: [patientId], references: [id])
+
+  // Type et montant
+  type                  PaymentType
+  amount                Int             // Montant en unite monetaire (XOF centimes = XOF car pas de decimales)
+  currency              String          @default("XOF")   // XOF, XAF, GNF
+
+  // Statut
+  status                PaymentStatus   @default(PENDING)
+
+  // Provider (passerelle)
+  provider              PaymentProvider
+  channel               PaymentChannel  @default(UNKNOWN) // Operateur utilise
+
+  // IDs externes du provider
+  providerTransactionId String?         @unique    // ID CinetPay/PayDunya
+  operatorTransactionId String?         // ID operateur MoMo (ref Orange, MTN, etc.)
+
+  // URLs et tokens
+  paymentUrl            String?         // URL de checkout
+  paymentToken          String?         // Token de session
+
+  // MoMo Local specifique
+  momoReference         String?         @unique    // Reference USSD TC-XXXX-XXXX
+  momoUssdCode          String?         // Code USSD genere
+  momoReceiverNumber    String?         // Numero recepteur
+  momoDeclaredPaidAt    DateTime?       // Quand le patient declare avoir paye
+  momoConfirmedBy       String?         // Admin qui a confirme
+
+  // Description et metadata
+  description           String
+  metadata              Json?           // { packageId, planId, promoCode, etc. }
+
+  // Informations client
+  customerPhone         String?
+  customerEmail         String?
+  customerName          String?
+  customerCountry       String?         // CI, SN, ML, BF, CM, etc.
+
+  // Fees
+  providerFeeAmount     Int?            // Frais du provider
+  providerFeePercent    Float?          // Pourcentage de frais
+  netAmount             Int?            // Montant net recu
+
+  // Dates
+  completedAt           DateTime?
+  failedAt              DateTime?
+  refundedAt            DateTime?
+  expiresAt             DateTime?       // Expiration de la session de paiement
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  // Provider raw data
+  providerRawData       Json?           // Reponse brute du provider
+  webhookData           Json?           // Donnees du webhook
+
+  // Tentatives
+  attemptCount          Int             @default(0)
+  lastAttemptAt         DateTime?
+
+  // Relations
+  subscriptions         Subscription[]
+  creditTransactions    CreditTransaction[]
+  refunds               Refund[]
+  events                PaymentEvent[]
+
+  @@index([patientId])
+  @@index([status])
+  @@index([provider])
+  @@index([createdAt(sort: Desc)])
+  @@index([providerTransactionId])
+  @@index([momoReference])
+  @@index([status, provider])
+}
+
+model PaymentEvent {
+  id            String   @id @default(uuid())
+  paymentId     String
+  payment       Payment  @relation(fields: [paymentId], references: [id])
+
+  eventType     String              // INITIATED, WEBHOOK_RECEIVED, STATUS_CHANGE, CONFIRMED, etc.
+  fromStatus    PaymentStatus?
+  toStatus      PaymentStatus?
+
+  provider      String?
+  rawData       Json?               // Donnees brutes de l'evenement
+  errorMessage  String?
+
+  triggeredBy   String?             // userId ou 'SYSTEM' ou 'WEBHOOK'
+  ipAddress     String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([createdAt(sort: Desc)])
+}
+
+model WebhookEvent {
+  id              String              @id @default(uuid())
+
+  provider        PaymentProvider
+  eventType       String              // Type d'evenement du provider
+  status          WebhookEventStatus  @default(RECEIVED)
+
+  // Identification
+  transactionId   String?             // ID transaction interne
+  providerEventId String?             // ID evenement du provider
+
+  // Donnees
+  headers         Json?               // Headers HTTP recus
+  payload         Json                // Corps de la requete
+  signature       String?             // Signature HMAC recue
+
+  // Traitement
+  processedAt     DateTime?
+  errorMessage    String?
+  retryCount      Int                 @default(0)
+
+  ipAddress       String?
+  createdAt       DateTime            @default(now())
+
+  @@index([provider])
+  @@index([status])
+  @@index([transactionId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Subscription {
+  id            String             @id @default(uuid())
+
+  patientId     String
+  patient       Patient            @relation(fields: [patientId], references: [id])
+
+  plan          SubscriptionPlan
+  status        SubscriptionStatus @default(PENDING)
+  priceXof      Int
+
+  // Duree
+  startDate     DateTime
+  endDate       DateTime
+  gracePeriodEnd DateTime?          // 3 jours apres endDate
+
+  // Renouvellement
+  autoRenew     Boolean            @default(false)
+  renewalCount  Int                @default(0)
+  nextRenewalAt DateTime?
+
+  // Paiement
+  paymentId     String?
+  payment       Payment?           @relation(fields: [paymentId], references: [id])
+
+  // Annulation
+  cancelledAt   DateTime?
+  cancelReason  String?
+  cancelledBy   String?            // patientId ou adminId
+
+  // Historique
+  previousSubscriptionId String?   // Lien vers l'abonnement precedent
+
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([patientId])
+  @@index([status])
+  @@index([endDate])
+  @@index([status, endDate])
+}
+
+model CreditBalance {
+  id            String              @id @default(uuid())
+  patientId     String              @unique
+  patient       Patient             @relation(fields: [patientId], references: [id])
+
+  balance       Int                 @default(0)    // Solde en XOF
+  totalPurchased Int                @default(0)    // Total achete
+  totalSpent    Int                 @default(0)    // Total depense
+  totalRefunded Int                 @default(0)    // Total rembourse
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  transactions  CreditTransaction[]
+}
+
+model CreditTransaction {
+  id                String                @id @default(uuid())
+
+  creditBalanceId   String
+  creditBalance     CreditBalance         @relation(fields: [creditBalanceId], references: [id])
+
+  type              CreditTransactionType
+  amount            Int                   // Positif = ajout, Negatif = deduction
+  balanceBefore     Int
+  balanceAfter      Int
+
+  description       String
+
+  // References
+  referenceId       String?               // teleconsultationId, emergencyId, etc.
+  referenceType     String?               // TELECONSULTATION, EMERGENCY, REPORT
+  paymentId         String?
+  payment           Payment?              @relation(fields: [paymentId], references: [id])
+
+  // Expiration des credits
+  expiresAt         DateTime?             // Credits avec date d'expiration
+  expired           Boolean               @default(false)
+
+  createdAt         DateTime              @default(now())
+
+  @@index([creditBalanceId])
+  @@index([type])
+  @@index([createdAt(sort: Desc)])
+  @@index([expiresAt])
+}
+
+model Refund {
+  id                    String         @id @default(uuid())
+
+  paymentId             String
+  payment               Payment        @relation(fields: [paymentId], references: [id])
+
+  amount                Int            // Montant rembourse
+  reason                String
+  status                PayoutStatus   @default(PENDING)
+
+  // Provider
+  providerRefundId      String?
+  providerRawData       Json?
+
+  // Admin
+  requestedBy           String         // patientId ou adminId
+  approvedBy            String?        // adminId
+
+  processedAt           DateTime?
+  createdAt             DateTime       @default(now())
+
+  @@index([paymentId])
+  @@index([status])
+}
+
+model Payout {
+  id                    String         @id @default(uuid())
+
+  // Beneficiaire (medecin)
+  recipientId           String
+  recipientType         String         // DOCTOR, GYNECOLOGUE, etc.
+  recipientPhone        String
+  recipientName         String
+
+  // Montant
+  amount                Int
+  currency              String         @default("XOF")
+  feeAmount             Int            @default(0)
+  netAmount             Int
+
+  // Mode de decaissement
+  provider              PaymentProvider
+  withdrawMode          String         // orange-money-senegal, mtn-ci, wave, etc.
+
+  status                PayoutStatus   @default(PENDING)
+
+  // Provider
+  providerPayoutId      String?
+  providerRawData       Json?
+
+  // References
+  description           String
+  referenceIds          String[]       // IDs des teleconsultations
+  periodStart           DateTime?
+  periodEnd             DateTime?
+
+  // Admin
+  initiatedBy           String         // adminId
+  approvedBy            String?
+
+  processedAt           DateTime?
+  failedAt              DateTime?
+  errorMessage          String?
+
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([recipientId])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+}
+
+model PromoCode {
+  id                String    @id @default(uuid())
+
+  code              String    @unique
+  description       String
+
+  // Type de reduction
+  discountType      String    // PERCENTAGE, FIXED_AMOUNT, FREE_CREDITS
+  discountValue     Int       // Pourcentage ou montant
+
+  // Conditions
+  minAmount         Int?      // Montant minimum d'achat
+  maxUses           Int?      // Nombre max d'utilisations total
+  maxUsesPerUser    Int       @default(1) // Max par utilisateur
+  currentUses       Int       @default(0)
+
+  // Validite
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  isActive          Boolean   @default(true)
+
+  // Applicable a
+  applicableTo      String[]  // ['SUBSCRIPTION', 'CREDIT_PURCHASE']
+  applicablePlans   String[]  // ['BASIC', 'PRO', 'PREMIUM']
+
+  createdBy         String
+  createdAt         DateTime  @default(now())
+
+  @@index([code])
+  @@index([isActive, validUntil])
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 4 : CINETPAY ======================== -->
+<div class="section">
+<h2>4. Integration CinetPay (Aggregateur Principal)</h2>
+
+<div class="highlight">
+<strong>CinetPay</strong> est l'aggregateur recommande : 10 pays, tous les operateurs MoMo, API REST simple, pas de frais d'installation.
+</div>
+
+<h3>Configuration</h3>
+<pre><code>// .env
+CINETPAY_API_KEY=your_api_key
+CINETPAY_SITE_ID=your_site_id
+CINETPAY_SECRET_KEY=your_secret_key          # Pour verifier les webhooks
+CINETPAY_NOTIFY_URL=https://yourdomain.com/api/v1/payments/webhook/cinetpay
+CINETPAY_RETURN_URL=https://yourdomain.com/payment/success
+CINETPAY_CANCEL_URL=https://yourdomain.com/payment/cancel
+
+// config/payment.config.ts
+export const paymentConfig = () => ({
+  cinetpay: {
+    apiKey: process.env.CINETPAY_API_KEY,
+    siteId: process.env.CINETPAY_SITE_ID,
+    secretKey: process.env.CINETPAY_SECRET_KEY,
+    notifyUrl: process.env.CINETPAY_NOTIFY_URL,
+    returnUrl: process.env.CINETPAY_RETURN_URL,
+    cancelUrl: process.env.CINETPAY_CANCEL_URL,
+    baseUrl: 'https://api-checkout.cinetpay.com/v2',
+  },
+});</code></pre>
+
+<h3>Provider CinetPay</h3>
+<pre><code>// providers/cinetpay.provider.ts
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import * as crypto from 'crypto';
+import { PaymentProvider, InitiateParams, InitiateResult,
+         VerifyResult, WebhookResult } from './payment-provider.interface';
+
+@Injectable()
+export class CinetPayProvider implements PaymentProvider {
+  readonly name = 'CINETPAY';
+  private readonly logger = new Logger(CinetPayProvider.name);
+  private readonly apiKey: string;
+  private readonly siteId: string;
+  private readonly secretKey: string;
+  private readonly baseUrl: string;
+  private readonly notifyUrl: string;
+  private readonly returnUrl: string;
+
+  constructor(private config: ConfigService) {
+    this.apiKey = this.config.get('cinetpay.apiKey');
+    this.siteId = this.config.get('cinetpay.siteId');
+    this.secretKey = this.config.get('cinetpay.secretKey');
+    this.baseUrl = this.config.get('cinetpay.baseUrl');
+    this.notifyUrl = this.config.get('cinetpay.notifyUrl');
+    this.returnUrl = this.config.get('cinetpay.returnUrl');
+  }
+
+  // ---- Initier un paiement ----
+  async initiatePayment(params: InitiateParams): Promise&lt;InitiateResult&gt; {
+    try {
+      const payload = {
+        apikey: this.apiKey,
+        site_id: this.siteId,
+        transaction_id: params.transactionId,
+        amount: params.amount,
+        currency: params.currency,
+        description: params.description,
+        notify_url: params.notifyUrl || this.notifyUrl,
+        return_url: params.returnUrl || this.returnUrl,
+        channels: params.channels || 'MOBILE_MONEY',
+        lang: 'fr',
+        // Metadata client
+        customer_name: params.customerName || '',
+        customer_surname: '',
+        customer_email: params.customerEmail || '',
+        customer_phone_number: params.customerPhone || '',
+        customer_address: '',
+        customer_city: '',
+        customer_country: params.metadata?.country || 'CI',
+        customer_state: '',
+        customer_zip_code: '',
+        // Metadata custom
+        metadata: JSON.stringify(params.metadata || {}),
+      };
+
+      const { data } = await axios.post(
+        `${this.baseUrl}/payment`, payload
+      );
+
+      if (data.code === '201') {
+        return {
+          success: true,
+          providerTransactionId: params.transactionId,
+          paymentUrl: data.data.payment_url,
+          expiresAt: new Date(Date.now() + 30 * 60 * 1000), // 30 min
+        };
+      }
+
+      this.logger.error(`CinetPay initiation failed: ${JSON.stringify(data)}`);
+      return { success: false, providerTransactionId: '' };
+    } catch (error) {
+      this.logger.error(`CinetPay error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  // ---- Verifier un paiement ----
+  async verifyPayment(transactionId: string): Promise&lt;VerifyResult&gt; {
+    const { data } = await axios.post(
+      `${this.baseUrl}/payment/check`,
+      {
+        apikey: this.apiKey,
+        site_id: this.siteId,
+        transaction_id: transactionId,
+      }
+    );
+
+    const statusMap: Record&lt;string, VerifyResult['status']&gt; = {
+      'ACCEPTED': 'COMPLETED',
+      'REFUSED': 'FAILED',
+      'CANCELLED': 'CANCELLED',
+    };
+
+    return {
+      status: statusMap[data.data?.status] || 'PENDING',
+      providerTransactionId: transactionId,
+      amount: parseInt(data.data?.amount || '0'),
+      currency: data.data?.currency || 'XOF',
+      paymentMethod: data.data?.payment_method,  // OM, MOMO, WAVE, etc.
+      operatorTransactionId: data.data?.operator_id,
+      paidAt: data.data?.payment_date ? new Date(data.data.payment_date) : undefined,
+      rawData: data,
+    };
+  }
+
+  // ---- Traiter le webhook ----
+  async handleWebhook(payload: any, headers: Record&lt;string, string&gt;): Promise&lt;WebhookResult&gt; {
+    // Verifier la signature (x-token header)
+    // CinetPay envoie un POST avec cpm_trans_id
+    const transactionId = payload.cpm_trans_id;
+
+    if (!transactionId) {
+      throw new Error('Missing transaction ID in webhook');
+    }
+
+    // TOUJOURS re-verifier aupres de CinetPay (ne jamais faire confiance au webhook seul)
+    const verification = await this.verifyPayment(transactionId);
+
+    return {
+      verified: true,
+      transactionId,
+      status: verification.status,
+      amount: verification.amount,
+      paymentMethod: verification.paymentMethod,
+      operatorTransactionId: verification.operatorTransactionId,
+    };
+  }
+}</code></pre>
+
+<h3>Flux de Paiement CinetPay</h3>
+<div class="flow-step"><div class="step-num">1</div><div class="step-content"><strong>Patient clique "Payer"</strong> - Le frontend envoie POST /api/v1/payments/initiate avec { type, packageId }</div></div>
+<div class="flow-step"><div class="step-num">2</div><div class="step-content"><strong>Backend cree Payment</strong> - Statut PENDING, genere un transactionId unique, appelle CinetPay /v2/payment</div></div>
+<div class="flow-step"><div class="step-num">3</div><div class="step-content"><strong>CinetPay retourne payment_url</strong> - Le frontend redirige le patient vers la page de checkout CinetPay</div></div>
+<div class="flow-step"><div class="step-num">4</div><div class="step-content"><strong>Patient selectionne operateur</strong> - Orange Money, MTN, Wave, etc. et valide sur son telephone</div></div>
+<div class="flow-step"><div class="step-num">5</div><div class="step-content"><strong>CinetPay envoie webhook</strong> - POST vers notify_url avec cpm_trans_id</div></div>
+<div class="flow-step"><div class="step-num">6</div><div class="step-content"><strong>Backend verifie</strong> - Appelle /v2/payment/check pour confirmer le statut (JAMAIS faire confiance au webhook seul)</div></div>
+<div class="flow-step"><div class="step-num">7</div><div class="step-content"><strong>Activation</strong> - Si COMPLETED : active l'abonnement OU ajoute les credits, notifie le patient via WebSocket</div></div>
+</div>
+
+<!-- ======================== SECTION 5 : PAYDUNYA ======================== -->
+<div class="section">
+<h2>5. Integration PayDunya (Aggregateur Secondaire)</h2>
+
+<h3>Configuration</h3>
+<pre><code>// .env
+PAYDUNYA_MASTER_KEY=your_master_key
+PAYDUNYA_PRIVATE_KEY=your_private_key
+PAYDUNYA_TOKEN=your_token
+PAYDUNYA_ENV=test   # test ou live
+PAYDUNYA_CALLBACK_URL=https://yourdomain.com/api/v1/payments/webhook/paydunya
+
+// config/payment.config.ts
+paydunya: {
+  masterKey: process.env.PAYDUNYA_MASTER_KEY,
+  privateKey: process.env.PAYDUNYA_PRIVATE_KEY,
+  token: process.env.PAYDUNYA_TOKEN,
+  env: process.env.PAYDUNYA_ENV || 'test',
+  callbackUrl: process.env.PAYDUNYA_CALLBACK_URL,
+  get baseUrl() {
+    return this.env === 'live'
+      ? 'https://app.paydunya.com/api/v1'
+      : 'https://app.paydunya.com/sandbox-api/v1';
+  },
+},</code></pre>
+
+<h3>Provider PayDunya</h3>
+<pre><code>// providers/paydunya.provider.ts
+@Injectable()
+export class PayDunyaProvider implements PaymentProvider {
+  readonly name = 'PAYDUNYA';
+  private readonly logger = new Logger(PayDunyaProvider.name);
+
+  constructor(private config: ConfigService) {}
+
+  private getHeaders() {
+    return {
+      'PAYDUNYA-MASTER-KEY': this.config.get('paydunya.masterKey'),
+      'PAYDUNYA-PRIVATE-KEY': this.config.get('paydunya.privateKey'),
+      'PAYDUNYA-TOKEN': this.config.get('paydunya.token'),
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async initiatePayment(params: InitiateParams): Promise&lt;InitiateResult&gt; {
+    const baseUrl = this.config.get('paydunya.baseUrl');
+    const payload = {
+      invoice: {
+        total_amount: params.amount,
+        description: params.description,
+      },
+      store: {
+        name: 'T-Cardio Plus',    // ou T-Gyneco Plus
+        tagline: 'Telemedecine',
+      },
+      actions: {
+        cancel_url: `${this.config.get('app.frontendUrl')}/payment/cancel`,
+        return_url: `${this.config.get('app.frontendUrl')}/payment/success`,
+        callback_url: params.notifyUrl || this.config.get('paydunya.callbackUrl'),
+      },
+      custom_data: {
+        transaction_id: params.transactionId,
+        ...params.metadata,
+      },
+    };
+
+    const { data } = await axios.post(
+      `${baseUrl}/checkout-invoice/create`,
+      payload,
+      { headers: this.getHeaders() }
+    );
+
+    if (data.response_code === '00') {
+      return {
+        success: true,
+        providerTransactionId: data.token,
+        paymentUrl: data.response_text,      // URL de checkout
+      };
+    }
+
+    return { success: false, providerTransactionId: '' };
+  }
+
+  async verifyPayment(invoiceToken: string): Promise&lt;VerifyResult&gt; {
+    const baseUrl = this.config.get('paydunya.baseUrl');
+    const { data } = await axios.get(
+      `${baseUrl}/checkout-invoice/confirm/${invoiceToken}`,
+      { headers: this.getHeaders() }
+    );
+
+    const statusMap: Record&lt;string, VerifyResult['status']&gt; = {
+      'completed': 'COMPLETED',
+      'pending': 'PENDING',
+      'cancelled': 'CANCELLED',
+      'failed': 'FAILED',
+    };
+
+    return {
+      status: statusMap[data.status] || 'PENDING',
+      providerTransactionId: invoiceToken,
+      amount: data.invoice?.total_amount || 0,
+      currency: 'XOF',
+      paymentMethod: data.customer?.payment_method,
+      rawData: data,
+    };
+  }
+
+  async handleWebhook(payload: any, headers: Record&lt;string, string&gt;): Promise&lt;WebhookResult&gt; {
+    // PayDunya envoie data en x-www-form-urlencoded
+    // Inclut un hash SHA-512 pour verification
+    const transactionId = payload.custom_data?.transaction_id;
+
+    // Verifier la signature avec le master key
+    // hash = SHA512(masterKey)
+
+    const verification = await this.verifyPayment(payload.token);
+
+    return {
+      verified: true,
+      transactionId,
+      status: verification.status,
+      amount: verification.amount,
+      paymentMethod: verification.paymentMethod,
+    };
+  }
+
+  // ---- Direct Mobile Payment (Push to Phone) ----
+  async pushPaymentToPhone(phone: string, amount: number): Promise&lt;any&gt; {
+    const baseUrl = this.config.get('paydunya.baseUrl');
+    const { data } = await axios.post(
+      `${baseUrl}/dmp-api`,
+      {
+        recipient_phone: phone,
+        amount,
+        support_fees: 0,
+        send_notification: 1,
+      },
+      { headers: this.getHeaders() }
+    );
+    return data;
+  }
+
+  // ---- Decaissement vers medecin ----
+  async disburseFunds(params: DisburseParams): Promise&lt;DisburseResult&gt; {
+    const baseUrl = this.config.get('paydunya.baseUrl').replace('/v1', '/v2');
+
+    // Etape 1: Creer la facture de decaissement
+    const { data: invoice } = await axios.post(
+      `${baseUrl}/disburse/get-invoice`,
+      {
+        account_alias: params.recipientPhone,
+        amount: params.amount,
+        withdraw_mode: params.withdrawMode,   // orange-money-senegal, mtn-money, etc.
+        description: params.description,
+      },
+      { headers: this.getHeaders() }
+    );
+
+    // Etape 2: Soumettre le decaissement
+    const { data: result } = await axios.post(
+      `${baseUrl.replace('/v2', '/v1')}/disburse/submit-invoice`,
+      {
+        disburse_invoice: invoice.disburse_invoice,
+        disburse_id: invoice.disburse_id,
+      },
+      { headers: this.getHeaders() }
+    );
+
+    return {
+      success: result.response_code === '00',
+      refundId: invoice.disburse_id,
+      amount: params.amount,
+      status: result.response_text,
+    };
+  }
+}</code></pre>
+
+<h3>Modes de Decaissement PayDunya</h3>
+<table>
+<tr><th>Mode</th><th>Operateur</th><th>Pays</th></tr>
+<tr><td><code>orange-money-senegal</code></td><td>Orange Money</td><td>Senegal</td></tr>
+<tr><td><code>orange-money-ci</code></td><td>Orange Money</td><td>Cote d'Ivoire</td></tr>
+<tr><td><code>mtn-money</code></td><td>MTN MoMo</td><td>Multi-pays</td></tr>
+<tr><td><code>moov-burkina-faso</code></td><td>Moov Money</td><td>Burkina Faso</td></tr>
+<tr><td><code>free-money</code></td><td>Free Money</td><td>Senegal</td></tr>
+<tr><td><code>wave</code></td><td>Wave</td><td>Senegal, CI</td></tr>
+</table>
+</div>
+
+<!-- ======================== SECTION 6 : MOMO LOCAL ======================== -->
+<div class="section">
+<h2>6. MoMo Local USSD (Paiement Manuel)</h2>
+
+<div class="highlight">
+Mode de paiement de secours : le patient compose un code USSD pour envoyer de l'argent, puis un admin confirme manuellement la reception.
+</div>
+
+<h3>Provider MoMo Local</h3>
+<pre><code>// providers/momo-local.provider.ts
+@Injectable()
+export class MomoLocalProvider implements PaymentProvider {
+  readonly name = 'MOMO_LOCAL';
+  private readonly receiverNumber: string;
+
+  constructor(private config: ConfigService) {
+    this.receiverNumber = this.config.get('payment.momoReceiverNumber');
+  }
+
+  async initiatePayment(params: InitiateParams): Promise&lt;InitiateResult&gt; {
+    const reference = this.generateReference();
+    const ussdCode = this.generateUssdCode(
+      params.amount, reference, params.metadata?.country
+    );
+
+    return {
+      success: true,
+      providerTransactionId: reference,
+      ussdCode,
+    };
+  }
+
+  // Generer reference unique
+  private generateReference(): string {
+    const ts = Date.now().toString(36).toUpperCase();
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `TC-${ts}-${rand}`;
+  }
+
+  // Generer code USSD selon l'operateur et le pays
+  private generateUssdCode(amount: number, ref: string, country?: string): string {
+    const receiver = this.receiverNumber;
+
+    // Formats USSD par operateur (exemples)
+    const formats: Record&lt;string, string&gt; = {
+      // Orange Money CI
+      'OM_CI': `#144*1*1*${receiver}*${amount}*${ref}#`,
+      // MTN CI
+      'MTN_CI': `*133*1*1*${receiver}*${amount}*${ref}#`,
+      // Wave
+      'WAVE': `Ouvrir l'app Wave > Envoyer ${amount} XOF a ${receiver} ref: ${ref}`,
+      // Moov
+      'MOOV_CI': `*155*1*1*${receiver}*${amount}*${ref}#`,
+      // Default
+      'DEFAULT': `*880*1*1*${receiver}*${receiver}*${amount}*${ref}*PIN#`,
+    };
+
+    return formats[country] || formats['DEFAULT'];
+  }
+
+  // Pas de verification auto pour MoMo local
+  async verifyPayment(transactionId: string): Promise&lt;VerifyResult&gt; {
+    return {
+      status: 'PENDING',  // Toujours en attente de confirmation admin
+      providerTransactionId: transactionId,
+      amount: 0,
+      currency: 'XOF',
+    };
+  }
+
+  async handleWebhook(): Promise&lt;WebhookResult&gt; {
+    throw new Error('MoMo local ne supporte pas les webhooks');
+  }
+}</code></pre>
+
+<h3>Flux MoMo Local</h3>
+<div class="flow-step"><div class="step-num">1</div><div class="step-content"><strong>Patient choisit "MoMo Local"</strong> - POST /api/v1/payments/momo/initiate</div></div>
+<div class="flow-step"><div class="step-num">2</div><div class="step-content"><strong>Code USSD genere</strong> - Affiche le code + reference + numero recepteur au patient</div></div>
+<div class="flow-step"><div class="step-num">3</div><div class="step-content"><strong>Patient compose le code USSD</strong> - Effectue le transfert manuellement sur son telephone</div></div>
+<div class="flow-step"><div class="step-num">4</div><div class="step-content"><strong>Patient declare avoir paye</strong> - POST /api/v1/payments/momo/{id}/declare-paid</div></div>
+<div class="flow-step"><div class="step-num">5</div><div class="step-content"><strong>Admin verifie</strong> - Consulte les paiements en attente sur le dashboard admin</div></div>
+<div class="flow-step"><div class="step-num">6</div><div class="step-content"><strong>Admin confirme ou rejette</strong> - POST /payments/momo/{id}/confirm ou /reject</div></div>
+<div class="flow-step"><div class="step-num">7</div><div class="step-content"><strong>Activation automatique</strong> - Abonnement ou credits ajoutes, notification patient</div></div>
+</div>
+
+<!-- ======================== SECTION 7 : CONTROLLER & SERVICE ======================== -->
+<div class="section">
+<h2>7. Payment Controller & Service</h2>
+
+<h3>API Endpoints Complets</h3>
+<table>
+<tr><th>Methode</th><th>Endpoint</th><th>Auth</th><th>Role</th><th>Description</th></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/packages</code></td><td>Non</td><td>Public</td><td>Liste des packs de credits</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/plans</code></td><td>Non</td><td>Public</td><td>Liste des plans d'abonnement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/initiate</code></td><td>JWT</td><td>PATIENT</td><td>Initier un paiement (CinetPay/PayDunya)</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/momo/initiate</code></td><td>JWT</td><td>PATIENT</td><td>Initier un paiement MoMo local</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/momo/{id}/declare-paid</code></td><td>JWT</td><td>PATIENT</td><td>Declarer paiement MoMo envoye</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/history</code></td><td>JWT</td><td>PATIENT</td><td>Historique des paiements</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/{id}</code></td><td>JWT</td><td>PATIENT/ADMIN</td><td>Detail d'un paiement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/{id}/verify</code></td><td>JWT</td><td>PATIENT</td><td>Re-verifier le statut</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/webhook/cinetpay</code></td><td>Non</td><td>Public</td><td>Webhook CinetPay</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/webhook/paydunya</code></td><td>Non</td><td>Public</td><td>Webhook PayDunya</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/momo/{id}/confirm</code></td><td>JWT</td><td>ADMIN</td><td>Confirmer paiement MoMo</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/momo/{id}/reject</code></td><td>JWT</td><td>ADMIN</td><td>Rejeter paiement MoMo</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/momo/pending</code></td><td>JWT</td><td>ADMIN</td><td>Paiements MoMo en attente</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/admin/all</code></td><td>JWT</td><td>ADMIN</td><td>Tous les paiements (filtres)</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payments/admin/stats</code></td><td>JWT</td><td>ADMIN</td><td>Statistiques de paiement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/{id}/refund</code></td><td>JWT</td><td>ADMIN</td><td>Rembourser un paiement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payments/promo/validate</code></td><td>JWT</td><td>PATIENT</td><td>Valider un code promo</td></tr>
+</table>
+
+<h3>Subscription Endpoints</h3>
+<table>
+<tr><th>Methode</th><th>Endpoint</th><th>Auth</th><th>Role</th><th>Description</th></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/subscriptions/me</code></td><td>JWT</td><td>PATIENT</td><td>Mon abonnement actuel</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/subscriptions/cancel</code></td><td>JWT</td><td>PATIENT</td><td>Annuler mon abonnement</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/subscriptions/admin</code></td><td>JWT</td><td>ADMIN</td><td>Tous les abonnements</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/subscriptions/admin/grant</code></td><td>JWT</td><td>ADMIN</td><td>Attribuer abonnement gratuit</td></tr>
+</table>
+
+<h3>Credit Endpoints</h3>
+<table>
+<tr><th>Methode</th><th>Endpoint</th><th>Auth</th><th>Role</th><th>Description</th></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/credits/balance</code></td><td>JWT</td><td>PATIENT</td><td>Mon solde de credits</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/credits/transactions</code></td><td>JWT</td><td>PATIENT</td><td>Historique transactions credits</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/credits/admin/adjust</code></td><td>JWT</td><td>ADMIN</td><td>Ajuster credits manuellement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/credits/admin/bonus</code></td><td>JWT</td><td>ADMIN</td><td>Ajouter bonus credits</td></tr>
+</table>
+
+<h3>Payout Endpoints (Decaissement Medecins)</h3>
+<table>
+<tr><th>Methode</th><th>Endpoint</th><th>Auth</th><th>Role</th><th>Description</th></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payouts/initiate</code></td><td>JWT</td><td>ADMIN</td><td>Initier un decaissement</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payouts</code></td><td>JWT</td><td>ADMIN</td><td>Liste des decaissements</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payouts/{id}</code></td><td>JWT</td><td>ADMIN</td><td>Detail d'un decaissement</td></tr>
+<tr><td><span class="badge-green">POST</span></td><td><code>/payouts/{id}/approve</code></td><td>JWT</td><td>ADMIN</td><td>Approuver le decaissement</td></tr>
+<tr><td><span class="badge-blue">GET</span></td><td><code>/payouts/doctor/{id}/summary</code></td><td>JWT</td><td>ADMIN/DOCTOR</td><td>Resume des gains d'un medecin</td></tr>
+</table>
+
+<h3>DTOs</h3>
+<pre><code>// dto/initiate-payment.dto.ts
+export class InitiatePaymentDto {
+  @IsEnum(['SUBSCRIPTION', 'CREDIT_PURCHASE'])
+  type: 'SUBSCRIPTION' | 'CREDIT_PURCHASE';
+
+  @IsString()
+  packageId: string;   // ID du plan ou pack (basic, pro, essentiel, standard, etc.)
+
+  @IsEnum(['CINETPAY', 'PAYDUNYA'])
+  @IsOptional()
+  provider?: 'CINETPAY' | 'PAYDUNYA';   // Default: CINETPAY
+
+  @IsString()
+  @IsOptional()
+  promoCode?: string;
+
+  @IsString()
+  @IsOptional()
+  customerPhone?: string;
+
+  @IsString()
+  @IsOptional()
+  customerCountry?: string;   // CI, SN, ML, BF, CM, etc.
+}
+
+// dto/momo-initiate.dto.ts
+export class MomoInitiateDto {
+  @IsEnum(['SUBSCRIPTION', 'CREDIT_PURCHASE'])
+  type: 'SUBSCRIPTION' | 'CREDIT_PURCHASE';
+
+  @IsString()
+  packageId: string;
+
+  @IsString()
+  @IsOptional()
+  country?: string;   // Pour generer le bon code USSD
+}
+
+// dto/refund.dto.ts
+export class RefundDto {
+  @IsNumber()
+  @IsOptional()
+  amount?: number;    // Remboursement partiel (si absent = total)
+
+  @IsString()
+  reason: string;
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 8 : PLANS & PACKAGES ======================== -->
+<div class="section">
+<h2>8. Plans d'Abonnement et Packs de Credits</h2>
+
+<h3>Plans d'Abonnement</h3>
+<table>
+<tr><th>Plan</th><th>Prix (XOF)</th><th>Duree</th><th>Fonctionnalites</th></tr>
+<tr>
+<td><span class="badge">BASIC</span></td>
+<td><strong>2 000</strong></td>
+<td>365 jours</td>
+<td>Suivi de base, historique, alertes</td>
+</tr>
+<tr>
+<td><span class="badge-blue">PRO</span></td>
+<td><strong>5 000</strong></td>
+<td>365 jours</td>
+<td>Basic + Rapports PDF, Analytics avances, Support prioritaire</td>
+</tr>
+<tr>
+<td><span class="badge-purple">PREMIUM</span></td>
+<td><strong>10 000</strong></td>
+<td>365 jours</td>
+<td>Pro + Teleconsultations illimitees, IA avancee, Medecin dedie</td>
+</tr>
+</table>
+
+<h3>Packs de Credits</h3>
+<table>
+<tr><th>Pack</th><th>Prix (XOF)</th><th>Credits</th><th>Bonus</th><th>Total Credits</th></tr>
+<tr>
+<td><span class="badge">Essentiel</span></td>
+<td>5 000</td>
+<td>5 000</td>
+<td>0</td>
+<td>5 000</td>
+</tr>
+<tr>
+<td><span class="badge-blue">Standard</span></td>
+<td>10 000</td>
+<td>10 000</td>
+<td>+500</td>
+<td>10 500</td>
+</tr>
+<tr>
+<td><span class="badge-purple">Premium</span></td>
+<td>25 000</td>
+<td>25 000</td>
+<td>+2 500</td>
+<td>27 500</td>
+</tr>
+<tr>
+<td><span class="badge-green">Mega</span></td>
+<td>50 000</td>
+<td>50 000</td>
+<td>+7 000</td>
+<td>57 000</td>
+</tr>
+</table>
+
+<h3>Cout des Services</h3>
+<table>
+<tr><th>Service</th><th>Cout (XOF/credits)</th></tr>
+<tr><td>Teleconsultation video</td><td>5 000</td></tr>
+<tr><td>Appel d'urgence (payant)</td><td>1 000</td></tr>
+<tr><td>Generation rapport PDF</td><td>500</td></tr>
+<tr><td>Deuxieme avis medical</td><td>3 000</td></tr>
+</table>
+
+<h3>Configuration</h3>
+<pre><code>// config/payment.config.ts
+export const paymentConfig = () => ({
+  plans: {
+    BASIC:   { price: 2000,  duration: 365, name: 'Basique',       features: ['tracking', 'history', 'alerts'] },
+    PRO:     { price: 5000,  duration: 365, name: 'Professionnel', features: ['tracking', 'history', 'alerts', 'reports', 'analytics'] },
+    PREMIUM: { price: 10000, duration: 365, name: 'Premium',       features: ['all'] },
+  },
+
+  packages: [
+    { id: 'essentiel', name: 'Essentiel', price: 5000,  credits: 5000,  bonus: 0 },
+    { id: 'standard',  name: 'Standard',  price: 10000, credits: 10000, bonus: 500 },
+    { id: 'premium',   name: 'Premium',   price: 25000, credits: 25000, bonus: 2500 },
+    { id: 'mega',      name: 'Mega',      price: 50000, credits: 50000, bonus: 7000 },
+  ],
+
+  costs: {
+    teleconsultation: 5000,
+    emergencyPaid: 1000,
+    reportGeneration: 500,
+    secondOpinion: 3000,
+  },
+
+  momoReceiverNumber: process.env.MOMO_RECEIVER_NUMBER || '0197548441',
+
+  // Provider par defaut
+  defaultProvider: process.env.DEFAULT_PAYMENT_PROVIDER || 'CINETPAY',
+
+  // Fallback automatique si le provider principal echoue
+  fallbackProvider: process.env.FALLBACK_PAYMENT_PROVIDER || 'PAYDUNYA',
+
+  // Delai d'expiration des sessions de paiement
+  paymentSessionTimeout: 30 * 60 * 1000,  // 30 minutes
+
+  // Delai pour MoMo local avant auto-expiration
+  momoLocalTimeout: 24 * 60 * 60 * 1000,  // 24 heures
+});</code></pre>
+</div>
+
+<!-- ======================== SECTION 9 : WEBHOOK SECURITE ======================== -->
+<div class="section">
+<h2>9. Securite des Webhooks</h2>
+
+<div class="warn">
+<strong>CRITIQUE :</strong> Ne JAMAIS faire confiance aux donnees du webhook seules. Toujours re-verifier aupres du provider (CinetPay /check, PayDunya /confirm).
+</div>
+
+<h3>Guard de Verification de Signature</h3>
+<pre><code>// guards/webhook-signature.guard.ts
+@Injectable()
+export class WebhookSignatureGuard implements CanActivate {
+  constructor(private config: ConfigService) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const provider = request.params.provider;  // cinetpay ou paydunya
+
+    switch (provider) {
+      case 'cinetpay':
+        return this.verifyCinetPay(request);
+      case 'paydunya':
+        return this.verifyPayDunya(request);
+      default:
+        return false;
+    }
+  }
+
+  private verifyCinetPay(request: any): boolean {
+    // CinetPay envoie un header x-token
+    // Verifier que l'IP source est dans les ranges CinetPay
+    const allowedIPs = [
+      '196.28.244.0/24',    // Range CinetPay
+      '41.203.0.0/16',      // Range alternatif
+    ];
+    // En production, verifier l'IP source
+    return true;  // Toujours re-verifier via /check
+  }
+
+  private verifyPayDunya(request: any): boolean {
+    // PayDunya: verifier le hash SHA-512
+    const masterKey = this.config.get('paydunya.masterKey');
+    const expectedHash = crypto
+      .createHash('sha512')
+      .update(masterKey)
+      .digest('hex');
+
+    return request.headers['paydunya-hash'] === expectedHash;
+  }
+}</code></pre>
+
+<h3>Traitement Asynchrone des Webhooks (Queue)</h3>
+<pre><code>// processors/webhook.processor.ts
+import { Processor, Process } from '@nestjs/bull';
+import { Job } from 'bull';
+
+@Processor('payment-webhooks')
+export class WebhookProcessor {
+  constructor(
+    private paymentService: PaymentService,
+    private logger: Logger,
+  ) {}
+
+  @Process('process-webhook')
+  async handleWebhook(job: Job&lt;{
+    provider: string;
+    payload: any;
+    headers: Record&lt;string, string&gt;;
+    webhookEventId: string;
+  }&gt;) {
+    const { provider, payload, headers, webhookEventId } = job.data;
+
+    try {
+      // 1. Recuperer le bon provider
+      const paymentProvider = this.paymentService.getProvider(provider);
+
+      // 2. Traiter le webhook (inclut la re-verification)
+      const result = await paymentProvider.handleWebhook(payload, headers);
+
+      // 3. Mettre a jour le paiement interne
+      if (result.verified) {
+        await this.paymentService.processWebhookResult(result);
+      }
+
+      // 4. Marquer l'evenement webhook comme traite
+      await this.paymentService.updateWebhookEvent(webhookEventId, 'PROCESSED');
+
+    } catch (error) {
+      this.logger.error(`Webhook processing failed: ${error.message}`);
+      await this.paymentService.updateWebhookEvent(webhookEventId, 'FAILED', error.message);
+      throw error;  // Bull retente automatiquement
+    }
+  }
+}
+
+// Configuration de la queue (dans payment.module.ts)
+BullModule.registerQueue({
+  name: 'payment-webhooks',
+  defaultJobOptions: {
+    attempts: 5,           // 5 tentatives
+    backoff: {
+      type: 'exponential',
+      delay: 5000,         // 5s, 10s, 20s, 40s, 80s
+    },
+    removeOnComplete: 100, // Garder les 100 derniers
+    removeOnFail: 500,     // Garder les 500 derniers echecs
+  },
+})</code></pre>
+
+<h3>Idempotence</h3>
+<pre><code>// Dans PaymentService
+async processWebhookResult(result: WebhookResult): Promise&lt;void&gt; {
+  // Verrou Redis pour eviter le traitement concurrent
+  const lockKey = `payment:webhook:${result.transactionId}`;
+  const lock = await this.redis.set(lockKey, '1', 'EX', 60, 'NX');
+
+  if (!lock) {
+    this.logger.warn(`Webhook already processing: ${result.transactionId}`);
+    return;  // Un autre worker traite deja ce webhook
+  }
+
+  try {
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        OR: [
+          { id: result.transactionId },
+          { providerTransactionId: result.transactionId },
+          { momoReference: result.transactionId },
+        ]
+      },
+    });
+
+    if (!payment) throw new Error(`Payment not found: ${result.transactionId}`);
+
+    // Idempotence: ignorer si deja traite
+    if (payment.status === 'COMPLETED' || payment.status === 'REFUNDED') {
+      this.logger.log(`Payment already ${payment.status}, ignoring webhook`);
+      return;
+    }
+
+    // Transition de statut
+    if (result.status === 'COMPLETED') {
+      await this.completePayment(payment, result);
+    } else if (result.status === 'FAILED' || result.status === 'CANCELLED') {
+      await this.failPayment(payment, result);
+    } else if (result.status === 'REFUNDED') {
+      await this.refundPayment(payment, result);
+    }
+  } finally {
+    await this.redis.del(lockKey);
+  }
+}
+
+private async completePayment(payment: Payment, result: WebhookResult) {
+  await this.prisma.$transaction(async (tx) => {
+    // 1. Mettre a jour le paiement
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: 'COMPLETED',
+        channel: this.mapChannel(result.paymentMethod),
+        operatorTransactionId: result.operatorTransactionId,
+        completedAt: new Date(),
+        netAmount: result.amount,
+      },
+    });
+
+    // 2. Logger l'evenement
+    await tx.paymentEvent.create({
+      data: {
+        paymentId: payment.id,
+        eventType: 'PAYMENT_COMPLETED',
+        fromStatus: payment.status,
+        toStatus: 'COMPLETED',
+        provider: payment.provider,
+        triggeredBy: 'WEBHOOK',
+      },
+    });
+
+    // 3. Activer abonnement ou ajouter credits
+    const metadata = payment.metadata as any;
+    if (payment.type === 'SUBSCRIPTION') {
+      await this.subscriptionService.activateSubscription(
+        payment.patientId, metadata.planId, payment.id, payment.amount
+      );
+    } else if (payment.type === 'CREDIT_PURCHASE') {
+      const pkg = this.getPackage(metadata.packageId);
+      await this.creditService.addCredits(
+        payment.patientId, pkg.credits + pkg.bonus, payment.id,
+        `Achat pack ${pkg.name}`
+      );
+    }
+
+    // 4. Notifier le patient en temps reel
+    this.notificationGateway.sendToUser(payment.patientId, 'payment:completed', {
+      paymentId: payment.id,
+      amount: payment.amount,
+      type: payment.type,
+    });
+  });
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 10 : FRONTEND ======================== -->
+<div class="section">
+<h2>10. Frontend - Pages de Paiement</h2>
+
+<h3>Structure des Pages</h3>
+<pre><code>frontend-web/app/(dashboard)/
+  payment/
+    page.tsx                    # Page principale de paiement (choix plan/pack)
+    success/page.tsx            # Page de succes apres paiement
+    cancel/page.tsx             # Page d'annulation
+    history/page.tsx            # Historique des paiements
+  subscription/
+    page.tsx                    # Page gestion abonnement
+  credits/
+    page.tsx                    # Page solde et achat credits
+
+frontend-web/components/payment/
+  PaymentMethodSelector.tsx     # Selection CinetPay / MoMo Local
+  PlanCard.tsx                  # Carte de plan d'abonnement
+  CreditPackCard.tsx            # Carte de pack de credits
+  MomoInstructions.tsx          # Instructions USSD + reference
+  PaymentStatusBadge.tsx        # Badge de statut colore
+  PaymentHistory.tsx            # Table historique
+  PromoCodeInput.tsx            # Champ code promo</code></pre>
+
+<h3>Page de Paiement Principale</h3>
+<pre><code>// app/(dashboard)/payment/page.tsx
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
+
+export default function PaymentPage() {
+  const [selectedType, setSelectedType] = useState&lt;'subscription' | 'credits'&gt;('subscription');
+  const [selectedPackage, setSelectedPackage] = useState&lt;string&gt;('');
+  const [paymentMethod, setPaymentMethod] = useState&lt;'cinetpay' | 'momo_local'&gt;('cinetpay');
+  const [promoCode, setPromoCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [momoData, setMomoData] = useState&lt;any&gt;(null);
+  const router = useRouter();
+
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      if (paymentMethod === 'cinetpay') {
+        // Paiement via CinetPay (redirection)
+        const { data } = await api.post('/payments/initiate', {
+          type: selectedType === 'subscription' ? 'SUBSCRIPTION' : 'CREDIT_PURCHASE',
+          packageId: selectedPackage,
+          provider: 'CINETPAY',
+          promoCode: promoCode || undefined,
+        });
+
+        if (data.paymentUrl) {
+          // Rediriger vers la page de checkout CinetPay
+          window.location.href = data.paymentUrl;
+        }
+      } else {
+        // Paiement MoMo Local
+        const { data } = await api.post('/payments/momo/initiate', {
+          type: selectedType === 'subscription' ? 'SUBSCRIPTION' : 'CREDIT_PURCHASE',
+          packageId: selectedPackage,
+        });
+
+        setMomoData(data);  // Afficher les instructions USSD
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    &lt;div className="max-w-4xl mx-auto p-6"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Paiement&lt;/h1&gt;
+
+      {/* Onglets: Abonnement / Credits */}
+      {/* Cartes de plans ou packs */}
+      {/* Selection methode de paiement */}
+      {/* Code promo */}
+      {/* Bouton Payer */}
+
+      {momoData &amp;&amp; &lt;MomoInstructions data={momoData} /&gt;}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+<h3>Composant Instructions MoMo</h3>
+<pre><code>// components/payment/MomoInstructions.tsx
+'use client';
+
+import { useState } from 'react';
+import api from '@/lib/api';
+
+interface MomoData {
+  paymentId: string;
+  reference: string;
+  ussdCode: string;
+  amount: number;
+  receiverNumber: string;
+  description: string;
+}
+
+export function MomoInstructions({ data }: { data: MomoData }) {
+  const [declared, setDeclared] = useState(false);
+
+  const declarePaid = async () => {
+    await api.post(`/payments/momo/${data.paymentId}/declare-paid`);
+    setDeclared(true);
+  };
+
+  return (
+    &lt;div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-6 mt-6"&gt;
+      &lt;h3 className="text-amber-400 text-lg font-bold mb-4"&gt;
+        Instructions de paiement MoMo
+      &lt;/h3&gt;
+
+      &lt;div className="space-y-4"&gt;
+        &lt;div&gt;
+          &lt;p className="text-gray-400 text-sm"&gt;Montant&lt;/p&gt;
+          &lt;p className="text-2xl font-bold text-white"&gt;
+            {data.amount.toLocaleString()} XOF
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;p className="text-gray-400 text-sm"&gt;Reference (a inclure)&lt;/p&gt;
+          &lt;p className="text-lg font-mono text-amber-300 select-all"&gt;
+            {data.reference}
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;p className="text-gray-400 text-sm"&gt;Code USSD a composer&lt;/p&gt;
+          &lt;p className="text-lg font-mono text-green-400 select-all bg-black/30 p-3 rounded"&gt;
+            {data.ussdCode}
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;p className="text-gray-400 text-sm"&gt;Numero recepteur&lt;/p&gt;
+          &lt;p className="text-lg font-mono text-white"&gt;{data.receiverNumber}&lt;/p&gt;
+        &lt;/div&gt;
+
+        {!declared ? (
+          &lt;button onClick={declarePaid}
+            className="w-full bg-amber-500 text-black font-bold py-3 rounded-lg"&gt;
+            J'ai effectue le paiement
+          &lt;/button&gt;
+        ) : (
+          &lt;div className="bg-green-900/30 border border-green-500/30 p-4 rounded-lg text-center"&gt;
+            &lt;p className="text-green-400 font-bold"&gt;
+              Paiement declare ! En attente de confirmation...
+            &lt;/p&gt;
+            &lt;p className="text-gray-400 text-sm mt-2"&gt;
+              Vous recevrez une notification des que votre paiement sera confirme.
+            &lt;/p&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 11 : ADMIN DASHBOARD ======================== -->
+<div class="section">
+<h2>11. Dashboard Admin - Gestion des Paiements</h2>
+
+<h3>Pages Admin</h3>
+<pre><code>frontend-web/app/(dashboard)/admin/
+  payments/
+    page.tsx                    # Liste de tous les paiements (filtrable)
+    [id]/page.tsx               # Detail d'un paiement
+    pending-momo/page.tsx       # Paiements MoMo en attente de confirmation
+  subscriptions/
+    page.tsx                    # Gestion des abonnements
+  payouts/
+    page.tsx                    # Decaissements vers medecins
+    initiate/page.tsx           # Creer un decaissement
+  stats/
+    page.tsx                    # Statistiques financieres</code></pre>
+
+<h3>Statistiques Admin</h3>
+<pre><code>// GET /payments/admin/stats
+// Response:
+{
+  "overview": {
+    "totalRevenue": 2500000,         // Total revenus XOF
+    "totalTransactions": 342,
+    "completedTransactions": 298,
+    "pendingTransactions": 18,
+    "failedTransactions": 26,
+    "successRate": 87.1
+  },
+  "byProvider": {
+    "CINETPAY": { "count": 245, "revenue": 1800000 },
+    "PAYDUNYA": { "count": 35, "revenue": 250000 },
+    "MOMO_LOCAL": { "count": 62, "revenue": 450000 }
+  },
+  "byChannel": {
+    "ORANGE_MONEY": { "count": 120, "revenue": 900000 },
+    "WAVE": { "count": 95, "revenue": 650000 },
+    "MTN_MOMO": { "count": 65, "revenue": 500000 },
+    "MOOV_MONEY": { "count": 18, "revenue": 100000 }
+  },
+  "byType": {
+    "SUBSCRIPTION": { "count": 180, "revenue": 800000 },
+    "CREDIT_PURCHASE": { "count": 162, "revenue": 1700000 }
+  },
+  "monthly": [
+    { "month": "2026-01", "revenue": 1200000, "count": 156 },
+    { "month": "2026-02", "revenue": 1300000, "count": 186 }
+  ],
+  "pendingMomo": 5,               // MoMo en attente de confirmation
+  "activeSubs": 245,              // Abonnements actifs
+  "expiringIn7Days": 12           // Abonnements expirant sous 7 jours
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 12 : CRON & SCHEDULER ======================== -->
+<div class="section">
+<h2>12. Taches Planifiees (Cron Jobs)</h2>
+
+<pre><code>// subscription/subscription.scheduler.ts
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+
+@Injectable()
+export class SubscriptionScheduler {
+  constructor(
+    private subscriptionService: SubscriptionService,
+    private paymentService: PaymentService,
+    private notificationService: NotificationService,
+  ) {}
+
+  // Toutes les heures: expirer les abonnements passes
+  @Cron(CronExpression.EVERY_HOUR)
+  async expireOverdueSubscriptions() {
+    const expired = await this.subscriptionService.expireOverdueSubscriptions();
+    this.logger.log(`Expired ${expired} subscriptions`);
+  }
+
+  // Chaque jour a 9h: rappel d'expiration (7 jours avant)
+  @Cron('0 9 * * *')
+  async sendExpirationReminders() {
+    const expiring = await this.subscriptionService.findExpiringSubscriptions(7);
+    for (const sub of expiring) {
+      await this.notificationService.send(sub.patientId, {
+        title: 'Abonnement expire bientot',
+        body: `Votre abonnement ${sub.plan} expire dans ${this.daysUntil(sub.endDate)} jours.`,
+        type: 'SUBSCRIPTION_EXPIRING',
+      });
+    }
+  }
+
+  // Chaque jour a 10h: rappel 3 jours avant
+  @Cron('0 10 * * *')
+  async sendUrgentReminders() {
+    const expiring = await this.subscriptionService.findExpiringSubscriptions(3);
+    for (const sub of expiring) {
+      await this.notificationService.send(sub.patientId, {
+        title: 'Abonnement expire dans 3 jours !',
+        body: 'Renouvelez votre abonnement pour continuer a profiter de tous les services.',
+        type: 'SUBSCRIPTION_URGENT',
+        actionUrl: '/payment',
+      });
+    }
+  }
+
+  // Chaque jour a minuit: expirer les paiements MoMo locaux non confirmes (24h)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async expireStaleMomoPayments() {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const expired = await this.paymentService.expirePayments({
+      provider: 'MOMO_LOCAL',
+      status: 'PENDING',
+      createdBefore: cutoff,
+    });
+    this.logger.log(`Expired ${expired} stale MoMo payments`);
+  }
+
+  // Toutes les 5 minutes: expirer les sessions CinetPay/PayDunya (30 min)
+  @Cron('*/5 * * * *')
+  async expirePaymentSessions() {
+    const cutoff = new Date(Date.now() - 30 * 60 * 1000);
+    const expired = await this.paymentService.expirePayments({
+      provider: ['CINETPAY', 'PAYDUNYA'],
+      status: 'PENDING',
+      createdBefore: cutoff,
+    });
+    if (expired > 0) {
+      this.logger.log(`Expired ${expired} payment sessions`);
+    }
+  }
+
+  // Chaque semaine: rapport financier
+  @Cron('0 8 * * 1')  // Lundi a 8h
+  async generateWeeklyReport() {
+    await this.paymentService.generateWeeklyReport();
+  }
+
+  // Chaque mois: expirer les credits non utilises (si applicable)
+  @Cron('0 0 1 * *')  // 1er du mois a minuit
+  async expireOldCredits() {
+    const expired = await this.creditService.expireCredits(365); // Credits > 1 an
+    this.logger.log(`Expired ${expired} credit transactions`);
+  }
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 13 : DECAISSEMENT ======================== -->
+<div class="section">
+<h2>13. Decaissement vers Medecins (Payout)</h2>
+
+<div class="highlight">
+<strong>Principe</strong> : Apres chaque teleconsultation, le medecin accumule des gains. L'admin peut ensuite decaisser via CinetPay ou PayDunya vers le compte MoMo du medecin.
+</div>
+
+<h3>Modele de Revenus</h3>
+<pre><code>// config/payout.config.ts
+export const payoutConfig = {
+  // Part du medecin par teleconsultation
+  doctorSharePercent: 70,        // 70% pour le medecin
+  platformSharePercent: 30,      // 30% pour la plateforme
+
+  // Montants par type
+  teleconsultationAmount: 5000,  // XOF
+  emergencyAmount: 1000,         // XOF
+
+  // Seuil minimum de decaissement
+  minimumPayoutAmount: 5000,     // XOF
+
+  // Frequence de decaissement automatique
+  autoPayoutFrequency: 'weekly', // weekly, biweekly, monthly
+};</code></pre>
+
+<h3>Service de Decaissement</h3>
+<pre><code>// payout/payout.service.ts
+@Injectable()
+export class PayoutService {
+
+  // Calculer les gains d'un medecin
+  async getDoctorEarnings(doctorId: string, periodStart?: Date, periodEnd?: Date) {
+    const consultations = await this.prisma.teleconsultation.findMany({
+      where: {
+        doctorId,
+        status: 'COMPLETED',
+        completedAt: {
+          gte: periodStart || new Date(0),
+          lte: periodEnd || new Date(),
+        },
+        // Exclure les consultations deja decaissees
+        payoutId: null,
+      },
+    });
+
+    const totalEarnings = consultations.reduce((sum, c) => {
+      const amount = c.type === 'EMERGENCY' ? 1000 : 5000;
+      return sum + Math.floor(amount * 0.70);  // 70% medecin
+    }, 0);
+
+    return {
+      doctorId,
+      consultationCount: consultations.length,
+      grossAmount: consultations.reduce((s, c) => s + (c.type === 'EMERGENCY' ? 1000 : 5000), 0),
+      doctorShare: totalEarnings,
+      platformShare: consultations.reduce((s, c) => {
+        const amount = c.type === 'EMERGENCY' ? 1000 : 5000;
+        return s + Math.floor(amount * 0.30);
+      }, 0),
+      consultationIds: consultations.map(c => c.id),
+    };
+  }
+
+  // Initier un decaissement
+  async initiatePayout(
+    adminId: string,
+    doctorId: string,
+    recipientPhone: string,
+    withdrawMode: string,   // orange-money-senegal, wave, etc.
+  ) {
+    const earnings = await this.getDoctorEarnings(doctorId);
+
+    if (earnings.doctorShare < payoutConfig.minimumPayoutAmount) {
+      throw new BadRequestException(
+        `Montant insuffisant: ${earnings.doctorShare} XOF (minimum: ${payoutConfig.minimumPayoutAmount} XOF)`
+      );
+    }
+
+    // Creer le payout en base
+    const payout = await this.prisma.payout.create({
+      data: {
+        recipientId: doctorId,
+        recipientType: 'DOCTOR',
+        recipientPhone,
+        recipientName: earnings.doctorName,
+        amount: earnings.doctorShare,
+        currency: 'XOF',
+        feeAmount: 0,
+        netAmount: earnings.doctorShare,
+        provider: 'PAYDUNYA',
+        withdrawMode,
+        status: 'PENDING',
+        description: `Paiement ${earnings.consultationCount} consultations`,
+        referenceIds: earnings.consultationIds,
+        periodStart: earnings.periodStart,
+        periodEnd: new Date(),
+        initiatedBy: adminId,
+      },
+    });
+
+    return payout;
+  }
+
+  // Executer le decaissement via PayDunya
+  async executePayout(payoutId: string, approvedBy: string) {
+    const payout = await this.prisma.payout.findUniqueOrThrow({
+      where: { id: payoutId },
+    });
+
+    const provider = this.paymentService.getProvider('PAYDUNYA') as PayDunyaProvider;
+
+    const result = await provider.disburseFunds({
+      amount: payout.amount,
+      currency: payout.currency,
+      recipientPhone: payout.recipientPhone,
+      recipientName: payout.recipientName,
+      withdrawMode: payout.withdrawMode,
+      description: payout.description,
+      transactionId: payout.id,
+    });
+
+    // Mettre a jour le payout
+    await this.prisma.payout.update({
+      where: { id: payoutId },
+      data: {
+        status: result.success ? 'COMPLETED' : 'FAILED',
+        providerPayoutId: result.refundId,
+        providerRawData: result as any,
+        approvedBy,
+        processedAt: result.success ? new Date() : undefined,
+        errorMessage: result.success ? undefined : result.status,
+      },
+    });
+
+    // Marquer les consultations comme decaissees
+    if (result.success) {
+      await this.prisma.teleconsultation.updateMany({
+        where: { id: { in: payout.referenceIds } },
+        data: { payoutId: payout.id },
+      });
+    }
+
+    return result;
+  }
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 14 : VARIABLES ENV ======================== -->
+<div class="section">
+<h2>14. Variables d'Environnement</h2>
+
+<pre><code># ============================================
+# PAYMENT CONFIGURATION
+# ============================================
+
+# --- CinetPay (Aggregateur Principal) ---
+CINETPAY_API_KEY=                        # Cle API CinetPay
+CINETPAY_SITE_ID=                        # ID du site CinetPay
+CINETPAY_SECRET_KEY=                     # Cle secrete pour webhooks
+CINETPAY_NOTIFY_URL=https://yourdomain.com/api/v1/payments/webhook/cinetpay
+CINETPAY_RETURN_URL=https://yourdomain.com/payment/success
+CINETPAY_CANCEL_URL=https://yourdomain.com/payment/cancel
+
+# --- PayDunya (Aggregateur Secondaire) ---
+PAYDUNYA_MASTER_KEY=                     # Master key PayDunya
+PAYDUNYA_PRIVATE_KEY=                    # Private key PayDunya
+PAYDUNYA_TOKEN=                          # Token PayDunya
+PAYDUNYA_ENV=test                        # test ou live
+PAYDUNYA_CALLBACK_URL=https://yourdomain.com/api/v1/payments/webhook/paydunya
+
+# --- MoMo Local ---
+MOMO_RECEIVER_NUMBER=0197548441          # Numero recepteur MoMo
+
+# --- Provider par defaut ---
+DEFAULT_PAYMENT_PROVIDER=CINETPAY        # CINETPAY ou PAYDUNYA
+FALLBACK_PAYMENT_PROVIDER=PAYDUNYA       # Provider de secours
+
+# --- Redis (pour verrous et queue) ---
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# --- Bull Queue ---
+BULL_QUEUE_PREFIX=payment</code></pre>
+</div>
+
+<!-- ======================== SECTION 15 : SECURITE ======================== -->
+<div class="section">
+<h2>15. Securite et Bonnes Pratiques</h2>
+
+<div class="warn">
+<strong>REGLES CRITIQUES DE SECURITE</strong>
+</div>
+
+<h3>Securite des Paiements</h3>
+<ul>
+<li><strong>JAMAIS stocker les cles API dans le code source</strong> - Toujours utiliser les variables d'environnement</li>
+<li><strong>TOUJOURS re-verifier les webhooks</strong> - Ne jamais faire confiance aux donnees du webhook seules, appeler /check ou /confirm</li>
+<li><strong>Verifier la signature</strong> - Utiliser le header x-token (CinetPay) ou SHA-512 hash (PayDunya)</li>
+<li><strong>Idempotence</strong> - Gerer les webhooks dupliques (verrou Redis + check status)</li>
+<li><strong>Transactions atomiques</strong> - Utiliser Prisma.$transaction pour paiement + activation</li>
+<li><strong>Logger TOUS les evenements</strong> - Table PaymentEvent pour audit complet</li>
+<li><strong>Rate limiting</strong> - Proteger les endpoints de paiement (sauf webhooks)</li>
+<li><strong>HTTPS obligatoire</strong> - Tous les webhooks et callbacks en HTTPS</li>
+</ul>
+
+<h3>Prevention de la Fraude</h3>
+<ul>
+<li><strong>Verifier le montant</strong> - Comparer le montant webhook vs montant attendu en base</li>
+<li><strong>Limiter les tentatives</strong> - Maximum 3 paiements en attente par patient</li>
+<li><strong>Expiration automatique</strong> - Sessions CinetPay/PayDunya: 30 min, MoMo local: 24h</li>
+<li><strong>Reference unique</strong> - Chaque transaction a un ID unique non predictible</li>
+<li><strong>Double validation MoMo local</strong> - Verification admin obligatoire</li>
+<li><strong>IP whitelisting webhooks</strong> - En production, filtrer par IP source du provider</li>
+</ul>
+
+<h3>Gestion des Erreurs</h3>
+<pre><code>// Retry strategy pour les appels aux providers
+const axiosRetry = {
+  retries: 3,
+  retryDelay: (retryCount) => retryCount * 2000,  // 2s, 4s, 6s
+  retryCondition: (error) => {
+    return error.response?.status >= 500 ||
+           error.code === 'ECONNABORTED' ||
+           error.code === 'ECONNREFUSED';
+  },
+};
+
+// Fallback automatique vers provider secondaire
+async initiateWithFallback(params: InitiateParams): Promise&lt;InitiateResult&gt; {
+  try {
+    const primary = this.getProvider(this.config.get('defaultProvider'));
+    return await primary.initiatePayment(params);
+  } catch (error) {
+    this.logger.warn(`Primary provider failed, falling back: ${error.message}`);
+    const fallback = this.getProvider(this.config.get('fallbackProvider'));
+    return await fallback.initiatePayment(params);
+  }
+}</code></pre>
+</div>
+
+<!-- ======================== SECTION 16 : TESTS ======================== -->
+<div class="section">
+<h2>16. Tests</h2>
+
+<pre><code>// payment/payment.service.spec.ts
+describe('PaymentService', () => {
+  describe('initiatePayment', () => {
+    it('should create a pending payment and return checkout URL', async () => {
+      const result = await service.initiatePayment({
+        patientId: 'patient-1',
+        type: 'SUBSCRIPTION',
+        packageId: 'basic',
+        provider: 'CINETPAY',
+      });
+      expect(result.paymentUrl).toBeDefined();
+      expect(result.paymentId).toBeDefined();
+
+      const payment = await prisma.payment.findUnique({ where: { id: result.paymentId } });
+      expect(payment.status).toBe('PENDING');
+    });
+
+    it('should fallback to PayDunya when CinetPay fails', async () => { ... });
+    it('should apply promo code discount', async () => { ... });
+    it('should reject if patient has 3+ pending payments', async () => { ... });
+  });
+
+  describe('processWebhookResult', () => {
+    it('should activate subscription on COMPLETED', async () => { ... });
+    it('should add credits with bonus on COMPLETED', async () => { ... });
+    it('should be idempotent for duplicate webhooks', async () => { ... });
+    it('should handle concurrent webhooks with Redis lock', async () => { ... });
+    it('should fail gracefully if payment not found', async () => { ... });
+  });
+
+  describe('MoMo Local', () => {
+    it('should generate valid USSD code', async () => { ... });
+    it('should generate unique reference', async () => { ... });
+    it('should only allow admin to confirm', async () => { ... });
+    it('should expire after 24 hours', async () => { ... });
+  });
+
+  describe('Payout', () => {
+    it('should calculate doctor earnings correctly (70/30)', async () => { ... });
+    it('should reject payout below minimum', async () => { ... });
+    it('should mark consultations as paid out', async () => { ... });
+  });
+});
+
+// E2E tests
+describe('Payment E2E', () => {
+  it('POST /payments/initiate -> redirect -> webhook -> subscription active', async () => { ... });
+  it('POST /payments/momo/initiate -> declare-paid -> admin confirm -> credits', async () => { ... });
+  it('POST /payments/webhook/cinetpay -> re-verify -> complete', async () => { ... });
+});</code></pre>
+</div>
+
+<!-- ======================== SECTION 17 : DEPLOIEMENT ======================== -->
+<div class="section">
+<h2>17. Deploiement et Configuration Production</h2>
+
+<h3>Docker Compose - Services Supplementaires</h3>
+<pre><code># docker-compose.prod.yml (ajouts pour le module paiement)
+services:
+  # ... services existants (backend, frontend, postgres, redis, nginx)
+
+  # Redis est deja present, s'assurer qu'il supporte Bull
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    restart: always</code></pre>
+
+<h3>Nginx - Endpoints Webhook</h3>
+<pre><code># nginx/conf.d/default.conf (ajout)
+# Webhook endpoints - pas de rate limit, pas d'auth
+location /api/v1/payments/webhook/ {
+    # Pas de rate limiting pour les webhooks
+    proxy_pass http://backend_api;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # Timeouts genereux pour les webhooks
+    proxy_read_timeout 30s;
+    proxy_connect_timeout 10s;
+}</code></pre>
+
+<h3>Checklist de Mise en Production</h3>
+<ul>
+<li>Creer un compte CinetPay sur <a href="https://cinetpay.com" style="color:#fbbf24">cinetpay.com</a> et obtenir API Key + Site ID</li>
+<li>Creer un compte PayDunya sur <a href="https://paydunya.com" style="color:#fbbf24">paydunya.com</a> et obtenir les 3 cles</li>
+<li>Configurer les URLs de webhook dans les dashboards des providers</li>
+<li>Tester en mode sandbox avant de passer en live</li>
+<li>Configurer les variables d'environnement sur le VPS</li>
+<li>Verifier que les webhooks sont accessibles (curl test)</li>
+<li>Configurer le rate limiting Nginx (exclure /webhook/)</li>
+<li>Mettre en place les alertes (paiements echoues, queue bloquee)</li>
+<li>Sauvegarder les cles API dans un gestionnaire de secrets</li>
+</ul>
+</div>
+
+<!-- ======================== SECTION 18 : LIENS UTILES ======================== -->
+<div class="section">
+<h2>18. Liens Utiles et Documentation</h2>
+
+<h3>Documentation Officielle</h3>
+<ul>
+<li><strong>CinetPay</strong> : <code>https://docs.cinetpay.com/</code> - API v2 Checkout + Notification + Verification</li>
+<li><strong>PayDunya</strong> : <code>https://developers.paydunya.com/</code> - Checkout, DMP, Disbursement</li>
+<li><strong>MTN MoMo</strong> : <code>https://momodeveloper.mtn.com/</code> - Collection API (si integration directe)</li>
+<li><strong>Orange Money</strong> : <code>https://developer.orange.com/apis/om-webpay</code> - WebPay API</li>
+<li><strong>Wave</strong> : <code>https://docs.wave.com/checkout</code> - Checkout + Payout + Webhook</li>
+</ul>
+
+<h3>Endpoints CinetPay (Reference Rapide)</h3>
+<table>
+<tr><th>Action</th><th>Methode</th><th>URL</th></tr>
+<tr><td>Initier paiement</td><td>POST</td><td><code>https://api-checkout.cinetpay.com/v2/payment</code></td></tr>
+<tr><td>Verifier paiement</td><td>POST</td><td><code>https://api-checkout.cinetpay.com/v2/payment/check</code></td></tr>
+</table>
+
+<h3>Endpoints PayDunya (Reference Rapide)</h3>
+<table>
+<tr><th>Action</th><th>Methode</th><th>URL (Live)</th></tr>
+<tr><td>Creer facture</td><td>POST</td><td><code>https://app.paydunya.com/api/v1/checkout-invoice/create</code></td></tr>
+<tr><td>Confirmer</td><td>GET</td><td><code>https://app.paydunya.com/api/v1/checkout-invoice/confirm/{token}</code></td></tr>
+<tr><td>DMP (push phone)</td><td>POST</td><td><code>https://app.paydunya.com/api/v1/dmp-api</code></td></tr>
+<tr><td>Decaissement</td><td>POST</td><td><code>https://app.paydunya.com/api/v2/disburse/get-invoice</code></td></tr>
+</table>
+
+<h3>Headers PayDunya (Toutes les requetes)</h3>
+<pre><code>PAYDUNYA-MASTER-KEY: {master_key}
+PAYDUNYA-PRIVATE-KEY: {private_key}
+PAYDUNYA-TOKEN: {token}
+Content-Type: application/json</code></pre>
+
+<div class="success">
+<strong>Recommandation</strong> : Commencer avec <strong>CinetPay</strong> pour la collection (recevoir des paiements) car il couvre le plus de pays et operateurs. Utiliser <strong>PayDunya</strong> pour les decaissements (payer les medecins) car son API de disbursement est plus simple. Garder le <strong>MoMo Local</strong> comme filet de securite pour les zones ou les aggregateurs ne fonctionnent pas.
+</div>
+</div>
+
+</div><!-- /prompt-content -->
+</div><!-- /container -->
+
+<script>
+function copyPrompt() {
+  const content = document.getElementById('prompt-content').innerText;
+  navigator.clipboard.writeText(content).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copie !';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copier tout le prompt';
+      btn.classList.remove('copied');
+    }, 3000);
+  });
+}
+
+function downloadPrompt() {
+  const content = document.getElementById('prompt-content').innerText;
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'prompt-paiement-momo.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

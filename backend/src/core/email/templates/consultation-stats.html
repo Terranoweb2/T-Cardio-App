@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f0f0f5;font-family:'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(88,28,135,0.15);margin-top:20px;margin-bottom:20px;">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#581c87,#7c3aed);padding:28px 24px;text-align:center;">
+    <img src="https://t-cardio.org/logo-T-Cardio.png" alt="T-Cardio Pro" width="48" height="48" style="border-radius:12px;margin-bottom:8px;">
+    <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">T-Cardio Pro</h1>
+    <p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:12px;text-transform:uppercase;letter-spacing:2px;">Rapport de Consultations</p>
+  </div>
+
+  <!-- ECG Bar -->
+  <div style="height:4px;background:linear-gradient(90deg,#22c55e,#06b6d4,#22c55e);"></div>
+
+  <!-- Body -->
+  <div style="padding:28px 24px;">
+    <p style="color:#1e1b4b;font-size:17px;font-weight:600;margin:0 0 4px;">Bonjour {{doctorName}},</p>
+    <p style="color:#6b7280;font-size:14px;line-height:1.7;margin:8px 0 20px;">
+      Voici votre rapport d'activit&eacute; de consultations, g&eacute;n&eacute;r&eacute; le {{date}}.
+    </p>
+
+    <!-- Stats Grid -->
+    <div style="margin-bottom:24px;">
+      <p style="margin:0 0 12px;color:#581c87;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">
+        &#128202; Statistiques de consultations
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:8px;">
+        <tr>
+          <td style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #e9d5ff;border-radius:12px;padding:16px;text-align:center;width:50%;">
+            <p style="margin:0;color:#7c3aed;font-size:28px;font-weight:800;">{{today}}</p>
+            <p style="margin:4px 0 0;color:#6b7280;font-size:12px;font-weight:600;">Aujourd'hui</p>
+          </td>
+          <td style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #e9d5ff;border-radius:12px;padding:16px;text-align:center;width:50%;">
+            <p style="margin:0;color:#7c3aed;font-size:28px;font-weight:800;">{{thisWeek}}</p>
+            <p style="margin:4px 0 0;color:#6b7280;font-size:12px;font-weight:600;">Cette semaine</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #e9d5ff;border-radius:12px;padding:16px;text-align:center;width:50%;">
+            <p style="margin:0;color:#7c3aed;font-size:28px;font-weight:800;">{{thisMonth}}</p>
+            <p style="margin:4px 0 0;color:#6b7280;font-size:12px;font-weight:600;">Ce mois</p>
+          </td>
+          <td style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #e9d5ff;border-radius:12px;padding:16px;text-align:center;width:50%;">
+            <p style="margin:0;color:#7c3aed;font-size:28px;font-weight:800;">{{thisQuarter}}</p>
+            <p style="margin:4px 0 0;color:#6b7280;font-size:12px;font-weight:600;">Ce trimestre</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Settings Section -->
+    <div style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #a7f3d0;border-radius:12px;padding:16px;margin-bottom:20px;">
+      <p style="margin:0 0 10px;color:#065f46;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">
+        &#9881; Param&egrave;tres actuels
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:4px 0;color:#047857;font-size:13px;font-weight:600;">Prix de consultation</td>
+          <td style="padding:4px 0;color:#065f46;font-size:14px;font-weight:700;text-align:right;">{{consultationPrice}} XOF</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#047857;font-size:13px;font-weight:600;">Dur&eacute;e par d&eacute;faut</td>
+          <td style="padding:4px 0;color:#065f46;font-size:14px;font-weight:700;text-align:right;">{{durationMinutes}} min</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- CTA Button -->
+    <div style="text-align:center;margin:24px 0 8px;">
+      <a href="https://t-cardio.org/doctor/consultation-stats" style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#581c87);color:#ffffff;text-decoration:none;padding:14px 36px;border-radius:50px;font-size:14px;font-weight:700;letter-spacing:0.5px;box-shadow:0 4px 16px rgba(124,58,237,0.35);">
+        Voir mes consultations
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:#faf5ff;padding:18px 24px;text-align:center;border-top:1px solid #e9d5ff;">
+    <p style="margin:0;font-size:11px;color:#9ca3af;line-height:1.6;">
+      Ce rapport est g&eacute;n&eacute;r&eacute; automatiquement &agrave; chaque consultation du module.<br>
+      &copy; 2026 T-Cardio Pro &mdash; Suivi cardiaque intelligent
+    </p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>T-Cardio Pro</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a1628;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #e2e8f0;
+      overflow: hidden;
+    }
+    .bg {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 100%, rgba(20,184,166,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 10% 60%, rgba(6,182,212,0.06) 0%, transparent 50%);
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    /* Logo */
+    .logo-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .pulse-ring {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border: 2px solid rgba(6,182,212,0.2);
+      border-radius: 50%;
+      animation: pulse-ring 2.5s ease-out infinite;
+    }
+    .pulse-ring:nth-child(2) { animation-delay: 0.8s; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .logo-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(20,184,166,0.08));
+      border: 1.5px solid rgba(6,182,212,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .logo-circle img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      animation: heartbeat 2s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.1); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      60% { transform: scale(1); }
+    }
+
+    /* Title */
+    .app-name {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #06b6d4, #14b8a6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+    .description {
+      font-size: 0.92rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Status */
+    .status-card {
+      background: rgba(6,182,212,0.06);
+      border: 1px solid rgba(6,182,212,0.15);
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.8rem;
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #f59e0b;
+      border-radius: 50%;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .status-text {
+      font-size: 0.85rem;
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .progress-bar {
+      height: 3px;
+      background: rgba(6,182,212,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.65rem;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg, #06b6d4, #14b8a6);
+      border-radius: 3px;
+      animation: progress 2.5s ease-in-out infinite;
+    }
+    @keyframes progress {
+      0% { width: 10%; margin-left: 0; }
+      50% { width: 40%; margin-left: 30%; }
+      100% { width: 10%; margin-left: 90%; }
+    }
+
+    /* Button */
+    .retry-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+      color: #fff;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 20px rgba(6,182,212,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .retry-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 10px rgba(6,182,212,0.2);
+    }
+    .footer {
+      font-size: 0.75rem;
+      color: #475569;
+      margin-top: 1.2rem;
+    }
+
+    /* ECG Line */
+    .ecg {
+      position: fixed;
+      bottom: 12%;
+      left: 0;
+      width: 200%;
+      height: 50px;
+      opacity: 0.07;
+      animation: ecg-scroll 4s linear infinite;
+    }
+    @keyframes ecg-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <!-- ECG line -->
+  <svg class="ecg" viewBox="0 0 1200 50" preserveAspectRatio="none">
+    <polyline fill="none" stroke="#06b6d4" stroke-width="2"
+      points="0,25 80,25 100,25 110,8 120,42 130,4 140,46 150,25 170,25 250,25 280,25 290,8 300,42 310,4 320,46 330,25 350,25 430,25 480,25 490,8 500,42 510,4 520,46 530,25 550,25 600,25" />
+    <polyline fill="none" stroke="#06b6d4" stroke-width="2"
+      points="600,25 680,25 700,25 710,8 720,42 730,4 740,46 750,25 770,25 850,25 880,25 890,8 900,42 910,4 920,46 930,25 950,25 1030,25 1080,25 1090,8 1100,42 1110,4 1120,46 1130,25 1150,25 1200,25" />
+  </svg>
+
+  <div class="container">
+    <!-- Logo with pulse -->
+    <div class="logo-wrapper">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="logo-circle">
+        <img src="file:///android_asset/logo.png" alt="T-Cardio">
+      </div>
+    </div>
+
+    <div class="app-name">T-Cardio Pro</div>
+
+    <h1>Connexion indisponible</h1>
+    <p class="description">
+      Impossible de se connecter au serveur.<br>
+      Verifiez votre connexion internet et reessayez.
+    </p>
+
+    <div class="status-card">
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span class="status-text">Hors connexion</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+
+    <button class="retry-btn" onclick="window.location.href='https://t-cardio.org'">
+      Reessayer
+    </button>
+
+    <p class="footer">Activez le WiFi ou les donnees mobiles pour continuer.</p>
+  </div>
+</body>
+</html>

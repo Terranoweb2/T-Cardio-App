@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Background circle -->
+    <path
+        android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"
+        android:fillColor="#0B1426"/>
+    <!-- Heart -->
+    <path
+        android:pathData="M24,38 C24,38 12,28 12,20 C12,15 16,12 20,12 C22.5,12 24,14 24,16 C24,14 25.5,12 28,12 C32,12 36,15 36,20 C36,28 24,38 24,38z"
+        android:fillColor="#06B6D4"/>
+</vector>

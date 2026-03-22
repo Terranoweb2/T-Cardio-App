@@ -16,18 +16,28 @@ export interface VisionOcrResult {
 @Injectable()
 export class VisionOcrService {
   private readonly logger = new Logger(VisionOcrService.name);
-  private readonly client: OpenAI;
+  private readonly client: OpenAI | null;
   private readonly modelName: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.client = new OpenAI({
-      apiKey: this.configService.get<string>('OPENAI_VISION_API_KEY'),
-      baseURL: 'https://api.openai.com/v1',
-    });
+    const apiKey = this.configService.get<string>('OPENAI_VISION_API_KEY');
+    if (apiKey) {
+      this.client = new OpenAI({
+        apiKey,
+        baseURL: 'https://api.openai.com/v1',
+      });
+    } else {
+      this.client = null;
+      this.logger.warn('OPENAI_VISION_API_KEY not set — OCR will be unavailable');
+    }
     this.modelName = this.configService.get<string>('OPENAI_VISION_MODEL', 'gpt-4o-mini');
   }
 
   async extractBpFromImage(base64Image: string): Promise<VisionOcrResult> {
+    if (!this.client) {
+      throw new Error('OCR service unavailable — OPENAI_VISION_API_KEY not configured');
+    }
+
     try {
       const response = await this.client.chat.completions.create({
         model: this.modelName,

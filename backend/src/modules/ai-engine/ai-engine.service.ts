@@ -143,9 +143,48 @@ export class AiEngineService {
       .map((m) => `- ${m.date}: ${m.systolic}/${m.diastolic} mmHg${m.pulse ? `, pouls ${m.pulse} bpm` : ''}`)
       .join('\n');
 
+    // Pre-calculate statistics for accuracy
+    const systolics = input.measurements.map((m) => m.systolic);
+    const diastolics = input.measurements.map((m) => m.diastolic);
+    const n = systolics.length;
+
+    const avgSys = Math.round(systolics.reduce((a, b) => a + b, 0) / n);
+    const avgDia = Math.round(diastolics.reduce((a, b) => a + b, 0) / n);
+    const minSys = Math.min(...systolics);
+    const maxSys = Math.max(...systolics);
+    const minDia = Math.min(...diastolics);
+    const maxDia = Math.max(...diastolics);
+
+    const stdSys = Math.round(Math.sqrt(systolics.reduce((sum, v) => sum + (v - avgSys) ** 2, 0) / n) * 10) / 10;
+    const stdDia = Math.round(Math.sqrt(diastolics.reduce((sum, v) => sum + (v - avgDia) ** 2, 0) / n) * 10) / 10;
+
+    const avgPP = Math.round(input.measurements.reduce((sum, m) => sum + (m.systolic - m.diastolic), 0) / n);
+
+    const aboveThresholdSys = systolics.filter((v) => v >= 130).length;
+    const aboveThresholdDia = diastolics.filter((v) => v >= 85).length;
+
+    const pulses = input.measurements.filter((m) => m.pulse).map((m) => m.pulse!);
+    const avgPulse = pulses.length > 0 ? Math.round(pulses.reduce((a, b) => a + b, 0) / pulses.length) : null;
+
     const contextText = input.patientContext ? `\nContexte patient: ${JSON.stringify(input.patientContext)}` : '';
 
-    return `Analyse les mesures tensionnelles suivantes sur ${input.periodDays} jours:\n\nMESURES:\n${measurementsText}\n${contextText}\n\nReponds UNIQUEMENT en JSON valide selon le format defini dans tes instructions systeme.`;
+    return `Analyse les mesures tensionnelles suivantes sur ${input.periodDays} jours:
+
+MESURES (${n} mesures):
+${measurementsText}
+
+STATISTIQUES PRE-CALCULEES (utilise ces valeurs exactes dans ton analyse):
+- Moyenne: ${avgSys}/${avgDia} mmHg
+- Ecart-type: systolique ±${stdSys}, diastolique ±${stdDia}
+- Min/Max systolique: ${minSys}-${maxSys} mmHg
+- Min/Max diastolique: ${minDia}-${maxDia} mmHg
+- Pression pulsee moyenne: ${avgPP} mmHg
+- Mesures systolique >= 130: ${aboveThresholdSys}/${n}
+- Mesures diastolique >= 85: ${aboveThresholdDia}/${n}${avgPulse ? `\n- Pouls moyen: ${avgPulse} bpm` : ''}
+${contextText}
+
+IMPORTANT: Base ton analyse sur ces statistiques exactes. Ne surestime pas le risque. 120/80 est NORMAL (FAIBLE).
+Reponds UNIQUEMENT en JSON valide selon le format defini dans tes instructions systeme.`;
   }
 
   private generateFallback(input: PatientAiInput): AiAnalysisResult {
@@ -153,10 +192,11 @@ export class AiEngineService {
     const avgSys = Math.round(systolics.reduce((a, b) => a + b, 0) / systolics.length);
     const avgDia = Math.round(input.measurements.reduce((a, b) => a + b.diastolic, 0) / input.measurements.length);
 
+    // OMS/ESH 2023 thresholds
     let riskLevel = 'FAIBLE';
     if (avgSys >= 180 || avgDia >= 120) riskLevel = 'CRITIQUE';
     else if (avgSys >= 140 || avgDia >= 90) riskLevel = 'ELEVE';
-    else if (avgSys >= 120 || avgDia >= 80) riskLevel = 'MODERE';
+    else if (avgSys >= 130 || avgDia >= 85) riskLevel = 'MODERE';
 
     return {
       riskLevel,

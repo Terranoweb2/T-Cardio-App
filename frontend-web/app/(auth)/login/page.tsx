@@ -29,6 +29,7 @@ function LoginContent() {
   const loadFromStorage = useAuthStore((s) => s.loadFromStorage);
   const [serverError, setServerError] = useState('');
   const [isPendingValidation, setIsPendingValidation] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   // Detect APK mode from query param
   const appMode = searchParams.get('app'); // 'patient', 'medecin', 'admin'
@@ -45,8 +46,10 @@ function LoginContent() {
           if (user.role === 'ADMIN') router.replace('/admin/dashboard');
           else if (user.role === 'MEDECIN' || user.role === 'CARDIOLOGUE') router.replace('/doctor/dashboard');
           else router.replace('/dashboard');
+          return; // Keep splash while redirecting
         } catch {}
       }
+      setIsCheckingAuth(false);
     }
   }, []);
 
@@ -133,6 +136,28 @@ function LoginContent() {
       if (translated) setServerError(translated);
     }
   };
+
+  // Show splash screen while checking auth (prevents login page flash)
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-cardio-900 flex flex-col items-center justify-center">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 w-28 h-28 rounded-full bg-cyan-500/15 blur-xl animate-pulse" />
+          <div className="relative w-24 h-24 rounded-full bg-cardio-800/80 border border-cyan-500/20 flex items-center justify-center">
+            <Image src="/logo-T-Cardio.png" alt="T-Cardio" width={64} height={64} priority />
+          </div>
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">T-Cardio <span className="text-cyan-400">Pro</span></h1>
+        <div className="flex items-center gap-2 text-slate-400 text-sm">
+          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Chargement...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cardio-900 px-4 py-8">

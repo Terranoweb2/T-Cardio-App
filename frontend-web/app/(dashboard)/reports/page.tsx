@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import ExportButton from '@/components/reports/ExportButton';
+import { FileText, Download, Loader2, FolderOpen, FileCheck } from 'lucide-react';
 
 export default function ReportsPage() {
  const [reports, setReports] = useState<any[]>([]);
@@ -10,6 +11,7 @@ export default function ReportsPage() {
  const [page, setPage] = useState(1);
  const [generating, setGenerating] = useState(false);
  const [downloading, setDownloading] = useState<string | null>(null);
+ const [downloadingMedFile, setDownloadingMedFile] = useState(false);
 
  const fetchReports = () => {
   api.get(`/reports/my?page=${page}&limit=20`)
@@ -86,16 +88,70 @@ export default function ReportsPage() {
   }
  };
 
+ const handleDownloadMedicalFile = async () => {
+  setDownloadingMedFile(true);
+  try {
+   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+   const response = await fetch(`${baseURL}/reports/complete-medical-file`, {
+    headers: { Authorization: `Bearer ${token}` },
+   });
+   if (!response.ok) throw new Error('Download failed');
+   const blob = await response.blob();
+   const reader = new FileReader();
+   reader.onloadend = () => {
+    const link = document.createElement('a');
+    link.href = reader.result as string;
+    link.download = `dossier-medical-complet-${new Date().toISOString().slice(0, 10)}.pdf`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => document.body.removeChild(link), 2000);
+   };
+   reader.readAsDataURL(blob);
+  } catch (err) {
+   console.error('Medical file download error:', err);
+  } finally {
+   setDownloadingMedFile(false);
+  }
+ };
+
  return (
   <div>
    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-    <h1 className="text-lg sm:text-2xl font-bold">Rapports</h1>
+    <h1 className="text-lg sm:text-2xl font-bold text-gradient-cyan">Rapports</h1>
     <div className="flex items-center gap-3">
      <ExportButton variant="compact" />
      <button onClick={handleGenerate} disabled={generating}
       className="glow-btn px-4 py-2 rounded-lg disabled:opacity-50 transition text-sm">
       {generating ? 'Generation en cours...' : 'Generer un rapport'}
      </button>
+    </div>
+   </div>
+
+   {/* Medical File Export Card */}
+   <div className="glass-card rounded-xl p-4 sm:p-6 mb-6 border border-cyan-500/10">
+    <div className="flex items-start gap-4">
+     <div className="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+      <FolderOpen className="w-6 h-6 text-cyan-400" />
+     </div>
+     <div className="flex-1 min-w-0">
+      <h2 className="font-semibold text-slate-200 mb-1">Dossier medical complet</h2>
+      <p className="text-xs sm:text-sm text-slate-400 mb-3">
+       Exportez l&apos;integralite de votre dossier : mesures, analyses IA, ordonnances, resultats d&apos;examens et historique medical en un seul PDF.
+      </p>
+      <button
+       onClick={handleDownloadMedicalFile}
+       disabled={downloadingMedFile}
+       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 transition text-sm font-medium disabled:opacity-50"
+      >
+       {downloadingMedFile ? (
+        <><Loader2 className="w-4 h-4 animate-spin" /> Generation en cours...</>
+       ) : (
+        <><Download className="w-4 h-4" /> Telecharger mon dossier complet</>
+       )}
+      </button>
+     </div>
     </div>
    </div>
 

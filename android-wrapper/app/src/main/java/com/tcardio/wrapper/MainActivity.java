@@ -25,6 +25,8 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceError;
 import android.webkit.JavascriptInterface;
 import android.net.http.SslError;
+import android.app.DownloadManager;
+import android.webkit.URLUtil;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -275,6 +277,50 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST);
                 return true;
+            }
+        });
+
+        // ─── Download handler for PDF reports and files ───
+        webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
+            try {
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+
+                // Extract filename from content disposition or URL
+                String fileName = URLUtil.guessFileName(url, contentDisposition, mimeType);
+                if (fileName == null || fileName.isEmpty()) {
+                    fileName = "T-Cardio-Rapport.pdf";
+                }
+
+                // Pass cookies for authenticated downloads
+                String cookies = CookieManager.getInstance().getCookie(url);
+                if (cookies != null) {
+                    request.addRequestHeader("Cookie", cookies);
+                }
+
+                // Pass auth token from WebView localStorage
+                request.addRequestHeader("User-Agent", userAgent);
+
+                request.setTitle(fileName);
+                request.setDescription("Telechargement T-Cardio Pro");
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+                request.setMimeType(mimeType);
+
+                DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                if (downloadManager != null) {
+                    downloadManager.enqueue(request);
+                    Toast.makeText(MainActivity.this, "Telechargement en cours: " + fileName, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Download started: " + fileName + " (" + mimeType + ")");
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Download error", e);
+                // Fallback: open in browser
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(browserIntent);
+                } catch (Exception ex) {
+                    Toast.makeText(MainActivity.this, "Impossible de telecharger le fichier", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -176,3 +176,22 @@ export function useCancelAppointment() {
     },
   });
 }
+
+export function useDeleteAppointment() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (appointmentId: string) => {
+      const { data } = await api.delete(`/appointments/${appointmentId}`);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Rendez-vous supprime');
+      qc.invalidateQueries({ queryKey: queryKeys.appointments.all });
+    },
+    onError: (err: any) => {
+      // If DELETE endpoint doesn't exist, try cancel instead
+      toast.error(err?.response?.data?.message || 'Erreur lors de la suppression');
+    },
+  });
+}

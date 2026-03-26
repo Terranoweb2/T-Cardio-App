@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import ScheduleForm from '@/components/teleconsultation/ScheduleForm';
+import { XCircle, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 type StatusFilter = 'ALL' | 'PLANNED' | 'ACTIVE' | 'ENDED';
 
@@ -13,6 +15,23 @@ export default function DoctorTeleconsultationsPage() {
  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
  const [actionLoading, setActionLoading] = useState<string | null>(null);
  const [showScheduleForm, setShowScheduleForm] = useState(false);
+ const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+ const isPast = (dateStr: string) => new Date(dateStr) < new Date();
+
+ const handleDelete = async (id: string) => {
+  setActionLoading(id);
+  try {
+   await api.delete(`/teleconsultations/${id}`);
+   setTeleconsultations((prev) => prev.filter((tc) => tc.id !== id));
+   setDeleteConfirmId(null);
+   toast.success('Teleconsultation supprimee');
+  } catch {
+   toast.error('Erreur lors de la suppression');
+  } finally {
+   setActionLoading(null);
+  }
+ };
 
  const fetchTeleconsultations = () => {
   setLoading(true);
@@ -133,14 +152,19 @@ export default function DoctorTeleconsultationsPage() {
          </tr>
         </thead>
         <tbody className="divide-y divide-cyan-500/10">
-         {filtered.map((tc: any) => (
-          <tr key={tc.id} className="hover:bg-cardio-800/50">
+         {filtered.map((tc: any) => {
+          const past = tc.scheduledAt && isPast(tc.scheduledAt) && tc.status !== 'ACTIVE';
+          return (
+          <tr key={tc.id} className={`${past ? 'opacity-60' : 'hover:bg-cardio-800/50'}`}>
            <td className="px-4 py-3 text-sm">
-            {tc.patientName || tc.patient?.firstName
-             ? `${tc.patient?.firstName || ''} ${tc.patient?.lastName || ''}`.trim()
-             : tc.patientEmail || tc.patient?.email || '--'}
+            <div className="flex items-center gap-2">
+             {past && <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
+             {tc.patientName || tc.patient?.firstName
+              ? `${tc.patient?.firstName || ''} ${tc.patient?.lastName || ''}`.trim()
+              : tc.patientEmail || tc.patient?.email || '--'}
+            </div>
            </td>
-           <td className="px-4 py-3 text-sm text-slate-400">
+           <td className={`px-4 py-3 text-sm ${past ? 'text-red-400' : 'text-slate-400'}`}>
             {tc.scheduledAt
              ? new Date(tc.scheduledAt).toLocaleString('fr-FR')
              : '--'}
@@ -148,10 +172,14 @@ export default function DoctorTeleconsultationsPage() {
            <td className="px-4 py-3 text-sm text-slate-400">
             {tc.motif || tc.reason || '--'}
            </td>
-           <td className="px-4 py-3">{statusBadge(tc.status)}</td>
+           <td className="px-4 py-3">
+            {past && tc.status === 'PLANNED'
+             ? <span className="px-2 py-0.5 rounded text-xs font-medium bg-red-500/15 text-red-400">Passee</span>
+             : statusBadge(tc.status)}
+           </td>
            <td className="px-4 py-3">
             <div className="flex gap-2 items-center">
-             {tc.status === 'PLANNED' && (
+             {!past && tc.status === 'PLANNED' && (
               <button
                onClick={() => handleStatusChange(tc.id, 'ACTIVE')}
                disabled={actionLoading === tc.id}
@@ -169,16 +197,53 @@ export default function DoctorTeleconsultationsPage() {
                {actionLoading === tc.id ? '...' : 'Terminer'}
               </button>
              )}
-             <Link
-              href={`/teleconsultations/${tc.id}`}
-              className="text-cyan-400 hover:text-cyan-300 text-xs font-medium hover:underline transition"
-             >
-              {tc.status === 'PLANNED' || tc.status === 'ACTIVE' ? 'Rejoindre' : 'Voir'}
-             </Link>
+             {(past || tc.status === 'ENDED' || tc.status === 'CANCELLED') && (
+              deleteConfirmId === tc.id ? (
+               <div className="flex items-center gap-1">
+                <button
+                 onClick={() => handleDelete(tc.id)}
+                 disabled={actionLoading === tc.id}
+                 className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 disabled:opacity-50 transition"
+                >
+                 {actionLoading === tc.id ? '...' : 'Oui'}
+                </button>
+                <button
+                 onClick={() => setDeleteConfirmId(null)}
+                 className="text-slate-400 text-xs px-2 py-1 hover:text-slate-300"
+                >
+                 Non
+                </button>
+               </div>
+              ) : (
+               <button
+                onClick={() => setDeleteConfirmId(tc.id)}
+                className="flex items-center gap-1 text-red-400 hover:text-red-300 text-xs transition"
+               >
+                <Trash2 className="w-3.5 h-3.5" /> Supprimer
+               </button>
+              )
+             )}
+             {!past && (tc.status === 'PLANNED' || tc.status === 'ACTIVE') && (
+              <Link
+               href={`/teleconsultations/${tc.id}`}
+               className="text-cyan-400 hover:text-cyan-300 text-xs font-medium hover:underline transition"
+              >
+               Rejoindre
+              </Link>
+             )}
+             {(past || tc.status === 'ENDED') && (
+              <Link
+               href={`/teleconsultations/${tc.id}`}
+               className="text-cyan-400 hover:text-cyan-300 text-xs font-medium hover:underline transition"
+              >
+               Voir
+              </Link>
+             )}
             </div>
            </td>
           </tr>
-         ))}
+          );
+         })}
         </tbody>
        </table>
       </div>

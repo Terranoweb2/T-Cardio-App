@@ -11,12 +11,15 @@ import {
   X,
   Ban,
   Loader2,
+  Trash2,
+  XCircle,
 } from 'lucide-react';
 import {
   type Appointment,
   useConfirmAppointment,
   useRejectAppointment,
   useCancelAppointment,
+  useDeleteAppointment,
 } from '@/hooks/useAppointments';
 
 interface AppointmentCardProps {
@@ -53,6 +56,11 @@ const STATUS_CONFIG: Record<
     color: 'text-cyan-400',
     bgColor: 'bg-cyan-500/15 border-cyan-500/20',
   },
+  EXPIRED: {
+    label: 'PASSE',
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/15 border-red-500/20',
+  },
 };
 
 export default function AppointmentCard({
@@ -64,23 +72,33 @@ export default function AppointmentCard({
   const [rejectReason, setRejectReason] = useState('');
   const [cancelReason, setCancelReason] = useState('');
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const confirmMutation = useConfirmAppointment();
   const rejectMutation = useRejectAppointment();
   const cancelMutation = useCancelAppointment();
-
-  const statusCfg = STATUS_CONFIG[appointment.status] || STATUS_CONFIG.CANCELLED;
+  const deleteMutation = useDeleteAppointment();
 
   const isDoctor = viewerRole === 'MEDECIN' || viewerRole === 'CARDIOLOGUE';
   const isPatient = viewerRole === 'PATIENT';
 
-  const canConfirm = isDoctor && appointment.status === 'APPT_PENDING';
-  const canReject = isDoctor && appointment.status === 'APPT_PENDING';
+  // Check if appointment date is in the past
+  const scheduledDate = new Date(appointment.scheduledAt);
+  const isPast = scheduledDate < new Date();
+
+  // Override status for past appointments that are still CONFIRMED or PENDING
+  const effectiveStatus = isPast && (appointment.status === 'CONFIRMED' || appointment.status === 'APPT_PENDING')
+    ? 'EXPIRED'
+    : appointment.status;
+
+  const statusCfg = STATUS_CONFIG[effectiveStatus] || STATUS_CONFIG.CANCELLED;
+
+  const canConfirm = isDoctor && appointment.status === 'APPT_PENDING' && !isPast;
+  const canReject = isDoctor && appointment.status === 'APPT_PENDING' && !isPast;
   const canCancel =
     (isPatient || isDoctor) &&
-    (appointment.status === 'APPT_PENDING' || appointment.status === 'CONFIRMED');
-
-  // Format date
-  const scheduledDate = new Date(appointment.scheduledAt);
+    (appointment.status === 'APPT_PENDING' || appointment.status === 'CONFIRMED') &&
+    !isPast;
+  const canDelete = isPast || appointment.status === 'CANCELLED' || appointment.status === 'REJECTED';
   const dateStr = scheduledDate.toLocaleDateString('fr-FR', {
     weekday: 'long',
     day: 'numeric',
@@ -122,9 +140,17 @@ export default function AppointmentCard({
   };
 
   return (
-    <div className="glass-card rounded-xl border border-cyan-500/10 overflow-hidden transition-all duration-200 hover:border-cyan-500/20">
+    <div className={`glass-card rounded-xl border overflow-hidden transition-all duration-200 ${isPast ? 'border-red-500/20 opacity-75' : 'border-cyan-500/10 hover:border-cyan-500/20'}`}>
       {/* Status strip */}
-      <div className={`h-1 ${statusCfg.bgColor.split(' ')[0]}`} />
+      <div className={`h-1 ${isPast ? 'bg-red-500/30' : statusCfg.bgColor.split(' ')[0]}`} />
+
+      {/* Past indicator */}
+      {isPast && (
+        <div className="flex items-center gap-2 px-4 pt-3 pb-0">
+          <XCircle className="w-4 h-4 text-red-400" />
+          <span className="text-xs font-medium text-red-400">Rendez-vous passe</span>
+        </div>
+      )}
 
       <div className="p-4 sm:p-5">
         {/* Header: person + status */}
@@ -264,7 +290,7 @@ export default function AppointmentCard({
         )}
 
         {/* Action buttons */}
-        {(canConfirm || canReject || canCancel) && !showRejectInput && !showCancelInput && (
+        {(canConfirm || canReject || canCancel || canDelete) && !showRejectInput && !showCancelInput && (
           <div className="flex flex-wrap gap-2 pt-2 border-t border-cyan-500/10 mt-3">
             {canConfirm && (
               <button
@@ -297,6 +323,34 @@ export default function AppointmentCard({
                 <Ban className="w-3.5 h-3.5" />
                 Annuler
               </button>
+            )}
+            {canDelete && !showDeleteConfirm && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg text-sm font-medium transition"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Supprimer
+              </button>
+            )}
+            {canDelete && showDeleteConfirm && (
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-xs text-red-400">Confirmer ?</span>
+                <button
+                  onClick={() => deleteMutation.mutate(appointment.id)}
+                  disabled={deleteMutation.isPending}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium disabled:opacity-50 transition"
+                >
+                  {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                  Oui
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-300 transition"
+                >
+                  Non
+                </button>
+              </div>
             )}
           </div>
         )}

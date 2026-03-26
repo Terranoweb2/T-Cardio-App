@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import * as path from 'path';
+import axios from 'axios';
 
 @Injectable()
 export class EmailService implements OnModuleInit {
@@ -21,6 +22,11 @@ export class EmailService implements OnModuleInit {
   private readonly smtpUser: string;
   private readonly smtpPass: string;
 
+  // Brevo API fallback (port 443 — never blocked by cloud providers)
+  private readonly brevoApiKey: string;
+  private readonly senderName: string;
+  private readonly senderEmail: string;
+
   // Template cache to avoid repeated disk reads
   private templateCache: Map<string, string> = new Map();
 
@@ -29,11 +35,14 @@ export class EmailService implements OnModuleInit {
     this.smtpPort = this.configService.get<number>('SMTP_PORT') || 587;
     this.smtpUser = this.configService.get<string>('SMTP_USER') || '';
     this.smtpPass = this.configService.get<string>('SMTP_PASS') || '';
+    this.brevoApiKey = this.configService.get<string>('BREVO_API_KEY') || '';
+    this.senderName = this.configService.get<string>('EMAIL_SENDER_NAME') || 'T-Cardio Pro';
+    this.senderEmail = this.configService.get<string>('EMAIL_SENDER_EMAIL') || 'noreply@t-cardio.com';
     this.fromAddress =
       this.configService.get<string>('SMTP_FROM') ||
-      'T-Cardio Pro <noreply@t-cardio.com>';
+      `${this.senderName} <${this.senderEmail}>`;
 
-    this.isConfigured = !!this.smtpHost;
+    this.isConfigured = !!this.smtpHost || !!this.brevoApiKey;
 
     if (this.isConfigured) {
       this.createTransporter();
@@ -202,13 +211,67 @@ export class EmailService implements OnModuleInit {
           await this.sleep(this.retryDelayMs * attempt);
         } else {
           this.logger.error(
-            `Email FAILED after ${this.maxRetries} attempts: to=${to}, subject="${subject}"`,
+            `Email SMTP FAILED after ${this.maxRetries} attempts: to=${to}, subject="${subject}"`,
           );
         }
       }
     }
 
+    // ─── Fallback: Brevo API (HTTPS port 443 — never blocked) ───
+    if (this.brevoApiKey) {
+      return this.sendViaBrevoApi(to, subject, html, attachments);
+    }
+
     return false;
+  }
+
+  /**
+   * Send email via Brevo (Sendinblue) HTTP API.
+   * Used as fallback when SMTP is blocked by cloud providers (DigitalOcean, AWS, etc.)
+   */
+  private async sendViaBrevoApi(
+    to: string,
+    subject: string,
+    html: string,
+    attachments?: Array<{ filename: string; content: Buffer; contentType: string }>,
+  ): Promise<boolean> {
+    try {
+      const payload: any = {
+        sender: { name: this.senderName, email: this.senderEmail },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      };
+
+      // Add attachments as base64
+      if (attachments && attachments.length > 0) {
+        payload.attachment = attachments.map((a) => ({
+          name: a.filename,
+          content: a.content.toString('base64'),
+        }));
+      }
+
+      const response = await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        payload,
+        {
+          headers: {
+            'api-key': this.brevoApiKey,
+            'Content-Type': 'application/json',
+          },
+          timeout: 30_000,
+        },
+      );
+
+      this.logger.log(
+        `Email sent via Brevo API: to=${to}, subject="${subject}", messageId=${response.data?.messageId || 'ok'}`,
+      );
+      return true;
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Brevo API email FAILED: to=${to} — ${errMsg}`);
+      return false;
+    }
   }
 
   /**

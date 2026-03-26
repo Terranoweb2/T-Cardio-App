@@ -79,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
         setupWebView();
         setupSwipeRefresh();
 
+        // Clear stale WebView cache on each launch to prevent broken sessions
+        webView.clearCache(true);
+        CookieManager.getInstance().flush();
+
         webView.loadUrl(BASE_URL);
     }
 
@@ -536,6 +540,23 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Error in getMtnSimInfo", e);
             }
             return "{\"found\":false,\"slot\":-1}";
+        }
+
+        /**
+         * Force clear all WebView data and reload — fixes stuck sessions
+         * Usage: window.TCardioNative.clearAndReload()
+         */
+        @JavascriptInterface
+        public void clearAndReload() {
+            Log.d(TAG, "clearAndReload called from JS");
+            runOnUiThread(() -> {
+                webView.clearCache(true);
+                webView.clearHistory();
+                android.webkit.WebStorage.getInstance().deleteAllData();
+                CookieManager.getInstance().removeAllCookies(null);
+                CookieManager.getInstance().flush();
+                webView.loadUrl(BASE_URL);
+            });
         }
 
         /**

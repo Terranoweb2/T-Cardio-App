@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { PushService } from '../push/push.service';
 import { SubscriptionService } from '../../modules/subscription/subscription.service';
+import { ReportsService } from '../../modules/reports/reports.service';
 
 @Injectable()
 export class TasksService {
@@ -14,6 +15,7 @@ export class TasksService {
     private readonly emailService: EmailService,
     private readonly pushService: PushService,
     private readonly subscriptionService: SubscriptionService,
+    private readonly reportsService: ReportsService,
   ) {}
 
   // ─── 1. Every hour — Configurable measurement reminders ───
@@ -414,21 +416,19 @@ export class TasksService {
 
       for (const patientId of eligiblePatients) {
         try {
-          // Create a report record directly via Prisma
-          // (avoids importing ReportsService and its heavy dependencies)
-          const periodStart = sevenDaysAgo;
-          const periodEnd = now;
+          // Find patient's active linked doctor
+          const activeLink = await this.prisma.patientDoctorLink.findFirst({
+            where: { patientId, status: 'ACTIVE' },
+            orderBy: { createdAt: 'desc' },
+          });
 
-          await this.prisma.report.create({
-            data: {
-              patientId,
-              periodStart,
-              periodEnd,
-              reportType: 'HEBDOMADAIRE',
-              title: `Rapport hebdomadaire - ${periodStart.toISOString().split('T')[0]} au ${periodEnd.toISOString().split('T')[0]}`,
-              filePath: '', // PDF will be generated asynchronously or by a separate worker
-              summary: 'Auto-generated weekly report — pending PDF generation.',
-            },
+          // Generate real PDF report via ReportsService
+          await this.reportsService.generateReport({
+            patientId,
+            doctorId: activeLink?.doctorId || undefined,
+            periodStart: sevenDaysAgo.toISOString(),
+            periodEnd: now.toISOString(),
+            reportType: 'HEBDOMADAIRE',
           });
 
           generatedCount++;

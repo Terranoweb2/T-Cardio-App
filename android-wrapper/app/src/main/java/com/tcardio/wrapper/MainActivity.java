@@ -40,6 +40,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -196,6 +197,9 @@ public class MainActivity extends AppCompatActivity {
 
                 // Inject SIM detection info into the page
                 injectSimInfo();
+
+                // Inject blob download interceptor for PDF files
+                injectBlobDownloadInterceptor();
             }
 
             @Override
@@ -532,6 +536,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Intercept blob/data URL downloads in JavaScript and route them
+     * through the native bridge for saving to Downloads folder.
+     * This is needed because WebView's DownloadListener doesn't handle blob: URLs.
+     */
+    private void injectBlobDownloadInterceptor() {
+        String js = "(function() {" +
+            "if (window.__blobInterceptorInstalled) return;" +
+            "window.__blobInterceptorInstalled = true;" +
+
+            // Override the <a>.click() download pattern used by the frontend
+            "var origCreateElement = document.createElement.bind(document);" +
+            "var origCreateObjectURL = URL.createObjectURL;" +
+
+            // Intercept URL.createObjectURL to track blob-to-url mapping
+            "var blobMap = new Map();" +
+            "URL.createObjectURL = function(blob) {" +
+            "  var url = origCreateObjectURL.call(URL, blob);" +
+            "  if (blob && blob.type && blob.type.indexOf('pdf') !== -1) {" +
+            "    blobMap.set(url, blob);" +
+            "  }" +
+            "  return url;" +
+            "};" +
+
+            // Override HTMLAnchorElement click to intercept PDF downloads
+            "var origClick = HTMLAnchorElement.prototype.click;" +
+            "HTMLAnchorElement.prototype.click = function() {" +
+            "  var href = this.href || '';" +
+            "  var download = this.download || '';" +
+            "  if (download && (download.endsWith('.pdf') || href.startsWith('blob:') || href.startsWith('data:application/pdf'))) {" +
+            "    console.log('TCardio: intercepting PDF download: ' + download);" +
+
+            // Handle blob: URLs
+            "    if (href.startsWith('blob:') && blobMap.has(href)) {" +
+            "      var blob = blobMap.get(href);" +
+            "      var reader = new FileReader();" +
+            "      reader.onloadend = function() {" +
+            "        window.TCardioNative.saveBase64PDF(reader.result, download);" +
+            "      };" +
+            "      reader.readAsDataURL(blob);" +
+            "      return;" +
+            "    }" +
+
+            // Handle data: URLs (base64 PDF)
+            "    if (href.startsWith('data:')) {" +
+            "      window.TCardioNative.saveBase64PDF(href, download);" +
+            "      return;" +
+            "    }" +
+            "  }" +
+            "  return origClick.call(this);" +
+            "};" +
+
+            "console.log('TCardio: blob download interceptor installed');" +
+            "})();";
+
+        runOnUiThread(() -> webView.evaluateJavascript(js, null));
+    }
+
+    /**
      * JavaScript bridge — accessible from web page as window.TCardioNative
      */
     public class TCardioJsBridge {
@@ -608,6 +670,51 @@ public class MainActivity extends AppCompatActivity {
         /**
          * Get number of active SIMs
          */
+        /**
+         * Save a base64-encoded PDF to Downloads folder
+         * Called from JS when blob download is intercepted
+         */
+        @JavascriptInterface
+        public void saveBase64PDF(String base64Data, String fileName) {
+            Log.d(TAG, "saveBase64PDF called: " + fileName);
+            try {
+                // Remove data URI prefix if present
+                String cleanBase64 = base64Data;
+                if (cleanBase64.contains(",")) {
+                    cleanBase64 = cleanBase64.substring(cleanBase64.indexOf(",") + 1);
+                }
+
+                byte[] pdfBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT);
+
+                if (fileName == null || fileName.isEmpty()) {
+                    fileName = "T-Cardio-Rapport-" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + ".pdf";
+                }
+
+                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File outputFile = new File(downloadsDir, fileName);
+                FileOutputStream fos = new FileOutputStream(outputFile);
+                fos.write(pdfBytes);
+                fos.close();
+
+                // Notify media scanner so file appears in Downloads
+                Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                scanIntent.setData(Uri.fromFile(outputFile));
+                sendBroadcast(scanIntent);
+
+                final String finalFileName = fileName;
+                runOnUiThread(() -> Toast.makeText(MainActivity.this,
+                        "PDF enregistre dans Telechargements: " + finalFileName,
+                        Toast.LENGTH_LONG).show());
+
+                Log.d(TAG, "PDF saved: " + outputFile.getAbsolutePath() + " (" + pdfBytes.length + " bytes)");
+            } catch (Exception e) {
+                Log.e(TAG, "Error saving PDF", e);
+                runOnUiThread(() -> Toast.makeText(MainActivity.this,
+                        "Erreur lors de l'enregistrement du PDF",
+                        Toast.LENGTH_SHORT).show());
+            }
+        }
+
         @JavascriptInterface
         public int getSimCount() {
             try {

@@ -82,10 +82,6 @@ public class MainActivity extends AppCompatActivity {
         setupWebView();
         setupSwipeRefresh();
 
-        // Clear stale WebView cache on each launch to prevent broken sessions
-        webView.clearCache(true);
-        CookieManager.getInstance().flush();
-
         webView.loadUrl(BASE_URL);
     }
 

@@ -21,11 +21,13 @@ export class VisionOcrService {
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('OPENAI_VISION_API_KEY');
+    const baseURL = this.configService.get<string>('OPENAI_VISION_BASE_URL') || 'https://api.openai.com/v1';
     if (apiKey) {
       this.client = new OpenAI({
         apiKey,
-        baseURL: 'https://api.openai.com/v1',
+        baseURL,
       });
+      this.logger.log(`Vision OCR configured: ${baseURL}`);
     } else {
       this.client = null;
       this.logger.warn('OPENAI_VISION_API_KEY not set — OCR will be unavailable');

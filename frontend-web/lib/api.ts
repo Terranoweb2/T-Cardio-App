@@ -30,6 +30,36 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+async function doRefresh(): Promise<{ accessToken: string; refreshToken: string } | null> {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) return null;
+
+  try {
+    const { data } = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`,
+      { refreshToken },
+    );
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// Single refresh gate: prevents race conditions between interceptor,
+// visibilitychange, and proactive refresh all trying at once.
+let refreshPromise: Promise<{ accessToken: string; refreshToken: string } | null> | null = null;
+
+function singletonRefresh(): Promise<{ accessToken: string; refreshToken: string } | null> {
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -43,7 +73,6 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && typeof window !== 'undefined' && !originalRequest._retry) {
       if (isRefreshing) {
-        // If already refreshing, queue this request and wait
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -57,88 +86,60 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        try {
-          const { data } = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`,
-            { refreshToken },
-          );
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-          processQueue(null, data.accessToken);
+      try {
+        const result = await singletonRefresh();
+        if (result) {
+          originalRequest.headers.Authorization = `Bearer ${result.accessToken}`;
+          processQueue(null, result.accessToken);
           return api(originalRequest);
-        } catch (refreshError) {
-          processQueue(refreshError, null);
-          // NEVER auto-disconnect — just reject the request silently.
-          // The user stays on the current page and can retry.
-          // Only explicit logout (user action) should clear storage.
-          console.warn('[api] Token refresh failed — session may need re-login');
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
+        } else {
+          processQueue(new Error('refresh failed'), null);
+          // Redirect to login if refresh fails
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            window.location.href = '/login';
+          }
+          return Promise.reject(error);
         }
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
-      // No refresh token available — still don't auto-disconnect.
-      // Just reject the request. User stays logged in visually.
-      console.warn('[api] No refresh token available');
     }
     return Promise.reject(error);
   },
 );
 
 // ==================== PROACTIVE TOKEN REFRESH ====================
-// Token expires in 365 days, but we refresh every 7 days proactively
-// to keep the session alive indefinitely.
+// Refresh every 6 hours to keep the session alive (JWT expires in 7d)
 let proactiveRefreshTimer: NodeJS.Timeout | null = null;
 
 function startProactiveRefresh() {
   if (typeof window === 'undefined') return;
   if (proactiveRefreshTimer) clearInterval(proactiveRefreshTimer);
 
-  const REFRESH_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const REFRESH_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
 
   proactiveRefreshTimer = setInterval(async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return;
-
-    try {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`,
-        { refreshToken },
-      );
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
+    const result = await singletonRefresh();
+    if (result) {
       console.log('[api] Token refreshed proactively');
-    } catch {
-      // Silent failure — token is still valid for months
-      console.warn('[api] Proactive token refresh failed — will retry later');
     }
   }, REFRESH_INTERVAL);
 }
 
-// Also refresh when the app comes back from background (mobile WebView)
+// Refresh when the app comes back from background (mobile WebView)
 if (typeof window !== 'undefined') {
   startProactiveRefresh();
 
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
-      // App came back to foreground — refresh token to ensure it's valid
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) return;
-
-      try {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/refresh`,
-          { refreshToken },
-        );
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
+      const result = await singletonRefresh();
+      if (result) {
         console.log('[api] Token refreshed on app resume');
-      } catch {
-        // Silent failure — don't disconnect the user
-        console.warn('[api] Token refresh on resume failed — session still active');
       }
     }
   });

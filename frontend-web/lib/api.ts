@@ -41,6 +41,26 @@ async function doRefresh(): Promise<{ accessToken: string; refreshToken: string 
     );
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
+
+    // Sync user data if the role changed (e.g. admin promoted the user)
+    if (data.user) {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const prev = JSON.parse(storedUser);
+          if (prev.role !== data.user.role) {
+            const updated = { ...prev, role: data.user.role, emailVerified: data.user.emailVerified };
+            localStorage.setItem('user', JSON.stringify(updated));
+            // Force page reload to re-render navigation for the new role
+            window.location.href = data.user.role === 'ADMIN' ? '/admin/dashboard'
+              : (data.user.role === 'MEDECIN' || data.user.role === 'CARDIOLOGUE') ? '/doctor/dashboard'
+              : '/dashboard';
+            return data;
+          }
+        } catch { /* ignore parse errors */ }
+      }
+    }
+
     return data;
   } catch {
     return null;

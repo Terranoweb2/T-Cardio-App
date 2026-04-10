@@ -505,16 +505,20 @@ export class TeleconsultationService {
       const patientUserId = consultation.patient?.userId;
 
       // Determine who is calling and who should receive the notification
+      // Use actual DB role (MEDECIN/CARDIOLOGUE) instead of hardcoded values
+      const doctorActualRole = consultation.doctor?.user?.role || 'MEDECIN';
+      const patientActualRole = consultation.patient?.user?.role || 'PATIENT';
+
       if (callerUserId === doctorUserId && patientUserId) {
         // Doctor is calling → notify patient
         const callerName = consultation.doctor
           ? `Dr. ${consultation.doctor.firstName || ''} ${consultation.doctor.lastName || ''}`.trim()
           : 'Votre medecin';
 
-        this.emergencyGateway.notifyIncomingCall(patientUserId, 'PATIENT', {
+        this.emergencyGateway.notifyIncomingCall(patientUserId, patientActualRole, {
           teleconsultationId,
           callerName,
-          callerRole: 'MEDECIN',
+          callerRole: doctorActualRole,
           callerId: callerUserId,
         });
       } else if (callerUserId === patientUserId && doctorUserId) {
@@ -523,12 +527,16 @@ export class TeleconsultationService {
           ? `${consultation.patient.firstName || ''} ${consultation.patient.lastName || ''}`.trim() || 'Un patient'
           : 'Un patient';
 
-        this.emergencyGateway.notifyIncomingCall(doctorUserId, 'MEDECIN', {
+        this.emergencyGateway.notifyIncomingCall(doctorUserId, doctorActualRole, {
           teleconsultationId,
           callerName,
-          callerRole: 'PATIENT',
+          callerRole: patientActualRole,
           callerId: callerUserId,
         });
+      } else {
+        this.logger.warn(
+          `notifyIncomingCallGlobal: callerUserId ${callerUserId} does not match doctor (${doctorUserId}) or patient (${patientUserId}) for teleconsultation ${teleconsultationId}`,
+        );
       }
     } catch (err) {
       this.logger.warn(`Failed to send global incoming call notification: ${err}`);
@@ -553,25 +561,33 @@ export class TeleconsultationService {
       const doctorUserId = consultation.doctor?.userId;
       const patientUserId = consultation.patient?.userId;
 
+      // Use actual DB roles for correct room targeting
+      const doctorActualRole = consultation.doctor?.user?.role || 'MEDECIN';
+      const patientActualRole = consultation.patient?.user?.role || 'PATIENT';
+
       // Notify the other party that the call was cancelled
       if (cancellerUserId === doctorUserId && patientUserId) {
-        this.emergencyGateway.notifyCallCancelled(patientUserId, 'PATIENT', {
+        this.emergencyGateway.notifyCallCancelled(patientUserId, patientActualRole, {
           teleconsultationId,
           reason,
         });
       } else if (cancellerUserId === patientUserId && doctorUserId) {
-        this.emergencyGateway.notifyCallCancelled(doctorUserId, 'MEDECIN', {
+        this.emergencyGateway.notifyCallCancelled(doctorUserId, doctorActualRole, {
           teleconsultationId,
           reason,
         });
       } else if (cancellerUserId === 'system') {
         // Timeout — notify both parties
         if (patientUserId) {
-          this.emergencyGateway.notifyCallCancelled(patientUserId, 'PATIENT', { teleconsultationId, reason });
+          this.emergencyGateway.notifyCallCancelled(patientUserId, patientActualRole, { teleconsultationId, reason });
         }
         if (doctorUserId) {
-          this.emergencyGateway.notifyCallCancelled(doctorUserId, 'MEDECIN', { teleconsultationId, reason });
+          this.emergencyGateway.notifyCallCancelled(doctorUserId, doctorActualRole, { teleconsultationId, reason });
         }
+      } else {
+        this.logger.warn(
+          `notifyCallCancelledGlobal: cancellerUserId ${cancellerUserId} does not match doctor (${doctorUserId}) or patient (${patientUserId}) for teleconsultation ${teleconsultationId}`,
+        );
       }
     } catch (err) {
       this.logger.warn(`Failed to send call cancelled notification: ${err}`);

@@ -71,9 +71,10 @@ export class EmergencyGateway implements OnGatewayConnection {
     callerRole: string;
     callerId: string;
   }) {
+    // PATIENT → patient_{id}, MEDECIN/CARDIOLOGUE/any doctor role → doctor_{id}
     const room = targetRole === 'PATIENT' ? `patient_${targetUserId}` : `doctor_${targetUserId}`;
     this.server.to(room).emit('incoming_call', data);
-    this.logger.log(`Incoming call notification sent to ${targetRole} ${targetUserId} for teleconsultation ${data.teleconsultationId}`);
+    this.logger.log(`Incoming call notification sent to ${targetRole} (room: ${room}) for teleconsultation ${data.teleconsultationId}`);
 
     // Also emit via /call-notification namespace for native Android service
     this.callNotificationGateway.notifyCall(targetUserId, targetRole, data);
@@ -89,9 +90,10 @@ export class EmergencyGateway implements OnGatewayConnection {
     teleconsultationId: string;
     reason: string;
   }) {
+    // PATIENT → patient_{id}, MEDECIN/CARDIOLOGUE/any doctor role → doctor_{id}
     const room = targetRole === 'PATIENT' ? `patient_${targetUserId}` : `doctor_${targetUserId}`;
     this.server.to(room).emit('call_cancelled', data);
-    this.logger.log(`Call cancelled notification sent to ${targetRole} ${targetUserId}`);
+    this.logger.log(`Call cancelled notification sent to ${targetRole} (room: ${room})`);
 
     // Also emit via /call-notification namespace for native Android service
     this.callNotificationGateway.notifyCallCancelled(targetUserId, targetRole, data);

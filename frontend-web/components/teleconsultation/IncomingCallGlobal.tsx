@@ -86,7 +86,9 @@ export default function IncomingCallGlobal({
     await onReject();
   }, [onReject, stopRingtone]);
 
-  const roleLabel = callerRole === 'PATIENT' ? 'Patient' : 'Medecin';
+  const roleLabel = callerRole === 'PATIENT' ? 'Patient'
+    : callerRole === 'CARDIOLOGUE' ? 'Cardiologue'
+    : 'Medecin';
 
   return (
     <div className={`fixed inset-0 z-[200] flex items-center justify-center backdrop-blur-md animate-fadeIn ${isEmergency ? 'bg-red-900/85' : 'bg-black/80'}`}>

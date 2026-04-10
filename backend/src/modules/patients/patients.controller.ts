@@ -56,6 +56,13 @@ export class PatientsController {
     return this.patientsService.update(userId, dto);
   }
 
+  @Get('my-doctor-info')
+  @Roles('PATIENT')
+  @ApiOperation({ summary: 'Info legere du medecin principal (role, specialty)' })
+  async getMyDoctorInfo(@CurrentUser('sub') userId: string) {
+    return this.patientsService.getMyDoctorInfo(userId);
+  }
+
   @Get('my-doctors')
   @Roles('PATIENT')
   @ApiOperation({ summary: 'Mes medecins associes' })

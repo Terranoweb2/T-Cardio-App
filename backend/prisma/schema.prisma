@@ -164,6 +164,7 @@ enum CreditTransactionType {
   PURCHASE
   DEBIT_TELECONSULTATION
   DEBIT_EMERGENCY
+  DEBIT_MESSAGING
   REFUND
   ADMIN_ADJUSTMENT
   BONUS
@@ -172,6 +173,7 @@ enum CreditTransactionType {
 enum DoctorTransactionType {
   EARNING_TELECONSULTATION
   EARNING_EMERGENCY
+  EARNING_MESSAGING
   WITHDRAWAL
   ADMIN_ADJUSTMENT
 }
@@ -434,6 +436,9 @@ model Doctor {
   maxPatients           Int                      @default(100) @map("max_patients")
   consultationPriceXof  Int?                     @map("consultation_price_xof")
   defaultDurationMinutes Int                     @default(15) @map("default_duration_minutes")
+  messagingPriceXof     Int                      @default(0) @map("messaging_price_xof")
+  emergencyPriceXof     Int                      @default(1000) @map("emergency_price_xof")
+  platformCommissionPct Int                      @default(20) @map("platform_commission_pct")
   mobileMoneyPhone      String?                  @map("mobile_money_phone")
   mobileMoneyOperator   String?                  @map("mobile_money_operator")
   averageRating         Float                    @default(0) @map("average_rating")

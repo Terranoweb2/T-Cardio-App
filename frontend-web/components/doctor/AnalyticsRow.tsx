@@ -104,7 +104,7 @@ export default function AnalyticsRow({
         Analytique
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {/* 1. BP Trends (30 days) */}
         <ChartWrapper
           title="Tendances tensionnelles"

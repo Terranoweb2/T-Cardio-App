@@ -5,6 +5,7 @@ import { Response } from 'express';
 import { DoctorsService } from './doctors.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { UpdatePricingDto } from './dto/update-pricing.dto';
 import { GenerateTokenDto } from './dto/generate-token.dto';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
@@ -49,6 +50,13 @@ export class DoctorsController {
   @ApiOperation({ summary: 'Modifier profil medecin' })
   async updateProfile(@CurrentUser('sub') userId: string, @Body() dto: UpdateDoctorDto) {
     return this.doctorsService.update(userId, dto);
+  }
+
+  @Patch('me/pricing')
+  @Roles('MEDECIN', 'CARDIOLOGUE')
+  @ApiOperation({ summary: 'Mettre a jour mes tarifs (teleconsultation, messagerie, urgence)' })
+  async updatePricing(@CurrentUser('sub') userId: string, @Body() dto: UpdatePricingDto) {
+    return this.doctorsService.updatePricing(userId, dto);
   }
 
   @Post('profile/photo')

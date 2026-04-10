@@ -119,7 +119,7 @@ export default function AppointmentCard({
       : 'Patient'
     : appointment.doctor
       ? `Dr. ${appointment.doctor.firstName} ${appointment.doctor.lastName}`
-      : 'Medecin';
+      : 'Praticien';
 
   const personSpecialty = !isDoctor && appointment.doctor?.specialty;
 

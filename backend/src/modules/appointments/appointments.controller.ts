@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -108,5 +109,17 @@ export class AppointmentsController {
     @Body() body: { reason?: string },
   ) {
     return this.appointmentsService.cancel(userId, appointmentId, body?.reason);
+  }
+
+  // ==================== DELETE (PATIENT OR DOCTOR) ====================
+
+  @Delete(':id')
+  @Roles('PATIENT', 'MEDECIN', 'CARDIOLOGUE')
+  @ApiOperation({ summary: 'Supprimer un rendez-vous (passe/annule/refuse)' })
+  async remove(
+    @CurrentUser('sub') userId: string,
+    @Param('id') appointmentId: string,
+  ) {
+    return this.appointmentsService.delete(userId, appointmentId);
   }
 }

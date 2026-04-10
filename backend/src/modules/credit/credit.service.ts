@@ -125,17 +125,36 @@ export class CreditService {
   }
 
   /**
-   * Deduct credits for a teleconsultation (5000 XOF).
+   * Deduct credits for a teleconsultation.
+   * Uses the doctor's configured price; defaults to 5000 XOF if not provided.
    */
-  async deductForTeleconsultation(patientId: string, teleconsultationId: string) {
-    const cost = 5000;
+  async deductForTeleconsultation(
+    patientId: string,
+    teleconsultationId: string,
+    price: number = 5000,
+  ) {
     return this.deduct(
       patientId,
-      cost,
+      price,
       CreditTransactionType.DEBIT_TELECONSULTATION,
       teleconsultationId,
       'TELECONSULTATION',
       `Teleconsultation #${teleconsultationId.slice(0, 8)}`,
+    );
+  }
+
+  /**
+   * Deduct credits for a paid messaging session.
+   * Amount is determined by the doctor's messagingPriceXof configuration.
+   */
+  async deductForMessaging(patientId: string, amount: number, conversationId: string) {
+    return this.deduct(
+      patientId,
+      amount,
+      CreditTransactionType.DEBIT_MESSAGING,
+      conversationId,
+      'MESSAGING',
+      `Session messagerie #${conversationId.slice(0, 8)}`,
     );
   }
 

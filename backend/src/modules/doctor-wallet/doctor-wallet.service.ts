@@ -28,10 +28,16 @@ export class DoctorWalletService {
   }
 
   /**
-   * Credit doctor for a completed teleconsultation (80% of 5000 = 4000 XOF).
+   * Credit doctor for a completed teleconsultation.
+   * Earning = price * (1 - commissionPct / 100). Defaults: price=5000, commission=20%.
    */
-  async creditForTeleconsultation(doctorId: string, teleconsultationId: string) {
-    const earning = 4000; // 80% of 5000 XOF
+  async creditForTeleconsultation(
+    doctorId: string,
+    teleconsultationId: string,
+    price: number = 5000,
+    commissionPct: number = 20,
+  ) {
+    const earning = Math.round(price * (1 - commissionPct / 100));
     return this.credit(
       doctorId,
       earning,
@@ -39,6 +45,21 @@ export class DoctorWalletService {
       teleconsultationId,
       'TELECONSULTATION',
       `Teleconsultation #${teleconsultationId.slice(0, 8)}`,
+    );
+  }
+
+  /**
+   * Credit doctor for a paid messaging session.
+   * Amount is the patient-facing price minus the platform commission.
+   */
+  async creditForMessaging(doctorId: string, amount: number, conversationId: string) {
+    return this.credit(
+      doctorId,
+      amount,
+      DoctorTransactionType.EARNING_MESSAGING,
+      conversationId,
+      'MESSAGING',
+      `Session messagerie #${conversationId.slice(0, 8)}`,
     );
   }
 
@@ -148,9 +169,10 @@ export class DoctorWalletService {
     const earningTypes = [
       DoctorTransactionType.EARNING_TELECONSULTATION,
       DoctorTransactionType.EARNING_EMERGENCY,
+      DoctorTransactionType.EARNING_MESSAGING,
     ];
 
-    const [todayEarnings, weekEarnings, monthEarnings, totalConsultations, totalEmergencies] =
+    const [todayEarnings, weekEarnings, monthEarnings, totalConsultations, totalEmergencies, totalMessagingSessions] =
       await Promise.all([
         this.sumEarnings(wallet.id, earningTypes, todayStart),
         this.sumEarnings(wallet.id, earningTypes, weekStart),
@@ -167,6 +189,12 @@ export class DoctorWalletService {
             type: DoctorTransactionType.EARNING_EMERGENCY,
           },
         }),
+        this.prisma.doctorTransaction.count({
+          where: {
+            doctorWalletId: wallet.id,
+            type: DoctorTransactionType.EARNING_MESSAGING,
+          },
+        }),
       ]);
 
     return {
@@ -176,6 +204,7 @@ export class DoctorWalletService {
       monthEarnings,
       totalConsultations,
       totalEmergencies,
+      totalMessagingSessions,
     };
   }
 

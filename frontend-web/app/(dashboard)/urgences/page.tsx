@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/api';
+import { getDoctorLabel } from '@/lib/doctor-label';
 import EmergencyConfirmationModal from '@/components/teleconsultation/EmergencyConfirmationModal';
 
 interface Doctor {
@@ -10,6 +11,7 @@ interface Doctor {
   lastName?: string;
   specialty?: string;
   practicePhone?: string;
+  role?: string; // 'MEDECIN' | 'CARDIOLOGUE'
 }
 
 interface CooldownStatus {
@@ -63,6 +65,7 @@ export default function UrgencesPage() {
         lastName: d.doctor?.lastName || d.lastName,
         specialty: d.doctor?.specialty || d.specialty,
         practicePhone: d.doctor?.practicePhone || d.practicePhone,
+        role: d.doctor?.role || d.role,
       }));
       setDoctors(doctorList);
       setEmergencies(Array.isArray(emergList) ? emergList : []);
@@ -171,15 +174,15 @@ export default function UrgencesPage() {
 
       {/* Trigger emergency section */}
       <div className="glass-card rounded-xl p-4 sm:p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-1">Contacter un medecin en urgence</h2>
+        <h2 className="text-lg font-semibold mb-1">Contacter un praticien en urgence</h2>
         <p className="text-sm text-slate-400 mb-4">
-          Selectionnez votre medecin pour lancer un appel d&apos;urgence. Il sera notifie immediatement.
+          Selectionnez votre praticien pour lancer un appel d&apos;urgence. Il sera notifie immediatement.
         </p>
 
         {doctors.length === 0 ? (
           <div className="text-center py-6 text-slate-500">
-            <p className="text-sm">Aucun medecin associe.</p>
-            <p className="text-xs mt-1">Associez-vous a un medecin depuis votre tableau de bord.</p>
+            <p className="text-sm">Aucun praticien associe.</p>
+            <p className="text-xs mt-1">Associez-vous a un praticien depuis votre tableau de bord.</p>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
@@ -195,7 +198,7 @@ export default function UrgencesPage() {
                       <p className="font-medium text-sm truncate">
                         Dr. {doc.firstName || ''} {doc.lastName || ''}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">{doc.specialty || 'Medecin'}</p>
+                      <p className="text-xs text-slate-400 truncate">{doc.specialty || getDoctorLabel(doc.role)}</p>
                     </div>
                     {isBlocked ? (
                       <div className="shrink-0 text-right">

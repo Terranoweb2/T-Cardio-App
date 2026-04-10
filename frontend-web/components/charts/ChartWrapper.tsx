@@ -13,7 +13,7 @@ interface ChartWrapperProps {
 export default function ChartWrapper({
   title,
   subtitle,
-  height = 'h-72',
+  height = 'h-56 sm:h-64 lg:h-72',
   loading = false,
   error = false,
   empty = false,

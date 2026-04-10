@@ -135,16 +135,53 @@ export class PatientsService {
             specialty: true,
             practiceAddress: true,
             practicePhone: true,
+            user: {
+              select: { role: true },
+            },
           },
         },
       },
     });
+    // Flatten user.role onto the doctor object for frontend convenience
     return links.map((l) => ({
       id: l.id,
       doctorId: l.doctorId,
-      doctor: l.doctor,
+      doctor: {
+        ...l.doctor,
+        role: l.doctor.user?.role ?? 'MEDECIN',
+        user: undefined,
+      },
       startedAt: l.startedAt,
     }));
+  }
+
+  // ==================== PRIMARY DOCTOR INFO (lightweight) ====================
+
+  async getMyDoctorInfo(userId: string) {
+    const patient = await this.findByUserId(userId);
+    // Return the first active linked doctor's role + basic info
+    const link = await this.prisma.patientDoctorLink.findFirst({
+      where: { patientId: patient.id, status: 'ACTIVE' },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            specialty: true,
+            user: { select: { role: true } },
+          },
+        },
+      },
+      orderBy: { startedAt: 'asc' },
+    });
+    if (!link) return null;
+    return {
+      role: link.doctor.user?.role ?? 'MEDECIN',
+      specialty: link.doctor.specialty,
+      firstName: link.doctor.firstName,
+      lastName: link.doctor.lastName,
+    };
   }
 
   // ==================== INVITATION TOKEN REDEMPTION ====================
@@ -152,7 +189,7 @@ export class PatientsService {
   async redeemInvitationToken(userId: string, tokenCode: string) {
     const patient = await this.findByUserId(userId);
 
-    // Find the token
+    // Find the token (include user.role to distinguish MEDECIN vs CARDIOLOGUE)
     const invitation = await this.prisma.invitationToken.findUnique({
       where: { token: tokenCode.toUpperCase().trim() },
       include: {
@@ -164,6 +201,7 @@ export class PatientsService {
             specialty: true,
             practiceAddress: true,
             practicePhone: true,
+            user: { select: { role: true } },
           },
         },
       },
@@ -212,7 +250,11 @@ export class PatientsService {
 
     return {
       message: 'Association reussie',
-      doctor: invitation.doctor,
+      doctor: {
+        ...invitation.doctor,
+        role: invitation.doctor.user?.role ?? 'MEDECIN',
+        user: undefined,
+      },
     };
   }
 

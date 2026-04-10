@@ -81,6 +81,22 @@ export class AuthService {
       });
     }
 
+    // Auto-create doctor profile for MEDECIN/CARDIOLOGUE roles
+    if (safeRole === 'MEDECIN' || safeRole === 'CARDIOLOGUE') {
+      await this.prisma.doctor.create({
+        data: {
+          userId: user.id,
+          firstName: dto.firstName || '',
+          lastName: dto.lastName || '',
+          specialty: dto.specialty || 'Cardiologie',
+          practicePhone: dto.phone || null,
+          verificationStatus: 'PENDING',
+          acceptingNewPatients: true,
+          maxPatients: 50,
+        },
+      });
+    }
+
     // Send verification email
     await this.sendVerificationCode(user.id, user.email);
 

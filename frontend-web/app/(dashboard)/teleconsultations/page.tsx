@@ -85,10 +85,10 @@ export default function TeleconsultationsPage() {
        </svg>
       </div>
       <div>
-       <h3 className="font-semibold text-amber-300 text-sm">Aucun medecin associe</h3>
+       <h3 className="font-semibold text-amber-300 text-sm">Aucun praticien associe</h3>
        <p className="text-sm text-slate-400 mt-1 leading-relaxed">
-        Pour lancer un appel de teleconsultation, vous devez d&apos;abord etre associe a un medecin.
-        Demandez a votre medecin de vous fournir un <span className="text-cyan-400 font-medium">code d&apos;invitation</span>, puis saisissez-le sur votre{' '}
+        Pour lancer un appel de teleconsultation, vous devez d&apos;abord etre associe a un praticien.
+        Demandez a votre praticien de vous fournir un <span className="text-cyan-400 font-medium">code d&apos;invitation</span>, puis saisissez-le sur votre{' '}
         <Link href="/dashboard" className="text-cyan-400 hover:text-cyan-300 font-medium underline underline-offset-2">tableau de bord</Link>.
        </p>
       </div>
@@ -122,7 +122,7 @@ export default function TeleconsultationsPage() {
       <thead className="bg-cardio-800">
        <tr>
         <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Date</th>
-        <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Medecin</th>
+        <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Praticien</th>
         <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Motif</th>
         <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Statut</th>
         <th className="px-4 py-3 text-left text-xs font-medium text-slate-400">Actions</th>

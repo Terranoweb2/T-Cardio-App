@@ -36,6 +36,7 @@ export interface VerifiedDoctor {
   firstName: string;
   lastName: string;
   specialty: string;
+  role?: string; // 'MEDECIN' | 'CARDIOLOGUE' from user.role
 }
 
 // ==================== QUERIES ====================

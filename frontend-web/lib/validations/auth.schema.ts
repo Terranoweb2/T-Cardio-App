@@ -29,10 +29,26 @@ export const registerSchema = z
     role: z.enum(['PATIENT', 'MEDECIN', 'CARDIOLOGUE'], {
       required_error: 'Le type de compte est requis',
     }),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    phone: z.string().optional(),
+    specialty: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Les mots de passe ne correspondent pas',
     path: ['confirmPassword'],
-  });
+  })
+  .refine(
+    (data) => {
+      if (data.role === 'MEDECIN' || data.role === 'CARDIOLOGUE') {
+        return !!data.firstName?.trim() && !!data.lastName?.trim();
+      }
+      return true;
+    },
+    {
+      message: 'Le nom et le prenom sont requis pour les professionnels de sante',
+      path: ['lastName'],
+    },
+  );
 
 export type RegisterFormData = z.infer<typeof registerSchema>;

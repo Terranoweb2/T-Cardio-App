@@ -510,7 +510,7 @@ function TeleconsultationDetailContent() {
               />
             </svg>
             <span>
-              <span className="text-slate-500">Medecin : </span>
+              <span className="text-slate-500">Praticien : </span>
               <span className="text-slate-300 font-medium">{getDoctorName()}</span>
             </span>
           </div>

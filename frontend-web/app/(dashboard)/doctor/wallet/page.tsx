@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
-import { Banknote, TrendingUp, Video, Phone, Loader2, ArrowDownToLine, X } from 'lucide-react';
+import Link from 'next/link';
+import { Banknote, TrendingUp, Video, Phone, MessageSquare, Loader2, ArrowDownToLine, X, Settings } from 'lucide-react';
 
 const transactionTypeLabels: Record<string, { label: string; color: string }> = {
  EARNING_TELECONSULTATION: { label: 'Teleconsultation', color: 'text-green-400' },
  EARNING_EMERGENCY: { label: 'Urgence', color: 'text-green-400' },
+ EARNING_MESSAGING: { label: 'Messagerie', color: 'text-green-400' },
  WITHDRAWAL: { label: 'Retrait', color: 'text-red-400' },
  ADMIN_ADJUSTMENT: { label: 'Ajustement', color: 'text-purple-400' },
 };
@@ -56,6 +58,16 @@ export default function DoctorWalletPage() {
    const { data } = await api.get('/doctor-wallet/withdrawals?limit=10');
    return data;
   },
+ });
+
+ // Fetch doctor profile for dynamic pricing info
+ const { data: doctorProfile } = useQuery({
+  queryKey: queryKeys.doctor.profile,
+  queryFn: async () => {
+   const { data } = await api.get('/doctors/profile');
+   return data;
+  },
+  staleTime: 5 * 60 * 1000,
  });
 
  const handleWithdraw = async () => {
@@ -156,16 +168,34 @@ export default function DoctorWalletPage() {
       Retirer
      </button>
     </div>
-    <div className="mt-3 sm:mt-4 flex flex-wrap gap-3 sm:gap-6 text-sm text-cyan-200">
-     <div>
-      <span className="block text-xs">Par teleconsultation</span>
-      <span className="font-semibold text-white">4 000 XOF (80%)</span>
-     </div>
-     <div>
-      <span className="block text-xs">Par urgence payante</span>
-      <span className="font-semibold text-white">100 XOF (10%)</span>
-     </div>
-    </div>
+    {doctorProfile && (() => {
+     const pct = doctorProfile.platformCommissionPct ?? 20;
+     const netPct = 100 - pct;
+     const consul = doctorProfile.consultationPriceXof ?? 5000;
+     const msg = doctorProfile.messagingPriceXof ?? 0;
+     const urg = doctorProfile.emergencyPriceXof ?? 1000;
+     return (
+      <div className="mt-3 sm:mt-4 flex flex-wrap gap-3 sm:gap-6 text-sm text-cyan-200">
+       <div>
+        <span className="block text-xs">Par teleconsultation</span>
+        <span className="font-semibold text-white">{Math.round(consul * netPct / 100).toLocaleString('fr-FR')} XOF ({netPct}%)</span>
+       </div>
+       {msg > 0 && (
+        <div>
+         <span className="block text-xs">Par messagerie (24h)</span>
+         <span className="font-semibold text-white">{Math.round(msg * netPct / 100).toLocaleString('fr-FR')} XOF ({netPct}%)</span>
+        </div>
+       )}
+       <div>
+        <span className="block text-xs">Par urgence</span>
+        <span className="font-semibold text-white">{urg === 0 ? 'Gratuit' : `${Math.round(urg * netPct / 100).toLocaleString('fr-FR')} XOF (${netPct}%)`}</span>
+       </div>
+       <Link href="/doctor/pricing" className="flex items-center gap-1 text-xs text-cyan-100 underline underline-offset-2 hover:text-white self-end">
+        <Settings className="w-3 h-3" /> Modifier tarifs
+       </Link>
+      </div>
+     );
+    })()}
    </div>
 
    {/* Stats grid */}

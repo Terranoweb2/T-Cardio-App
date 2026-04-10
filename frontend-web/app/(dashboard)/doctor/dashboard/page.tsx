@@ -90,7 +90,7 @@ export default function DoctorDashboardPage() {
     return (
       <div className="space-y-4">
         <div className="h-8 w-64 bg-cardio-800/50 rounded animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="glass-card rounded-lg p-3 h-24 animate-pulse bg-cardio-800/30" />
           ))}
@@ -126,7 +126,7 @@ export default function DoctorDashboardPage() {
       />
 
       {/* ─── Section 2 + 3: Activity Timeline + Patient Panel ─── */}
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="xl:col-span-3">
           <ActivityTimeline notifications={notifications} patients={patients} />
         </div>

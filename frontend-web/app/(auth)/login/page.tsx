@@ -66,8 +66,8 @@ function LoginContent() {
   const isStandalone = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true);
   const isTCardioUA = typeof window !== 'undefined' && navigator.userAgent.includes('TCardioApp');
   const isFromAPK = !!storedAppMode || isCapacitor || isStandalone || isTCardioUA;
-  // Hide register on web (no APK mode) or for medecin/admin apps
-  const hideRegister = !isFromAPK || storedAppMode === 'medecin' || storedAppMode === 'admin';
+  // Hide register on web (no APK mode) or for admin apps — doctors CAN register from APK medecin
+  const hideRegister = !isFromAPK || storedAppMode === 'admin';
 
   const {
     register,

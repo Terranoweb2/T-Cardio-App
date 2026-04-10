@@ -14,6 +14,7 @@ import {
 import SlotPicker from '@/components/appointments/SlotPicker';
 import AppointmentCard from '@/components/appointments/AppointmentCard';
 import { GlassCardSkeleton } from '@/components/ui/GlassSkeleton';
+import { getDoctorLabel } from '@/lib/doctor-label';
 import {
   Search,
   Stethoscope,
@@ -152,7 +153,7 @@ export default function BookAppointmentPage() {
 
   // ---- Step indicator ----
   const steps = [
-    { num: 1, label: 'Medecin' },
+    { num: 1, label: 'Praticien' },
     { num: 2, label: 'Date & Heure' },
     { num: 3, label: 'Confirmation' },
     { num: 4, label: 'Termine' },
@@ -169,7 +170,7 @@ export default function BookAppointmentPage() {
           <p className="text-sm text-slate-400 mt-0.5">
             {isDoctor
               ? 'Gerez vos rendez-vous patients'
-              : 'Reservez une consultation avec un medecin'}
+              : 'Reservez une consultation avec un praticien'}
           </p>
         </div>
       </div>
@@ -224,7 +225,7 @@ export default function BookAppointmentPage() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <Stethoscope className="w-5 h-5 text-cyan-400" />
-                  <h2 className="text-lg font-semibold text-slate-200">Choisir un medecin</h2>
+                  <h2 className="text-lg font-semibold text-slate-200">Choisir un praticien</h2>
                 </div>
 
                 {/* Search input */}
@@ -250,7 +251,7 @@ export default function BookAppointmentPage() {
                   <div className="glass-card rounded-xl p-8 text-center">
                     <Stethoscope className="w-10 h-10 text-slate-500 mx-auto mb-3" />
                     <p className="text-sm text-slate-400">
-                      {searchQuery ? 'Aucun medecin trouve' : 'Aucun medecin disponible'}
+                      {searchQuery ? 'Aucun praticien trouve' : 'Aucun praticien disponible'}
                     </p>
                   </div>
                 ) : (
@@ -271,7 +272,7 @@ export default function BookAppointmentPage() {
                               Dr. {doctor.firstName} {doctor.lastName}
                             </p>
                             <p className="text-xs text-slate-500 truncate">
-                              {doctor.specialty || 'Medecine generale'}
+                              {doctor.specialty || getDoctorLabel(doctor.role)}
                             </p>
                           </div>
                           <ChevronRight className="w-4 h-4 text-slate-500 shrink-0 ml-auto group-hover:text-cyan-400 transition-colors" />
@@ -310,7 +311,7 @@ export default function BookAppointmentPage() {
                       Dr. {selectedDoctor.firstName} {selectedDoctor.lastName}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {selectedDoctor.specialty || 'Medecine generale'}
+                      {selectedDoctor.specialty || getDoctorLabel(selectedDoctor.role)}
                     </p>
                   </div>
                 </div>
@@ -390,12 +391,12 @@ export default function BookAppointmentPage() {
                         <Stethoscope className="w-5 h-5 text-cyan-400" />
                       </div>
                       <div>
-                        <p className="text-xs text-slate-500">Medecin</p>
+                        <p className="text-xs text-slate-500">{getDoctorLabel(selectedDoctor.role, selectedDoctor.specialty)}</p>
                         <p className="text-sm font-semibold text-slate-200">
                           Dr. {selectedDoctor.firstName} {selectedDoctor.lastName}
                         </p>
                         <p className="text-xs text-slate-500">
-                          {selectedDoctor.specialty || 'Medecine generale'}
+                          {selectedDoctor.specialty || getDoctorLabel(selectedDoctor.role)}
                         </p>
                       </div>
                     </div>
@@ -479,8 +480,8 @@ export default function BookAppointmentPage() {
                   Demande envoyee !
                 </h2>
                 <p className="text-sm text-slate-400 text-center max-w-sm mb-6">
-                  Votre demande de rendez-vous a ete envoyee au medecin. Vous recevrez une
-                  notification lorsque le medecin confirmera ou repondra a votre demande.
+                  Votre demande de rendez-vous a ete envoyee au praticien. Vous recevrez une
+                  notification lorsque le praticien confirmera ou repondra a votre demande.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3">

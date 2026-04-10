@@ -8,6 +8,7 @@ import { useMeasurementStats } from '@/hooks/useMeasurements';
 import { useChartData, useTrends } from '@/hooks/useAnalytics';
 import { useRedeemToken } from '@/hooks/useInvitations';
 import { queryKeys } from '@/lib/query-client';
+import { getDoctorLabel } from '@/lib/doctor-label';
 import ChartWrapper from '@/components/charts/ChartWrapper';
 import BpLineChart from '@/components/charts/BpLineChart';
 import BpStatsCard from '@/components/charts/BpStatsCard';
@@ -40,10 +41,11 @@ export default function DashboardPage() {
       const result = await redeemMutation.mutateAsync(tokenInput.trim());
       const doctorName = result.doctor
         ? `Dr. ${result.doctor.firstName} ${result.doctor.lastName}`
-        : 'votre medecin';
+        : 'votre praticien';
+      const roleLabel = getDoctorLabel(result.doctor?.role, result.doctor?.specialty);
       setTokenMessage({
         type: 'success',
-        text: `Association reussie avec ${doctorName} (${result.doctor?.specialty || 'Specialiste'})`,
+        text: `Association reussie avec ${doctorName} (${roleLabel})`,
       });
       setTokenInput('');
       setTimeout(() => setShowTokenForm(false), 3000);
@@ -78,9 +80,9 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-xs sm:text-sm text-slate-200 mb-0.5">Associer un medecin</h3>
+              <h3 className="font-semibold text-xs sm:text-sm text-slate-200 mb-0.5">Associer un praticien</h3>
               <p className="text-[11px] sm:text-xs text-slate-400 mb-2">
-                Entrez le code d&apos;invitation fourni par votre medecin pour etablir le suivi.
+                Entrez le code d&apos;invitation fourni par votre praticien pour etablir le suivi.
               </p>
               <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2">
                 <input

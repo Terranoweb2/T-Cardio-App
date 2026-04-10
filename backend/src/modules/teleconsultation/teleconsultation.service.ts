@@ -156,18 +156,34 @@ export class TeleconsultationService {
     // Deduct teleconsultation credits when transitioning TO ACTIVE
     if (status === 'ACTIVE' && previousStatus !== 'ACTIVE' && consultation.patientId) {
       try {
-        await this.creditService.deductForTeleconsultation(consultation.patientId, id);
-        this.logger.log(`Credits deducted for teleconsultation ${id}, patient ${consultation.patientId}`);
+        // Use the doctor's configured price; fall back to 5000 XOF if not set
+        let price = 5000;
+        if (consultation.doctorId) {
+          const doctor = await this.prisma.doctor.findUnique({
+            where: { id: consultation.doctorId },
+            select: { consultationPriceXof: true },
+          });
+          price = doctor?.consultationPriceXof ?? 5000;
+        }
+        await this.creditService.deductForTeleconsultation(consultation.patientId, id, price);
+        this.logger.log(`Credits deducted for teleconsultation ${id}, patient ${consultation.patientId}, amount=${price}`);
       } catch (err) {
         this.logger.warn(`Credit deduction failed for teleconsultation ${id}: ${err.message}`);
       }
     }
 
-    // Credit doctor wallet when teleconsultation ENDS (80% of 5000 = 4000 XOF)
+    // Credit doctor wallet when teleconsultation ENDS (doctor price minus platform commission)
     if (status === 'ENDED' && previousStatus !== 'ENDED' && consultation.doctorId) {
       try {
-        await this.doctorWalletService.creditForTeleconsultation(consultation.doctorId, id);
-        this.logger.log(`Doctor wallet credited for teleconsultation ${id}, doctor ${consultation.doctorId}`);
+        const doctorId = consultation.doctorId; // narrowed to string by the if-guard
+        const doctor = await this.prisma.doctor.findUnique({
+          where: { id: doctorId },
+          select: { consultationPriceXof: true, platformCommissionPct: true },
+        });
+        const price = doctor?.consultationPriceXof ?? 5000;
+        const commissionPct = doctor?.platformCommissionPct ?? 20;
+        await this.doctorWalletService.creditForTeleconsultation(doctorId, id, price, commissionPct);
+        this.logger.log(`Doctor wallet credited for teleconsultation ${id}, doctor ${doctorId}`);
       } catch (err) {
         this.logger.warn(`Doctor wallet credit failed for teleconsultation ${id}: ${err.message}`);
       }

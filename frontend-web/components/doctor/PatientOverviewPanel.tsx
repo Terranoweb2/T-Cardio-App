@@ -74,7 +74,7 @@ export default function PatientOverviewPanel({ patients }: PatientOverviewPanelP
       </div>
 
       {/* Patient list */}
-      <div className="max-h-[500px] overflow-y-auto dark-scrollbar">
+      <div className="max-h-[300px] sm:max-h-[400px] lg:max-h-[500px] overflow-y-auto dark-scrollbar">
         {filteredAndSorted.length > 0 ? (
           filteredAndSorted.map((patient) => (
             <PatientMiniCard key={patient.id} patient={patient} />

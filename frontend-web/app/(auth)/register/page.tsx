@@ -31,7 +31,7 @@ function RegisterContent() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [registeredRole, setRegisteredRole] = useState('');
 
-  // Detect APK mode: if app=patient, Capacitor native, or standalone PWA → hide role selector
+  // Detect APK mode: app=patient|medecin|cardiologue|admin
   const appMode = searchParams.get('app');
   const storedAppMode = typeof window !== 'undefined'
     ? (appMode || localStorage.getItem('tcardio_app_mode'))
@@ -41,7 +41,11 @@ function RegisterContent() {
   // Also detect via User-Agent (our WebView wrapper adds TCardioApp)
   const isTCardioUA = typeof window !== 'undefined' && navigator.userAgent.includes('TCardioApp');
   const isFromAPK = !!storedAppMode || isCapacitor || isStandalone || isTCardioUA;
-  const isPatientApp = storedAppMode === 'patient' || isCapacitor || isStandalone || isTCardioUA;
+  // Map APK mode to the correct role — don't assume all native apps are patient
+  type RoleType = 'PATIENT' | 'MEDECIN' | 'CARDIOLOGUE';
+  const appRoleMap: Record<string, RoleType> = { patient: 'PATIENT', medecin: 'MEDECIN', cardiologue: 'CARDIOLOGUE' };
+  const apkRole: RoleType = storedAppMode ? (appRoleMap[storedAppMode] || 'PATIENT') : 'PATIENT';
+  const isPatientApp = apkRole === 'PATIENT' && (!!storedAppMode || isCapacitor || isStandalone || isTCardioUA);
 
   // Store app mode in localStorage when coming from APK
   useEffect(() => {
@@ -64,7 +68,7 @@ function RegisterContent() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '', role: 'PATIENT' },
+    defaultValues: { email: '', password: '', confirmPassword: '', role: isFromAPK ? apkRole : 'PATIENT', firstName: '', lastName: '', phone: '', specialty: 'Cardiologie' },
   });
 
   const selectedRole = watch('role');
@@ -72,11 +76,19 @@ function RegisterContent() {
   const onSubmit = async (formData: RegisterFormData) => {
     setServerError('');
     try {
-      const { data } = await api.post('/auth/register', {
+      const payload: Record<string, string> = {
         email: formData.email,
         password: formData.password,
         role: formData.role,
-      });
+      };
+      // Include doctor fields if registering as a professional
+      if (formData.role === 'MEDECIN' || formData.role === 'CARDIOLOGUE') {
+        if (formData.firstName) payload.firstName = formData.firstName;
+        if (formData.lastName) payload.lastName = formData.lastName;
+        if (formData.phone) payload.phone = formData.phone;
+        if (formData.specialty) payload.specialty = formData.specialty;
+      }
+      const { data } = await api.post('/auth/register', payload);
 
       // For doctors/cardiologists: show pending validation message instead of login
       if (formData.role === 'MEDECIN' || formData.role === 'CARDIOLOGUE') {
@@ -196,8 +208,8 @@ function RegisterContent() {
         {serverError && <div className="bg-red-500/10 text-red-400 p-3 rounded-lg mb-4 text-sm">{serverError}</div>}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Hide role selector on patient APK — patients don't need to choose */}
-          {!isPatientApp && (
+          {/* Hide role selector when launched from a specific APK (role is predetermined) */}
+          {!isFromAPK && (
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Type de compte</label>
               <select
@@ -213,6 +225,65 @@ function RegisterContent() {
               )}
             </div>
           )}
+          {/* Doctor-specific fields */}
+          {(selectedRole === 'MEDECIN' || selectedRole === 'CARDIOLOGUE') && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Prenom *</label>
+                  <input
+                    type="text"
+                    {...reg('firstName')}
+                    placeholder="Ex: Jean"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 ${
+                      errors.firstName ? 'border-red-400/50 bg-red-500/10' : 'border-cyan-500/20 glass-input'
+                    }`}
+                  />
+                  {errors.firstName && (
+                    <p className="mt-1 text-xs text-red-400">{errors.firstName.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Nom *</label>
+                  <input
+                    type="text"
+                    {...reg('lastName')}
+                    placeholder="Ex: DUPONT"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-500 ${
+                      errors.lastName ? 'border-red-400/50 bg-red-500/10' : 'border-cyan-500/20 glass-input'
+                    }`}
+                  />
+                  {errors.lastName && (
+                    <p className="mt-1 text-xs text-red-400">{errors.lastName.message}</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Telephone</label>
+                <input
+                  type="tel"
+                  {...reg('phone')}
+                  placeholder="Ex: +228 90 00 00 00"
+                  className="w-full px-4 py-2 border border-cyan-500/20 glass-input rounded-lg focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Specialite</label>
+                <select
+                  {...reg('specialty')}
+                  className="w-full px-4 py-2 border border-cyan-500/20 glass-input rounded-lg"
+                >
+                  <option value="Cardiologie">Cardiologie</option>
+                  <option value="Medecine generale">Medecine generale</option>
+                  <option value="Medecine interne">Medecine interne</option>
+                  <option value="Pediatrie">Pediatrie</option>
+                  <option value="Neurologie">Neurologie</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
             <input

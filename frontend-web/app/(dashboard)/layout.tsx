@@ -18,6 +18,7 @@ import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
 import DashboardErrorBoundary from '@/components/layout/DashboardErrorBoundary';
 import api from '@/lib/api';
 import { initPush } from '@/lib/push';
+import { getMyDoctorLabel } from '@/lib/doctor-label';
 import {
   Home, Heart, PlusCircle, BarChart3, Sparkles, CalendarDays, CalendarCheck,
   Video, FileText, CreditCard, Coins, Bell, User, Users,
@@ -83,6 +84,7 @@ function getIconKey(href: string): string {
   if (href.includes('/ai-analysis')) return 'ai';
   if (href.includes('/my-doctor')) return 'doctor';
   if (href.includes('/consultation-stats')) return 'analytics';
+  if (href.includes('/pricing')) return 'config';
   if (href.includes('/wallet')) return 'payments';
   if (href.includes('/teleconsult')) return 'teleconsult';
   if (href.includes('/reports')) return 'reports';
@@ -110,6 +112,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, isAuthenticated, loadFromStorage, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // Dynamic label for the patient's linked doctor nav item
+  const [myDoctorLabel, setMyDoctorLabel] = useState('Mon medecin');
 
   useEffect(() => {
     loadFromStorage();
@@ -119,6 +123,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (user && user.role === 'PATIENT' && (user as any).onboardingCompleted === false) {
       setShowOnboarding(true);
+    }
+  }, [user]);
+
+  // Fetch linked doctor's role to show "Mon Cardiologue" or "Mon Medecin"
+  useEffect(() => {
+    if (user?.role === 'PATIENT') {
+      api.get('/patients/my-doctor-info').then(({ data }) => {
+        if (data) {
+          setMyDoctorLabel(getMyDoctorLabel(data.role, data.specialty));
+        }
+      }).catch(() => {});
     }
   }, [user]);
 
@@ -150,7 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/analytics', label: 'Analytique' },
     { href: '/ai-analysis', label: 'Analyse T-Cardio' },
     { href: '/chatbot', label: 'Chatbot Sante' },
-    { href: '/my-doctor', label: 'Mon medecin' },
+    { href: '/my-doctor', label: myDoctorLabel },
     { href: '/book-appointment', label: 'Rendez-vous' },
     { href: '/messaging', label: 'Messagerie' },
     { href: '/teleconsultations', label: 'Teleconsultation' },
@@ -178,6 +193,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/doctor/teleconsultations', label: 'Teleconsultations' },
     { href: '/doctor/urgences', label: 'Urgences' },
     { href: '/doctor/consultation-stats', label: 'Mes consultations' },
+    { href: '/doctor/pricing', label: 'Mes Tarifs' },
     { href: '/doctor/wallet', label: 'Mon Portefeuille' },
     { href: '/doctor/reports', label: 'Rapports' },
     { href: '/prescriptions', label: 'Ordonnances' },

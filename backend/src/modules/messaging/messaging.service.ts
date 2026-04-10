@@ -1,6 +1,11 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { CreditService } from '../credit/credit.service';
+import { DoctorWalletService } from '../doctor-wallet/doctor-wallet.service';
+
+/** How long (ms) a paid messaging session lasts before charging again. 24 hours. */
+const MESSAGING_SESSION_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class MessagingService {
@@ -9,6 +14,8 @@ export class MessagingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
+    private readonly creditService: CreditService,
+    private readonly doctorWalletService: DoctorWalletService,
   ) {}
 
   async createConversation(userId: string, role: string, targetId: string) {
@@ -108,7 +115,12 @@ export class MessagingService {
     fileData?: { url: string; name: string; type: string; size: number },
     isAiGenerated: boolean = false,
   ) {
-    await this.verifyConversationAccess(conversationId, senderId);
+    const conversation = await this.verifyConversationAccess(conversationId, senderId);
+
+    // Only charge the patient, never the doctor or AI messages
+    if (senderRole === 'PATIENT' && !isAiGenerated) {
+      await this.handleMessagingPayment(conversation, senderId);
+    }
 
     const message = await this.prisma.directMessage.create({
       data: {
@@ -131,6 +143,97 @@ export class MessagingService {
     });
 
     return message;
+  }
+
+  /**
+   * Charge the patient for a messaging session if the doctor has set a price.
+   * A session is defined as the first patient message in a conversation within a 24-hour window.
+   * Subsequent messages within the same window are free.
+   */
+  private async handleMessagingPayment(
+    conversation: { id: string; patientId: string; doctorId: string },
+    patientUserId: string,
+  ): Promise<void> {
+    // Load doctor pricing configuration
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id: conversation.doctorId },
+      select: {
+        messagingPriceXof: true,
+        platformCommissionPct: true,
+      },
+    });
+
+    // If messaging is free (price = 0 or doctor not found), skip payment
+    const price = doctor?.messagingPriceXof ?? 0;
+    if (price === 0) return;
+
+    // Resolve patient record id from userId
+    const patient = await this.prisma.patient.findUnique({
+      where: { userId: patientUserId },
+      select: { id: true },
+    });
+    if (!patient) return;
+
+    // Check if the patient already paid for this conversation in the last 24 hours.
+    // We use the CreditTransaction referenceId = conversationId to detect recent charges.
+    const sessionWindowStart = new Date(Date.now() - MESSAGING_SESSION_WINDOW_MS);
+
+    const creditBalance = await this.prisma.creditBalance.findUnique({
+      where: { patientId: patient.id },
+      select: { id: true },
+    });
+
+    if (creditBalance) {
+      const recentCharge = await this.prisma.creditTransaction.findFirst({
+        where: {
+          creditBalanceId: creditBalance.id,
+          type: 'DEBIT_MESSAGING',
+          referenceId: conversation.id,
+          createdAt: { gte: sessionWindowStart },
+        },
+      });
+
+      // Already charged within the session window — send for free
+      if (recentCharge) return;
+    }
+
+    // Verify patient has sufficient balance before attempting to charge
+    const hasFunds = await this.creditService.hasSufficientCredits(patient.id, price);
+    if (!hasFunds) {
+      throw new BadRequestException(
+        `Credits insuffisants pour envoyer un message a ce medecin. Tarif: ${price} XOF par session.`,
+      );
+    }
+
+    // Deduct from patient
+    try {
+      await this.creditService.deductForMessaging(patient.id, price, conversation.id);
+      this.logger.log(
+        `Messaging payment: patient=${patient.id}, amount=${price}, conversation=${conversation.id}`,
+      );
+    } catch (err) {
+      this.logger.warn(`Messaging credit deduction failed: ${err.message}`);
+      throw err;
+    }
+
+    // Credit doctor wallet (price minus platform commission)
+    try {
+      const commissionPct = doctor?.platformCommissionPct ?? 20;
+      const doctorEarning = Math.round(price * (1 - commissionPct / 100));
+      if (doctorEarning > 0) {
+        await this.doctorWalletService.creditForMessaging(
+          conversation.doctorId,
+          doctorEarning,
+          conversation.id,
+        );
+        this.logger.log(
+          `Messaging wallet credit: doctor=${conversation.doctorId}, amount=${doctorEarning}, conversation=${conversation.id}`,
+        );
+      }
+    } catch (err) {
+      // Wallet credit failure is non-blocking — log but don't fail the message send
+      this.logger.warn(`Messaging doctor wallet credit failed: ${err.message}`);
+    }
   }
 
   async markAsRead(conversationId: string, userId: string) {

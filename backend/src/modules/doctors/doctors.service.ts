@@ -5,6 +5,7 @@ import { StorageService } from '../storage/storage.service';
 import { EmailService } from '../../core/email/email.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
+import { UpdatePricingDto } from './dto/update-pricing.dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 
@@ -44,12 +45,18 @@ export class DoctorsService {
             profilePhotoUrl: true,
             consultationPriceXof: true,
             practiceAddress: true,
+            user: { select: { role: true } },
           },
         },
       },
     });
 
-    return links.map((l) => l.doctor);
+    // Flatten user.role onto the doctor object for frontend convenience
+    return links.map((l) => ({
+      ...l.doctor,
+      role: l.doctor.user?.role ?? 'MEDECIN',
+      user: undefined,
+    }));
   }
 
   async findById(id: string) {
@@ -63,6 +70,47 @@ export class DoctorsService {
     return this.prisma.doctor.update({
       where: { id: doctor.id },
       data: dto,
+    });
+  }
+
+  /**
+   * Update a doctor's pricing configuration.
+   * Only the doctor themselves can call this (enforced at the controller level).
+   */
+  async updatePricing(userId: string, dto: UpdatePricingDto) {
+    const doctor = await this.findByUserId(userId);
+
+    // At least one price field must be provided
+    if (
+      dto.consultationPriceXof === undefined &&
+      dto.messagingPriceXof === undefined &&
+      dto.emergencyPriceXof === undefined
+    ) {
+      throw new BadRequestException('Au moins un champ de tarification doit etre fourni');
+    }
+
+    const updateData: Record<string, number> = {};
+
+    if (dto.consultationPriceXof !== undefined) {
+      updateData.consultationPriceXof = dto.consultationPriceXof;
+    }
+    if (dto.messagingPriceXof !== undefined) {
+      updateData.messagingPriceXof = dto.messagingPriceXof;
+    }
+    if (dto.emergencyPriceXof !== undefined) {
+      updateData.emergencyPriceXof = dto.emergencyPriceXof;
+    }
+
+    return this.prisma.doctor.update({
+      where: { id: doctor.id },
+      data: updateData,
+      select: {
+        id: true,
+        consultationPriceXof: true,
+        messagingPriceXof: true,
+        emergencyPriceXof: true,
+        platformCommissionPct: true,
+      },
     });
   }
 

@@ -83,7 +83,7 @@ export default function AlertsUrgentActions({
         Alertes et actions urgentes
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Panel 1: Critical patients */}
         <div className="glass-card rounded-xl border-l-4 border-l-red-500 p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -101,7 +101,7 @@ export default function AlertsUrgentActions({
               <p className="text-sm">Aucun patient critique</p>
             </div>
           ) : (
-            <ul className="space-y-2 max-h-64 overflow-y-auto">
+            <ul className="space-y-2 max-h-48 sm:max-h-56 lg:max-h-64 overflow-y-auto">
               {criticalPatients.map((p) => {
                 const badge = RISK_BADGE[p.lastRiskLevel!];
                 const days = daysSince(p.lastMeasuredAt);
@@ -164,7 +164,7 @@ export default function AlertsUrgentActions({
               <p className="text-sm">Tous les patients sont suivis</p>
             </div>
           ) : (
-            <ul className="space-y-2 max-h-64 overflow-y-auto">
+            <ul className="space-y-2 max-h-48 sm:max-h-56 lg:max-h-64 overflow-y-auto">
               {lostPatients.map((p) => {
                 const days = daysSince(p.lastMeasuredAt);
                 return (
@@ -181,7 +181,7 @@ export default function AlertsUrgentActions({
                       </p>
                     </div>
                     <Link
-                      href={`/messages?patient=${p.id}`}
+                      href={`/messaging?contact=${p.id}`}
                       className="text-[11px] font-medium text-amber-400 hover:text-amber-300 transition-colors shrink-0 ml-2"
                     >
                       Contacter

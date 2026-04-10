@@ -357,6 +357,51 @@ export class AppointmentsService {
     });
   }
 
+  // ==================== DELETE ====================
+
+  async delete(userId: string, appointmentId: string) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        doctor: { select: { id: true, userId: true } },
+        patient: { select: { id: true, userId: true } },
+      },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Rendez-vous non trouve');
+    }
+
+    // Verify user is either the doctor or the patient
+    const isDoctor = appointment.doctor?.userId === userId;
+    const isPatient = appointment.patient?.userId === userId;
+
+    if (!isDoctor && !isPatient) {
+      throw new ForbiddenException(
+        "Vous n'etes pas autorise a supprimer ce rendez-vous",
+      );
+    }
+
+    // Only allow deletion of past, cancelled, rejected or completed appointments
+    const deletableStatuses = ['CANCELLED', 'REJECTED', 'COMPLETED'];
+    const isPast =
+      appointment.scheduledAt && new Date(appointment.scheduledAt) < new Date();
+
+    if (!deletableStatuses.includes(appointment.status) && !isPast) {
+      throw new BadRequestException(
+        'Seuls les rendez-vous passes, annules, refuses ou termines peuvent etre supprimes',
+      );
+    }
+
+    await this.prisma.appointment.delete({ where: { id: appointmentId } });
+
+    this.logger.log(
+      `Appointment ${appointmentId} deleted by user ${userId}`,
+    );
+
+    return { message: 'Rendez-vous supprime avec succes' };
+  }
+
   // ==================== PRIVATE HELPERS ====================
 
   private async findAppointmentWithOwnershipCheck(

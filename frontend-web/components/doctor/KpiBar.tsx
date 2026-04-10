@@ -147,7 +147,7 @@ export default function KpiBar({
   }, [patients, consultationStats, teleconsultations, unreadCount, doctorProfile]);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
       {kpis.map((kpi) => (
         <ClinicalKpiCard key={kpi.title} {...kpi} />
       ))}

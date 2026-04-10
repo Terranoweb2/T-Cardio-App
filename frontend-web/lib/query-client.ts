@@ -83,6 +83,7 @@ export const queryKeys = {
     patient: (id: string) => ['doctor', 'patients', id] as const,
     invitations: ['doctor', 'invitations'] as const,
     consultationStats: ['doctor', 'consultation-stats'] as const,
+    pricing: ['doctor', 'pricing'] as const,
   },
 
   // Admin

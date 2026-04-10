@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { getMyDoctorLabel, getDoctorLabel, getYourDoctorLabel, getADoctorLabel } from '@/lib/doctor-label';
 
 const DAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
@@ -14,6 +15,7 @@ interface DoctorLink {
   firstName: string;
   lastName: string;
   specialty: string;
+  role?: string; // 'MEDECIN' | 'CARDIOLOGUE' from user.role
  };
 }
 
@@ -127,11 +129,21 @@ export default function MyDoctorPage() {
   slots: (agendaData?.availabilities || []).filter((a: AvailabilitySlot) => a.dayOfWeek === i),
  }));
 
+ // Derive display labels from the active doctor's role
+ const doctorRole = activeDoctor?.doctor?.role;
+ const doctorSpecialty = activeDoctor?.doctor?.specialty;
+ const pageTitle = activeDoctor
+  ? getMyDoctorLabel(doctorRole, doctorSpecialty)
+  : 'Mon medecin';
+ const yourDoctor = activeDoctor
+  ? getYourDoctorLabel(doctorRole, doctorSpecialty)
+  : 'votre medecin';
+
  return (
   <div>
-   <h1 className="text-xl sm:text-2xl font-bold mb-1">Mon medecin</h1>
+   <h1 className="text-xl sm:text-2xl font-bold mb-1">{pageTitle}</h1>
    <p className="text-sm text-slate-400 mb-6">
-    Consultez les disponibilites de votre medecin et planifiez une teleconsultation
+    Consultez les disponibilites de {yourDoctor} et planifiez une teleconsultation
    </p>
 
    {loadingDoctors ? (
@@ -143,9 +155,9 @@ export default function MyDoctorPage() {
        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
       </svg>
      </div>
-     <h3 className="text-slate-400 font-medium mb-2">Aucun medecin associe</h3>
+     <h3 className="text-slate-400 font-medium mb-2">Aucun praticien associe</h3>
      <p className="text-slate-500 text-sm">
-      Utilisez le code d&apos;invitation de votre medecin sur le tableau de bord pour vous associer.
+      Utilisez le code d&apos;invitation de votre praticien sur le tableau de bord pour vous associer.
      </p>
     </div>
    ) : (
@@ -153,7 +165,7 @@ export default function MyDoctorPage() {
      {/* Doctor selector (if multiple) */}
      {doctorLinks.length > 1 && (
       <div className="glass-card rounded-xl p-4">
-       <label className="block text-xs text-slate-400 mb-2">Selectionner un medecin</label>
+       <label className="block text-xs text-slate-400 mb-2">Selectionner un praticien</label>
        <div className="flex flex-wrap gap-2">
         {doctorLinks.map((link) => (
          <button
@@ -193,7 +205,7 @@ export default function MyDoctorPage() {
        <div className="glass-card rounded-xl overflow-hidden">
         <div className="p-4 border-b border-cyan-500/10">
          <h2 className="text-sm font-semibold text-slate-200">Horaires de consultation</h2>
-         <p className="text-xs text-slate-500 mt-0.5">Planning hebdomadaire du medecin</p>
+         <p className="text-xs text-slate-500 mt-0.5">Planning hebdomadaire du {getDoctorLabel(doctorRole, doctorSpecialty).toLowerCase()}</p>
         </div>
         <div className="divide-y divide-cyan-500/10">
          {weeklySchedule.map(({ dayName, dayIndex, slots }) => (
@@ -245,7 +257,7 @@ export default function MyDoctorPage() {
          <label className="block text-xs text-slate-400 mb-2">Choisir une date</label>
          {filteredDates.length === 0 ? (
           <p className="text-sm text-slate-500 italic">
-           Aucune disponibilite configuree par le medecin
+           Aucune disponibilite configuree par le {getDoctorLabel(doctorRole, doctorSpecialty).toLowerCase()}
           </p>
          ) : (
           <div className="flex flex-wrap gap-2">

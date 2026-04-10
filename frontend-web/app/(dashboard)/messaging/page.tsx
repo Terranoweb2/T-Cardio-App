@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { getMessagingSocket } from '@/lib/socket';
@@ -37,7 +38,17 @@ interface ContactItem {
 }
 
 export default function MessagingPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-cyan-400 animate-spin" /></div>}>
+      <MessagingContent />
+    </Suspense>
+  );
+}
+
+function MessagingContent() {
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
+  const contactParam = searchParams.get('contact');
   const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<DirectMessage[]>([]);
@@ -60,8 +71,16 @@ export default function MessagingPage() {
 
   const isDoctor = user?.role === 'MEDECIN' || user?.role === 'CARDIOLOGUE';
 
+  const autoContactHandled = useRef(false);
+
   useEffect(() => {
-    loadConversations();
+    loadConversations().then(() => {
+      // Auto-open or create conversation when ?contact=patientId is present
+      if (contactParam && !autoContactHandled.current) {
+        autoContactHandled.current = true;
+        handleAutoContact(contactParam);
+      }
+    });
     if (isDoctor) loadAutoReplyStatus();
   }, []);
 
@@ -112,6 +131,22 @@ export default function MessagingPage() {
       console.error('Failed to load conversations', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoContact = async (targetId: string) => {
+    try {
+      // Try to create or get existing conversation with this contact
+      const res = await api.post('/messaging/conversations', { targetId });
+      const conv = res.data;
+      await loadConversations();
+      selectConversation(conv.id);
+    } catch (err: any) {
+      // If conversation already exists, find it in the list
+      const existing = conversations.find(
+        (c) => c.patient?.firstName && c.doctor?.firstName // basic check it's loaded
+      );
+      if (existing) selectConversation(existing.id);
     }
   };
 
@@ -481,7 +516,7 @@ export default function MessagingPage() {
 
             <p className="text-xs text-slate-400 mb-4">
               {user?.role === 'PATIENT'
-                ? 'Selectionnez un medecin pour demarrer une conversation'
+                ? 'Selectionnez un praticien pour demarrer une conversation'
                 : 'Selectionnez un patient pour demarrer une conversation'}
             </p>
 
@@ -494,7 +529,7 @@ export default function MessagingPage() {
                 <UserPlus className="w-10 h-10 text-slate-600 mx-auto mb-2" />
                 <p className="text-sm text-slate-500">
                   {user?.role === 'PATIENT'
-                    ? 'Aucun medecin associe. Utilisez un code d\'invitation pour lier un medecin.'
+                    ? 'Aucun praticien associe. Utilisez un code d\'invitation pour lier un praticien.'
                     : 'Aucun patient associe.'}
                 </p>
               </div>

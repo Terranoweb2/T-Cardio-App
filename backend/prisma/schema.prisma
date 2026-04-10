@@ -970,7 +970,7 @@ model AuditLog {
   requestId    String?     @map("request_id")
   createdAt    DateTime    @default(now()) @map("created_at")
 
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([resourceType, resourceId])

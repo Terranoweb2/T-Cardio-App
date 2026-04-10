@@ -103,8 +103,16 @@ export class AdminService {
     if (!user) throw new NotFoundException('Utilisateur non trouve');
     if (user.id === adminId) throw new BadRequestException('Vous ne pouvez pas supprimer votre propre compte');
 
-    // Cascade delete: Prisma onDelete: Cascade handles related records
-    await this.prisma.user.delete({ where: { id: userId } });
+    // Detach audit logs (set userId to null) before deleting user,
+    // because AuditLog uses onDelete: SetNull but older deployments
+    // may not have the migration yet. Then delete user (cascades the rest).
+    await this.prisma.$transaction([
+      this.prisma.auditLog.updateMany({
+        where: { userId },
+        data: { userId: null },
+      }),
+      this.prisma.user.delete({ where: { id: userId } }),
+    ]);
 
     await this.auditService.log({
       userId: adminId,

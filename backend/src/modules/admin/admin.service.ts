@@ -99,20 +99,73 @@ export class AdminService {
   }
 
   async deleteUser(userId: string, adminId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { patient: true, doctor: true },
+    });
     if (!user) throw new NotFoundException('Utilisateur non trouve');
     if (user.id === adminId) throw new BadRequestException('Vous ne pouvez pas supprimer votre propre compte');
 
-    // Detach audit logs (set userId to null) before deleting user,
-    // because AuditLog uses onDelete: SetNull but older deployments
-    // may not have the migration yet. Then delete user (cascades the rest).
-    await this.prisma.$transaction([
-      this.prisma.auditLog.updateMany({
-        where: { userId },
-        data: { userId: null },
-      }),
-      this.prisma.user.delete({ where: { id: userId } }),
-    ]);
+    const patientId = user.patient?.id;
+    const doctorId = user.doctor?.id;
+
+    // Many relations lack onDelete: Cascade in the schema.
+    // We must manually clean up ALL dependent records before deleting the user.
+    // Order matters: delete leaf tables first, then parents.
+    const ops: any[] = [];
+
+    // 1. Detach audit logs (preserve them with userId = null)
+    ops.push(this.prisma.auditLog.updateMany({ where: { userId }, data: { userId: null } }));
+
+    if (patientId) {
+      // 2. Delete patient-dependent records (relations without onDelete: Cascade)
+      ops.push(this.prisma.aiAnalysis.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.alert.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.emergencyEvent.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.report.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.medicalNote.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.prescription.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.appointment.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.examResult.deleteMany({ where: { patientId } }));
+      ops.push(this.prisma.invitationToken.updateMany({ where: { usedBy: patientId }, data: { usedBy: null } }));
+
+      // Conversations & messages
+      const patientConversations = await this.prisma.conversation.findMany({ where: { patientId }, select: { id: true } });
+      if (patientConversations.length > 0) {
+        const convIds = patientConversations.map((c) => c.id);
+        ops.push(this.prisma.directMessage.deleteMany({ where: { conversationId: { in: convIds } } }));
+        ops.push(this.prisma.conversation.deleteMany({ where: { patientId } }));
+      }
+
+      // Teleconsultations (messages cascade, but teleconsultation itself doesn't)
+      ops.push(this.prisma.teleconsultation.deleteMany({ where: { patientId } }));
+    }
+
+    if (doctorId) {
+      // 3. Delete doctor-dependent records (relations without onDelete: Cascade)
+      ops.push(this.prisma.alert.deleteMany({ where: { doctorId } }));
+      ops.push(this.prisma.report.deleteMany({ where: { doctorId } }));
+      ops.push(this.prisma.medicalNote.deleteMany({ where: { doctorId } }));
+      ops.push(this.prisma.prescription.deleteMany({ where: { doctorId } }));
+      ops.push(this.prisma.appointment.deleteMany({ where: { doctorId } }));
+      ops.push(this.prisma.invitationToken.deleteMany({ where: { doctorId } }));
+
+      // Doctor conversations
+      const doctorConversations = await this.prisma.conversation.findMany({ where: { doctorId }, select: { id: true } });
+      if (doctorConversations.length > 0) {
+        const convIds = doctorConversations.map((c) => c.id);
+        ops.push(this.prisma.directMessage.deleteMany({ where: { conversationId: { in: convIds } } }));
+        ops.push(this.prisma.conversation.deleteMany({ where: { doctorId } }));
+      }
+
+      // Doctor teleconsultations
+      ops.push(this.prisma.teleconsultation.deleteMany({ where: { doctorId } }));
+    }
+
+    // 4. Finally delete the user (cascades to Patient, Doctor, RefreshToken, etc.)
+    ops.push(this.prisma.user.delete({ where: { id: userId } }));
+
+    await this.prisma.$transaction(ops);
 
     await this.auditService.log({
       userId: adminId,

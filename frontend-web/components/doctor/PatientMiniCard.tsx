@@ -36,10 +36,12 @@ function getDaysColor(days: number | null): string {
   return 'text-green-400';
 }
 
-function getPatientName(user?: { firstName?: string; lastName?: string }): string {
+function getPatientName(user?: { firstName?: string; lastName?: string; email?: string }): string {
   if (!user) return 'Patient inconnu';
-  const parts = [user.firstName, user.lastName].filter(Boolean);
-  return parts.length > 0 ? parts.join(' ') : 'Patient inconnu';
+  const parts = [user.firstName, user.lastName].filter((s) => s && s.trim());
+  if (parts.length > 0) return parts.join(' ');
+  if (user.email) return user.email;
+  return 'Patient inconnu';
 }
 
 export default function PatientMiniCard({ patient }: PatientMiniCardProps) {

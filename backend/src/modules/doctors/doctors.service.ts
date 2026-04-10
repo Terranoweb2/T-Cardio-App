@@ -121,6 +121,7 @@ export class DoctorsService {
       include: {
         patient: {
           include: {
+            user: { select: { email: true } },
             measurements: { orderBy: { measuredAt: 'desc' }, take: 1 },
             aiAnalyses: { orderBy: { createdAt: 'desc' }, take: 1 },
             alerts: { where: { isRead: false }, orderBy: { createdAt: 'desc' }, take: 5 },
@@ -130,6 +131,8 @@ export class DoctorsService {
     });
     return links.map((l) => {
       const pat = l.patient;
+      const userInfo = (pat as any).user;
+      const email = userInfo?.email || null;
       const lastM = pat.measurements[0] || null;
       const lastA = pat.aiAnalyses[0] || null;
       // Calculate age
@@ -145,6 +148,13 @@ export class DoctorsService {
       }
       return {
         ...pat,
+        // Ensure user object has name fields for frontend components
+        user: {
+          firstName: pat.firstName,
+          lastName: pat.lastName,
+          email,
+        },
+        email,
         age,
         bmi,
         lastMeasurement: lastM,

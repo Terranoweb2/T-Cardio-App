@@ -128,6 +128,15 @@ export default function DoctorPatientsPage() {
   }
  };
 
+ // Display name with email fallback when names are empty
+ const patientName = (p: any) => {
+  const first = (p.firstName || '').trim();
+  const last = (p.lastName || '').trim();
+  if (first || last) return `${first} ${last}`.trim();
+  if (p.email) return p.email;
+  return 'Patient sans nom';
+ };
+
  const riskBadge = (level: string) => {
   const colors: Record<string, string> = {
    FAIBLE: 'bg-green-500/15 text-green-400',
@@ -363,7 +372,7 @@ export default function DoctorPatientsPage() {
         {filtered.map((p: any) => (
          <tr key={p.id} className={p.lastRiskLevel === 'CRITIQUE' ? 'bg-red-500/10' : 'hover:bg-cardio-800/50'}>
           <td className="px-4 py-3 text-sm font-medium">
-           {p.firstName} {p.lastName}
+           {patientName(p)}
           </td>
           <td className="px-4 py-3 text-sm text-slate-400">{p.email}</td>
           <td className="px-4 py-3 text-sm text-slate-400">{p.medicalStatus || '--'}</td>
@@ -428,7 +437,7 @@ export default function DoctorPatientsPage() {
          className={`block p-4 hover:bg-cardio-800/50 ${p.lastRiskLevel === 'CRITIQUE' ? 'bg-red-500/10' : ''}`}
         >
          <div className="flex justify-between items-start mb-1">
-          <span className="font-medium text-sm">{p.firstName} {p.lastName}</span>
+          <span className="font-medium text-sm">{patientName(p)}</span>
           {p.lastRiskLevel ? riskBadge(p.lastRiskLevel) : null}
          </div>
          <div className="text-xs text-slate-400 mb-1">{p.email}</div>

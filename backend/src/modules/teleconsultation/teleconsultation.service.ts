@@ -296,6 +296,28 @@ export class TeleconsultationService {
     return { ...updated, motif: updated.reason || null };
   }
 
+  async delete(teleconsultationId: string, doctorUserId: string) {
+    const doctor = await this.prisma.doctor.findUnique({ where: { userId: doctorUserId } });
+    if (!doctor) throw new NotFoundException('Doctor profile not found');
+
+    const tc = await this.prisma.teleconsultation.findUnique({
+      where: { id: teleconsultationId },
+    });
+    if (!tc) throw new NotFoundException('Teleconsultation introuvable');
+    if (tc.doctorId !== doctor.id) throw new BadRequestException('Vous ne pouvez supprimer que vos propres teleconsultations');
+    if (tc.status === 'ACTIVE') throw new BadRequestException('Impossible de supprimer une teleconsultation en cours');
+
+    // Delete related records first (messages, notes, review, appointment)
+    await this.prisma.teleconsultationMessage.deleteMany({ where: { teleconsultationId } });
+    await this.prisma.medicalNote.deleteMany({ where: { teleconsultationId } });
+    await this.prisma.doctorReview.deleteMany({ where: { teleconsultationId } });
+    await this.prisma.appointment.deleteMany({ where: { teleconsultationId } });
+    await this.prisma.teleconsultation.delete({ where: { id: teleconsultationId } });
+
+    this.logger.log(`Teleconsultation ${teleconsultationId} deleted by doctor ${doctor.id}`);
+    return { success: true };
+  }
+
   async findByDoctor(doctorUserId: string) {
     const doctor = await this.prisma.doctor.findUnique({ where: { userId: doctorUserId } });
     if (!doctor) return [];

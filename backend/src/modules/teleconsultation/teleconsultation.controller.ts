@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TeleconsultationService } from './teleconsultation.service';
@@ -162,6 +162,13 @@ export class TeleconsultationController {
     @Body() body: { reason?: string },
   ) {
     return this.service.cancelAppointment(id, userId, body?.reason);
+  }
+
+  @Delete(':id')
+  @Roles('MEDECIN', 'CARDIOLOGUE')
+  @ApiOperation({ summary: 'Supprimer une teleconsultation terminee/annulee' })
+  async delete(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+    return this.service.delete(id, userId);
   }
 
   @Get(':id')

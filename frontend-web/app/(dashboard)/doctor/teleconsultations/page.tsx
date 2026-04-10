@@ -9,6 +9,19 @@ import toast from 'react-hot-toast';
 
 type StatusFilter = 'ALL' | 'PLANNED' | 'ACTIVE' | 'ENDED';
 
+/** Build a display name from a teleconsultation object */
+function tcPatientName(tc: any): string {
+ const first = (tc.patient?.firstName || '').trim();
+ const last = (tc.patient?.lastName || '').trim();
+ if (first || last) return `${first} ${last}`.trim();
+ // patientName / patientEmail are legacy flat fields from older API shapes
+ if (tc.patientName?.trim()) return tc.patientName.trim();
+ // email: try nested user.email, then flat patientEmail
+ const email = tc.patient?.user?.email || tc.patient?.email || tc.patientEmail;
+ if (email) return email;
+ return 'Patient inconnu';
+}
+
 export default function DoctorTeleconsultationsPage() {
  const [teleconsultations, setTeleconsultations] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
@@ -159,9 +172,7 @@ export default function DoctorTeleconsultationsPage() {
            <td className="px-4 py-3 text-sm">
             <div className="flex items-center gap-2">
              {past && <XCircle className="w-4 h-4 text-red-400 shrink-0" />}
-             {tc.patientName || tc.patient?.firstName
-              ? `${tc.patient?.firstName || ''} ${tc.patient?.lastName || ''}`.trim()
-              : tc.patientEmail || tc.patient?.email || '--'}
+             {tcPatientName(tc)}
             </div>
            </td>
            <td className={`px-4 py-3 text-sm ${past ? 'text-red-400' : 'text-slate-400'}`}>

@@ -155,6 +155,17 @@ function startProactiveRefresh() {
 if (typeof window !== 'undefined') {
   startProactiveRefresh();
 
+  // Immediate refresh on app load — catches role changes (e.g. admin promoted user)
+  // Runs after a small delay to let the app render first
+  setTimeout(async () => {
+    if (localStorage.getItem('refreshToken')) {
+      const result = await singletonRefresh();
+      if (result) {
+        console.log('[api] Token refreshed on initial load');
+      }
+    }
+  }, 1500);
+
   document.addEventListener('visibilitychange', async () => {
     if (document.visibilityState === 'visible') {
       const result = await singletonRefresh();

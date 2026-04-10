@@ -15,6 +15,7 @@ import PopupAd from '@/components/ads/PopupAd';
 import IncomingCallHandler from '@/components/layout/IncomingCallHandler';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import OnboardingWizard from '@/components/onboarding/OnboardingWizard';
+import DashboardErrorBoundary from '@/components/layout/DashboardErrorBoundary';
 import api from '@/lib/api';
 import { initPush } from '@/lib/push';
 import {
@@ -348,10 +349,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {user?.role !== 'ADMIN' && <TickerBanner />}
 
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-3 md:p-6 lg:p-8 bg-cardio-900 pb-24 lg:pb-8 max-w-full">
-            <div key={pathname} className="page-transition">
-              {children}
-            </div>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-6 lg:p-8 bg-cardio-900 pb-24 lg:pb-8 max-w-full">
+            <DashboardErrorBoundary>
+              <div key={pathname} className="page-transition">
+                {children}
+              </div>
+            </DashboardErrorBoundary>
           </main>
         </div>
       </div>
@@ -365,7 +368,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
         }}>
-        <div className="flex items-center justify-around px-1 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-around px-1 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
           {bottomNav.map((item) => {
             const active = isActive(item.href);
             const iconKey = getIconKey(item.href);

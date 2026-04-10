@@ -57,6 +57,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ user, isAuthenticated: true });
         // Ensure native call service is running (Android only)
         startNativeCallService(token, user.id, user.role).catch(() => {});
+        // Background role verification — detect role changes (e.g. admin promoted user)
+        verifyAndSyncRole(user, set);
       } catch {
         // Corrupted user data — try to recover from API
         recoverUserFromApi(set);
@@ -77,6 +79,48 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     });
   },
 }));
+
+/**
+ * Background role verification — immediately after loadFromStorage,
+ * check the backend for the user's current role. If it changed
+ * (e.g. admin promoted PATIENT → MEDECIN), update localStorage and redirect.
+ * This runs asynchronously and does NOT block the initial render.
+ */
+async function verifyAndSyncRole(currentUser: AuthUser, set: any) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return;
+
+  try {
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/auth/me`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (data && data.role && data.role !== currentUser.role) {
+      console.log(`[authStore] Role changed: ${currentUser.role} → ${data.role} — redirecting`);
+      const updated: AuthUser = {
+        id: data.id,
+        email: data.email,
+        role: data.role,
+        emailVerified: data.emailVerified,
+      };
+      localStorage.setItem('user', JSON.stringify(updated));
+      set({ user: updated, isAuthenticated: true });
+
+      // Redirect to the correct dashboard for the new role
+      const target = data.role === 'ADMIN' ? '/admin/dashboard'
+        : (data.role === 'MEDECIN' || data.role === 'CARDIOLOGUE') ? '/doctor/dashboard'
+        : '/dashboard';
+
+      // Only redirect if not already on the correct dashboard
+      if (!window.location.pathname.startsWith(target.replace('/dashboard', ''))) {
+        window.location.href = target;
+      }
+    }
+  } catch {
+    // API call failed — will be handled by interceptor on next request
+  }
+}
 
 /**
  * If user data in localStorage is missing/corrupted but we have a valid token,

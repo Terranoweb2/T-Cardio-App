@@ -104,10 +104,12 @@ export default function AppointmentCard({
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'UTC',
   });
   const timeStr = scheduledDate.toLocaleTimeString('fr-FR', {
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'UTC',
   });
 
   // Displayed person depends on viewer role

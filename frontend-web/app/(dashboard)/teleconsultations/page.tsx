@@ -139,7 +139,7 @@ export default function TeleconsultationsPage() {
         teleconsultations.map((tc: any) => (
          <tr key={tc.id}>
           <td className="px-4 py-3 text-sm">
-           {tc.scheduledAt ? new Date(tc.scheduledAt).toLocaleString('fr-FR') : new Date(tc.createdAt).toLocaleDateString('fr-FR')}
+           {tc.scheduledAt ? new Date(tc.scheduledAt).toLocaleString('fr-FR', { timeZone: 'UTC' }) : new Date(tc.createdAt).toLocaleDateString('fr-FR')}
           </td>
           <td className="px-4 py-3 text-sm text-slate-400">
            {tc.doctor?.firstName
@@ -186,7 +186,7 @@ export default function TeleconsultationsPage() {
          <div className="flex items-center justify-between text-xs text-slate-400">
           <span>
            {tc.scheduledAt
-            ? new Date(tc.scheduledAt).toLocaleString('fr-FR')
+            ? new Date(tc.scheduledAt).toLocaleString('fr-FR', { timeZone: 'UTC' })
             : new Date(tc.createdAt).toLocaleDateString('fr-FR')}
           </span>
           <span className="text-cyan-400 font-medium">

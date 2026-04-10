@@ -38,12 +38,18 @@ function getPatientName(item: Appointment | Teleconsultation): string {
   return 'Patient inconnu';
 }
 
+function parseAsUTC(dateStr: string): Date {
+  // Strip timezone suffix so date-fns treats the value as-is (stored local time)
+  const d = new Date(dateStr);
+  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), d.getUTCHours(), d.getUTCMinutes());
+}
+
 function formatTime(dateStr: string): string {
-  return format(new Date(dateStr), 'HH:mm', { locale: fr });
+  return format(parseAsUTC(dateStr), 'HH:mm', { locale: fr });
 }
 
 function formatDateShort(dateStr: string): string {
-  return format(new Date(dateStr), 'EEE dd MMM', { locale: fr });
+  return format(parseAsUTC(dateStr), 'EEE dd MMM', { locale: fr });
 }
 
 function StatusBadge({ status }: { status?: string }) {

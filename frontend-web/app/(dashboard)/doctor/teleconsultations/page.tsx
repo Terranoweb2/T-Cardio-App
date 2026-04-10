@@ -166,7 +166,7 @@ export default function DoctorTeleconsultationsPage() {
            </td>
            <td className={`px-4 py-3 text-sm ${past ? 'text-red-400' : 'text-slate-400'}`}>
             {tc.scheduledAt
-             ? new Date(tc.scheduledAt).toLocaleString('fr-FR')
+             ? new Date(tc.scheduledAt).toLocaleString('fr-FR', { timeZone: 'UTC' })
              : '--'}
            </td>
            <td className="px-4 py-3 text-sm text-slate-400">
@@ -265,7 +265,7 @@ export default function DoctorTeleconsultationsPage() {
          </p>
          <div className="flex items-center justify-between">
           <span className="text-xs text-slate-400">
-           {tc.scheduledAt ? new Date(tc.scheduledAt).toLocaleString('fr-FR') : '--'}
+           {tc.scheduledAt ? new Date(tc.scheduledAt).toLocaleString('fr-FR', { timeZone: 'UTC' }) : '--'}
           </span>
           <div className="flex gap-2 items-center">
            {tc.status === 'PLANNED' && (

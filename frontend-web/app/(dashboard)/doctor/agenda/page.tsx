@@ -186,7 +186,7 @@ export default function DoctorAgendaPage() {
  const openRescheduleModal = (apt: Teleconsultation) => {
   const dt = new Date(apt.scheduledAt);
   const dateStr = dt.toISOString().split('T')[0];
-  const timeStr = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const timeStr = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   const patientName = apt.patient
    ? `${apt.patient.firstName || ''} ${apt.patient.lastName || ''}`.trim() || 'Patient'
    : 'Patient';
@@ -311,8 +311,8 @@ export default function DoctorAgendaPage() {
          const dt = new Date(apt.scheduledAt);
          const isToday = dt.toDateString() === new Date().toDateString();
          const isTomorrow = dt.toDateString() === new Date(Date.now() + 86400000).toDateString();
-         const dayLabel = isToday ? "Aujourd'hui" : isTomorrow ? 'Demain' : dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-         const timeLabel = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+         const dayLabel = isToday ? "Aujourd'hui" : isTomorrow ? 'Demain' : dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+         const timeLabel = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
          const patientName = apt.patient
           ? `${apt.patient.firstName || ''} ${apt.patient.lastName || ''}`.trim() || apt.patient.user?.email || 'Patient'
           : 'Patient';
@@ -403,7 +403,7 @@ export default function DoctorAgendaPage() {
             <div>
              <p className="text-sm text-slate-300">{patientName}</p>
              <p className="text-xs text-slate-500">
-              {dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} a {dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              {dt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' })} a {dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
              </p>
             </div>
            </div>

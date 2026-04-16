@@ -69,8 +69,11 @@
       "icon": "assets/icon-mac.png",
       "category": "public.app-category.medical",
       "darkModeSupport": true,
-      "hardenedRuntime": false,
+      "hardenedRuntime": true,
       "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true,
       "artifactName": "T-Cardio-Medecin-${version}-${arch}.${ext}"
     },
     "dmg": {

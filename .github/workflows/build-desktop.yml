@@ -38,11 +38,26 @@ jobs:
         working-directory: desktop
         run: npm install
 
+      - name: Import Apple Certificate
+        if: ${{ env.CSC_LINK != '' }}
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+        run: |
+          echo "Certificate found, will sign the app"
+
       - name: Build macOS (${{ matrix.arch }})
         working-directory: desktop
         run: npx electron-builder --mac --${{ matrix.arch }}
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          # Code Signing
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CERTIFICATE_P12_BASE64 != '' }}
+          # Notarization
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: List outputs
         working-directory: desktop/dist

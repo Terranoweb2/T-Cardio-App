@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import api from '@/lib/api';
 
 interface ChatMessageProps {
   content: string;
@@ -20,16 +21,74 @@ export default function ChatMessage({
   senderId,
   currentUserId,
   timestamp,
-  fileUrl,
+  fileUrl: rawFileUrl,
   fileName,
   fileType,
   fileSizeBytes,
 }: ChatMessageProps) {
   const isOwn = senderId === currentUserId;
   const [imageExpanded, setImageExpanded] = useState(false);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loadingFile, setLoadingFile] = useState(false);
 
   const isImage = fileType?.startsWith('image/');
   const isPdf = fileType === 'application/pdf';
+
+  // Check if URL is a relative API path that needs authenticated fetching
+  const isApiPath = rawFileUrl?.startsWith('/api/v1/');
+
+  // Fetch file via authenticated API and create blob URL
+  useEffect(() => {
+    if (!rawFileUrl || !isApiPath) return;
+
+    let cancelled = false;
+    setLoadingFile(true);
+
+    // Strip /api/v1 prefix since the axios instance already has it as baseURL
+    const apiPath = rawFileUrl.slice('/api/v1'.length);
+    api.get(apiPath, { responseType: 'blob' })
+      .then((res) => {
+        if (cancelled) return;
+        const url = URL.createObjectURL(res.data);
+        setBlobUrl(url);
+      })
+      .catch(() => {
+        // If fetch fails, fall back to raw URL
+        if (!cancelled) setBlobUrl(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingFile(false);
+      });
+
+    return () => {
+      cancelled = true;
+      // Revoke blob URL on cleanup to free memory
+      setBlobUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+    };
+  }, [rawFileUrl, isApiPath]);
+
+  // Resolved URL: use blob for API paths, raw URL for external/absolute URLs
+  const fileUrl = isApiPath ? blobUrl : rawFileUrl;
+
+  // Download file via authenticated API
+  const handleDownload = useCallback(async () => {
+    if (!rawFileUrl) return;
+    try {
+      const apiPath = isApiPath ? rawFileUrl.slice('/api/v1'.length) : rawFileUrl;
+      const res = await api.get(apiPath, { responseType: 'blob' });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName || 'fichier';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
+      if (fileUrl) window.open(fileUrl, '_blank');
+    }
+  }, [rawFileUrl, isApiPath, fileName, fileUrl]);
 
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return '';
@@ -55,14 +114,20 @@ export default function ChatMessage({
           )}
 
           {/* File attachment */}
-          {fileUrl && isImage && (
+          {rawFileUrl && isImage && (
             <div className="mb-2">
-              <img
-                src={fileUrl}
-                alt={fileName || 'Image'}
-                className="max-w-full max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition"
-                onClick={() => setImageExpanded(true)}
-              />
+              {loadingFile ? (
+                <div className="w-32 h-32 rounded-lg bg-cardio-700/50 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : fileUrl ? (
+                <img
+                  src={fileUrl}
+                  alt={fileName || 'Image'}
+                  className="max-w-full max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition"
+                  onClick={() => setImageExpanded(true)}
+                />
+              ) : null}
               {fileName && (
                 <p className={`text-[10px] mt-1 ${isOwn ? 'text-cyan-200' : 'text-slate-500'}`}>
                   {fileName} {fileSizeBytes ? `(${formatFileSize(fileSizeBytes)})` : ''}
@@ -71,12 +136,10 @@ export default function ChatMessage({
             </div>
           )}
 
-          {fileUrl && isPdf && (
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-2 mb-2 p-2 rounded-lg transition ${
+          {rawFileUrl && isPdf && (
+            <button
+              onClick={handleDownload}
+              className={`flex items-center gap-2 mb-2 p-2 rounded-lg transition w-full text-left ${
                 isOwn
                   ? 'bg-cyan-700/50 hover:bg-cyan-700/70'
                   : 'bg-cardio-800/70 hover:bg-cardio-700/50'
@@ -95,15 +158,13 @@ export default function ChatMessage({
                   </p>
                 )}
               </div>
-            </a>
+            </button>
           )}
 
-          {fileUrl && !isImage && !isPdf && (
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-2 mb-2 p-2 rounded-lg transition ${
+          {rawFileUrl && !isImage && !isPdf && (
+            <button
+              onClick={handleDownload}
+              className={`flex items-center gap-2 mb-2 p-2 rounded-lg transition w-full text-left ${
                 isOwn
                   ? 'bg-cyan-700/50 hover:bg-cyan-700/70'
                   : 'bg-cardio-800/70 hover:bg-cardio-700/50'
@@ -122,7 +183,7 @@ export default function ChatMessage({
                   </p>
                 )}
               </div>
-            </a>
+            </button>
           )}
 
           {/* Text content */}

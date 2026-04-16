@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, BadRequestException, ForbiddenException, Res } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { TeleconsultationService } from './teleconsultation.service';
 import { PrismaService } from '../../core/prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { Roles } from '../../core/guards/roles.decorator';
@@ -18,6 +20,7 @@ export class TeleconsultationController {
   constructor(
     private readonly service: TeleconsultationService,
     private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
   ) {}
 
   /**
@@ -129,6 +132,31 @@ export class TeleconsultationController {
     if (file.size > 10 * 1024 * 1024) throw new BadRequestException('Fichier trop volumineux (max 10MB)');
     await this.verifyParticipant(id, userId);
     return this.service.uploadChatFile(id, file);
+  }
+
+  @Get(':id/files/:filename')
+  @Roles('MEDECIN', 'CARDIOLOGUE', 'PATIENT')
+  @ApiOperation({ summary: 'Recuperer un fichier du chat' })
+  async getChatFile(
+    @Param('id') id: string,
+    @Param('filename') filename: string,
+    @CurrentUser('sub') userId: string,
+    @Res() res: Response,
+  ) {
+    await this.verifyParticipant(id, userId);
+    const fileKey = `chat-files/${id}/${filename}`;
+    const stream = await this.storageService.getFileStream(fileKey);
+
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const contentTypes: Record<string, string> = {
+      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+      webp: 'image/webp', pdf: 'application/pdf', doc: 'application/msword',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    };
+    const contentType = contentTypes[ext || ''] || 'application/octet-stream';
+
+    res.set({ 'Content-Type': contentType, 'Cache-Control': 'public, max-age=3600' });
+    (stream as any).pipe(res);
   }
 
   @Post(':id/review')

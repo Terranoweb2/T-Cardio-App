@@ -509,9 +509,14 @@ export class TeleconsultationService {
     if (!consultation) throw new NotFoundException('Teleconsultation not found');
 
     const ext = file.originalname.split('.').pop() || 'bin';
-    const fileName = `chat-files/${teleconsultationId}/${uuidv4()}.${ext}`;
+    const uniqueName = `${uuidv4()}.${ext}`;
+    const storageKey = `chat-files/${teleconsultationId}/${uniqueName}`;
 
-    const fileUrl = await this.storageService.uploadFile(fileName, file.buffer, file.mimetype);
+    // Upload to MinIO (returns internal path, not used as URL)
+    await this.storageService.uploadFile(storageKey, file.buffer, file.mimetype);
+
+    // Return a proper API URL that the frontend can use directly
+    const fileUrl = `/api/v1/teleconsultations/${teleconsultationId}/files/${uniqueName}`;
 
     return {
       fileUrl,

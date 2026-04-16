@@ -15,6 +15,7 @@ import TeleconsultationsScreen from '../screens/main/TeleconsultationsScreen';
 import TeleconsultationChatScreen from '../screens/main/TeleconsultationChatScreen';
 import ReportsScreen from '../screens/main/ReportsScreen';
 import NotificationsScreen from '../screens/main/NotificationsScreen';
+import EmergencyScreen from '../screens/main/EmergencyScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -111,6 +112,7 @@ function MoreStack() {
       <MoreStackNav.Screen name="MoreMenu" component={MoreMenuScreen} />
       <MoreStackNav.Screen name="Analysis" component={AnalysisScreen} />
       <MoreStackNav.Screen name="Reports" component={ReportsScreen} />
+      <MoreStackNav.Screen name="Emergency" component={EmergencyScreen} />
       <MoreStackNav.Screen name="Notifications" component={NotificationsScreen} />
       <MoreStackNav.Screen name="Profile" component={ProfileScreen} />
     </MoreStackNav.Navigator>
@@ -122,6 +124,7 @@ function MoreStack() {
  */
 function MoreMenuScreen({ navigation }: any) {
   const menuItems = [
+    { key: 'Emergency', label: 'Urgences', icon: '[!!]', color: '#dc2626' },
     { key: 'Analysis', label: 'Analyse IA', icon: '[IA]', color: '#f59e0b' },
     { key: 'Reports', label: 'Rapports', icon: '[R]', color: '#dc2626' },
     { key: 'Notifications', label: 'Notifications', icon: '[N]', color: '#2563eb' },

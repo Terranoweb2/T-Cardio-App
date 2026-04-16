@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import api from '../../services/api';
 
 export default function HomeScreen() {
+  const navigation = useNavigation<any>();
   const [stats, setStats] = useState<any>(null);
   const [latestAi, setLatestAi] = useState<any>(null);
 
@@ -39,6 +41,21 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={styles.emergencyBanner}
+        onPress={() => navigation.navigate('More', { screen: 'Emergency' })}
+        activeOpacity={0.8}
+      >
+        <View style={styles.emergencyBannerContent}>
+          <Text style={styles.emergencyIcon}>!!</Text>
+          <View style={styles.emergencyTextContainer}>
+            <Text style={styles.emergencyBannerTitle}>Urgences</Text>
+            <Text style={styles.emergencyBannerSubtitle}>Contacter un praticien en urgence</Text>
+          </View>
+          <Text style={styles.emergencyArrow}>{'>'}</Text>
+        </View>
+      </TouchableOpacity>
+
       {latestAi?.patientSummary && (
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Resume IA</Text>
@@ -60,4 +77,50 @@ const styles = StyleSheet.create({
   cardValueMuted: { fontSize: 28, fontWeight: 'bold', color: '#d1d5db' },
   cardUnit: { fontSize: 12, color: '#9ca3af' },
   aiText: { fontSize: 14, color: '#374151', lineHeight: 20, marginTop: 8 },
+  emergencyBanner: {
+    backgroundColor: '#dc2626',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#dc2626',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  emergencyBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  emergencyIcon: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    textAlign: 'center',
+    lineHeight: 40,
+    marginRight: 12,
+    overflow: 'hidden',
+  },
+  emergencyTextContainer: {
+    flex: 1,
+  },
+  emergencyBannerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  emergencyBannerSubtitle: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
+  },
+  emergencyArrow: {
+    fontSize: 20,
+    color: 'rgba(255,255,255,0.7)',
+    fontWeight: 'bold',
+  },
 });

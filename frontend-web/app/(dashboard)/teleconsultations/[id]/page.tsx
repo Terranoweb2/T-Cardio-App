@@ -249,12 +249,15 @@ function TeleconsultationDetailContent() {
     async (content: string, fileData?: { fileUrl: string; fileName: string; fileType: string; fileSizeBytes: number }) => {
       if (!user) return;
 
-      // Emit via WebSocket
+      const messageContent = content || (fileData ? `Fichier: ${fileData.fileName}` : '');
+
+      // Emit via WebSocket — the gateway persists the message to the database,
+      // so no additional REST call is needed (avoids duplicate messages).
       socketRef.current?.emit('send_message', {
         teleconsultationId: id,
         senderId: user.id,
         senderRole: user.role,
-        content: content || (fileData ? `Fichier: ${fileData.fileName}` : ''),
+        content: messageContent,
         ...(fileData ? {
           fileUrl: fileData.fileUrl,
           fileName: fileData.fileName,
@@ -262,13 +265,6 @@ function TeleconsultationDetailContent() {
           fileSizeBytes: fileData.fileSizeBytes,
         } : {}),
       });
-
-      // Also POST to REST endpoint for persistence
-      try {
-        await api.post(`/teleconsultations/${id}/messages`, { content: content || (fileData ? `Fichier: ${fileData.fileName}` : '') });
-      } catch {
-        // Message was still sent via WS
-      }
     },
     [id, user],
   );

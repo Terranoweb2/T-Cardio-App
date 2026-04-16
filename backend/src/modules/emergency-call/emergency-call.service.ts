@@ -472,6 +472,29 @@ export class EmergencyCallService {
       this.logger.warn(`Doctor wallet credit failed: ${err.message}`);
     }
 
+    // ── CREATE TELECONSULTATION for the emergency call ──
+    let teleconsultationId: string | null = null;
+    try {
+      const doctor = await this.prisma.doctor.findUnique({ where: { userId: doctorUserId } });
+      if (doctor && patient) {
+        const teleconsultation = await this.prisma.teleconsultation.create({
+          data: {
+            patientId: patient.id,
+            doctorId: doctor.id,
+            status: 'ACTIVE',
+            reason: `Urgence${emergencyData.emergencyType === 'paid' ? ' payante' : ''} #${eventId.slice(0, 8)}`,
+            scheduledAt: new Date(),
+            startedAt: new Date(),
+            durationMinutes: 15,
+          },
+        });
+        teleconsultationId = teleconsultation.id;
+        this.logger.log(`Teleconsultation ${teleconsultationId} created for emergency ${eventId}`);
+      }
+    } catch (err) {
+      this.logger.warn(`Failed to create teleconsultation for emergency: ${err.message}`);
+    }
+
     // Audit
     await this.audit({
       patientId: event.patientId, doctorId: emergencyData.doctorId, eventId,
@@ -479,7 +502,7 @@ export class EmergencyCallService {
     });
 
     this.logger.log(`Emergency ${eventId} ACCEPTED by ${doctorUserId}`);
-    return event;
+    return { ...event, teleconsultationId };
   }
 
   // ══════════════════════════════════════════════════════════════

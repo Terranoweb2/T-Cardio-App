@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSocket } from '@/contexts/SocketContext';
 import IncomingCallGlobal from '@/components/teleconsultation/IncomingCallGlobal';
 import { usePathname } from 'next/navigation';
@@ -20,33 +21,38 @@ export default function IncomingCallHandler() {
   const { incomingCall, dismissIncomingCall } = useSocket();
   const { emergencyEventId, emergencyTeleconsultationId, dismissEmergency } = useNotificationStore();
   const pathname = usePathname();
+  const [realTcId, setRealTcId] = useState<string | null>(null);
 
   if (!incomingCall) return null;
 
   // Don't show global modal if user is already on this teleconsultation's detail page
-  // The VideoCall component now handles incoming calls via SocketContext directly
   const isOnTeleconsultationPage = pathname === `/teleconsultations/${incomingCall.teleconsultationId}`;
   if (isOnTeleconsultationPage) return null;
 
   const handleAccept = async () => {
-    // For emergency calls: call backend to acknowledge (stops all notifications)
-    if (incomingCall.isEmergency && emergencyEventId && emergencyTeleconsultationId) {
+    let createdTcId: string | null = null;
+    // For emergency calls: acknowledge via backend (creates teleconsultation + stops notifications)
+    if (incomingCall.isEmergency && emergencyEventId) {
       try {
-        await api.post(`/teleconsultations/${emergencyTeleconsultationId}/emergency/${emergencyEventId}/acknowledge`);
+        const { data } = await api.post(`/emergency-calls/${emergencyEventId}/acknowledge`);
+        createdTcId = data?.teleconsultationId || data?.data?.teleconsultationId || null;
       } catch (err) {
         console.error('[IncomingCallHandler] Acknowledge failed:', err);
       }
       dismissEmergency();
     }
+    // Update teleconsultation ID for navigation if a real one was created
+    if (createdTcId) {
+      setRealTcId(createdTcId);
+    }
     dismissIncomingCall();
-    // Navigation happens inside IncomingCallGlobal
   };
 
   const handleReject = async () => {
-    // For emergency calls: call backend to refuse (timer continues, notification resent in 20s)
-    if (incomingCall.isEmergency && emergencyEventId && emergencyTeleconsultationId) {
+    // For emergency calls: refuse via backend (timer continues, notification resent in 20s)
+    if (incomingCall.isEmergency && emergencyEventId) {
       try {
-        await api.post(`/teleconsultations/${emergencyTeleconsultationId}/emergency/${emergencyEventId}/refuse`);
+        await api.post(`/emergency-calls/${emergencyEventId}/refuse`);
       } catch (err) {
         console.error('[IncomingCallHandler] Refuse failed:', err);
       }
@@ -55,11 +61,14 @@ export default function IncomingCallHandler() {
     dismissIncomingCall();
   };
 
+  // Use the real teleconsultation ID if available, otherwise fall back
+  const effectiveTcId = realTcId || incomingCall.teleconsultationId;
+
   return (
     <IncomingCallGlobal
       callerName={incomingCall.callerName}
       callerRole={incomingCall.callerRole}
-      teleconsultationId={incomingCall.teleconsultationId}
+      teleconsultationId={effectiveTcId}
       isEmergency={incomingCall.isEmergency || false}
       onAccept={handleAccept}
       onReject={handleReject}

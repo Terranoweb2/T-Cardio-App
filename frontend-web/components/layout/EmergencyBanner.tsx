@@ -37,21 +37,26 @@ export default function EmergencyBanner() {
 
   const isPaid = emergencyType === 'paid';
 
-  // Accept emergency call (doctor) — calls new independent endpoint then navigates
+  // Accept emergency call (doctor) — acknowledge + create teleconsultation, then navigate
   const handleAccept = async () => {
     stopEmergencySound();
     setIsResponding(true);
+    let realTeleconsultationId: string | null = null;
     try {
       if (emergencyEventId) {
-        await api.post(`/emergency-calls/${emergencyEventId}/acknowledge`);
+        const { data } = await api.post(`/emergency-calls/${emergencyEventId}/acknowledge`);
+        // Backend now returns teleconsultationId from newly created teleconsultation
+        realTeleconsultationId = data?.teleconsultationId || data?.data?.teleconsultationId || null;
       }
     } catch (err) {
       console.error('[EmergencyBanner] Acknowledge failed:', err);
     }
-    // Navigate to urgences page or teleconsultation if linked
-    if (emergencyTeleconsultationId) {
-      router.push(`/teleconsultations/${emergencyTeleconsultationId}?autoAccept=true`);
+    // Navigate to the real teleconsultation (not the emergency event ID)
+    const targetId = realTeleconsultationId || emergencyTeleconsultationId;
+    if (targetId && realTeleconsultationId) {
+      router.push(`/teleconsultations/${targetId}?autoAccept=true`);
     } else {
+      // Fallback: go to urgences page if no teleconsultation was created
       router.push('/doctor/urgences');
     }
     dismissEmergency();

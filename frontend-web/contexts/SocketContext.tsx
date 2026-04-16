@@ -80,13 +80,13 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
             patientName: data.patientName,
           });
           // Force banner refresh on each repeat, pass emergency type + eventId
-          triggerEmergency(data.message, data.teleconsultationId, data.emergencyType || 'free', data.id);
+          triggerEmergency(data.message, data.teleconsultationId || data.id, data.emergencyType || 'free', data.id);
 
           // For PAID emergencies: also trigger the incoming call modal with ringtone
           // This creates an insistent call experience (ringtone + vibration + full-screen modal)
-          if (data.emergencyType === 'paid' && data.teleconsultationId) {
+          if (data.emergencyType === 'paid') {
             setIncomingCall({
-              teleconsultationId: data.teleconsultationId,
+              teleconsultationId: data.teleconsultationId || data.id,
               callerName: data.patientName || 'Patient - URGENCE',
               callerRole: 'PATIENT',
               callerId: data.patientId || '',

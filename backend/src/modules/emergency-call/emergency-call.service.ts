@@ -354,11 +354,13 @@ export class EmergencyCallService {
       patientId: patient.id,
       patientName,
       doctorId: doctor.id,
+      teleconsultationId: event.id, // Use event ID as teleconsultation reference for incoming call modal
       message: `URGENCE: ${patientName} demande un appel d'urgence. Reagissez immediatement.`,
     };
     this.emergencyGateway.notifyDoctor(doctorUserId, emergencyPayload);
 
-    if (emergencyType === 'paid' && doctorEmail) {
+    // Send email notification for ALL emergency types (fallback when doctor is offline)
+    if (doctorEmail) {
       this.emailService.sendEmergencyCallAlert(
         doctorEmail, patientName, emergencyType, event.id, 1,
       ).catch((err) => this.logger.warn(`Emergency email failed: ${err}`));

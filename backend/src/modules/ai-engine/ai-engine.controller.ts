@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Param, Query } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, UseGuards, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { AiEngineService } from './ai-engine.service';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
@@ -110,5 +110,15 @@ export class AiEngineController {
   @ApiOperation({ summary: 'Historique analyses IA patient' })
   async getPatientAnalysisHistory(@Param('patientId') patientId: string, @Query('limit') limit?: number) {
     return this.aiService.getAnalysisHistory(patientId, limit || 10);
+  }
+
+  @Patch('analysis/:id/summary')
+  @Roles('MEDECIN', 'CARDIOLOGUE')
+  @ApiOperation({ summary: 'Modifier la synthese cardiologue d\'une analyse' })
+  async updateDoctorSummary(
+    @Param('id') id: string,
+    @Body('doctorSummary') doctorSummary: string,
+  ) {
+    return this.aiService.updateDoctorSummary(id, doctorSummary);
   }
 }

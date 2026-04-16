@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Body, Query, UseGuards, Param, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Query, UseGuards, Param, UseInterceptors, UploadedFile, BadRequestException, NotFoundException, Res } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 import { MeasurementsService } from './measurements.service';
 import { PrismaService } from '../../core/prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { CreateMeasurementDto } from './dto/create-measurement.dto';
 import { QueryMeasurementDto } from './dto/query-measurement.dto';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
@@ -18,6 +20,7 @@ export class MeasurementsController {
   constructor(
     private readonly measurementsService: MeasurementsService,
     private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
   ) {}
 
   @Post()
@@ -123,5 +126,36 @@ export class MeasurementsController {
   @ApiOperation({ summary: 'Stats d\'un patient (medecin)' })
   async getPatientStats(@Param('patientId') patientId: string, @Query('days') days?: number) {
     return this.measurementsService.getStats(patientId, days || 30);
+  }
+
+  @Get(':measurementId/photo')
+  @Roles('MEDECIN', 'CARDIOLOGUE', 'ADMIN', 'PATIENT')
+  @ApiOperation({ summary: 'Recuperer la photo d\'une mesure' })
+  async getMeasurementPhoto(
+    @Param('measurementId') measurementId: string,
+    @Res() res: Response,
+  ) {
+    const measurement = await this.prisma.bpMeasurement.findUnique({
+      where: { id: measurementId },
+    });
+    if (!measurement) throw new NotFoundException('Mesure introuvable');
+    if (!measurement.photoPath) throw new NotFoundException('Aucune photo pour cette mesure');
+
+    // photoPath stored as "tcardio-reports/bp-photos/{patientId}/{uuid}.ext"
+    // Strip bucket prefix for storage service
+    const storagePath = measurement.photoPath.replace(/^tcardio-reports\//, '');
+    const stream = await this.storageService.getFileStream(storagePath);
+
+    const ext = storagePath.split('.').pop()?.toLowerCase();
+    const mimeMap: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+    };
+    const contentType = mimeMap[ext || ''] || 'application/octet-stream';
+
+    res.set({ 'Content-Type': contentType, 'Cache-Control': 'public, max-age=3600' });
+    (stream as any).pipe(res);
   }
 }

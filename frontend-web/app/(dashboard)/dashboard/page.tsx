@@ -175,7 +175,7 @@ export default function DashboardPage() {
       {/* AI Summary */}
       {latestAi?.patientSummary && (
         <div className="glass-card p-6 rounded-xl mb-6">
-          <h2 className="text-lg font-semibold mb-3 text-slate-100">Resume T-Cardio</h2>
+          <h2 className="text-lg font-semibold mb-3 text-slate-100">Synthese Cardiologue</h2>
           <p className="text-slate-300 whitespace-pre-line">{latestAi.patientSummary}</p>
           <p className="text-xs text-slate-500 mt-3">
             Analyse du {new Date(latestAi.createdAt).toLocaleDateString('fr-FR')}

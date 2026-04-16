@@ -165,12 +165,12 @@ export default function AiAnalysisPage() {
             </div>
           </div>
 
-          {/* Patient Summary */}
+          {/* Patient Summary (Synthese Cardiologue) */}
           {analysis.patientSummary && (
             <div className="glass-card p-4 sm:p-6 rounded-xl">
               <div className="flex items-center gap-2 mb-3">
                 <FileText className="w-5 h-5 text-cyan-400" />
-                <h2 className="font-semibold text-gradient-cyan">Resume pour vous</h2>
+                <h2 className="font-semibold text-gradient-cyan">Synthese Cardiologue</h2>
               </div>
               <p className="text-slate-300 whitespace-pre-line leading-relaxed text-sm sm:text-base">
                 {analysis.patientSummary}

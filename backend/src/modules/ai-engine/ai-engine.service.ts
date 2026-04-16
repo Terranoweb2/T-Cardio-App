@@ -138,6 +138,13 @@ export class AiEngineService {
     });
   }
 
+  async updateDoctorSummary(analysisId: string, doctorSummary: string) {
+    return this.prisma.aiAnalysis.update({
+      where: { id: analysisId },
+      data: { doctorSummary },
+    });
+  }
+
   private buildPrompt(input: PatientAiInput): string {
     const measurementsText = input.measurements
       .map((m) => `- ${m.date}: ${m.systolic}/${m.diastolic} mmHg${m.pulse ? `, pouls ${m.pulse} bpm` : ''}`)

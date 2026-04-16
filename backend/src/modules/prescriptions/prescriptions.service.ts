@@ -314,11 +314,21 @@ export class PrescriptionsService {
     });
 
     if (!prescription) throw new NotFoundException('Ordonnance introuvable');
-    if (prescription.patient.userId !== userId && prescription.doctor.userId !== userId) {
+
+    // Allow both the patient AND the doctor who created the prescription
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const isAdmin = user?.role === 'ADMIN';
+    if (!isAdmin && prescription.patient.userId !== userId && prescription.doctor.userId !== userId) {
       throw new ForbiddenException('Acces refuse');
     }
     if (!prescription.pdfUrl) throw new NotFoundException('PDF non disponible');
 
-    return this.storageService.downloadBuffer('tcardio-reports', prescription.pdfUrl);
+    // Strip bucket prefix if pdfUrl was stored with it (e.g. "tcardio-reports/prescriptions/x.pdf")
+    const bucket = 'tcardio-reports';
+    const objectKey = prescription.pdfUrl.startsWith(`${bucket}/`)
+      ? prescription.pdfUrl.slice(`${bucket}/`.length)
+      : prescription.pdfUrl;
+
+    return this.storageService.downloadBuffer(bucket, objectKey);
   }
 }

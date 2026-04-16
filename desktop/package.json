@@ -1,0 +1,119 @@
+{
+  "name": "t-cardio-medecin",
+  "version": "1.0.0",
+  "description": "T-Cardio Pro - Application de bureau pour medecins et cardiologues",
+  "main": "main.js",
+  "author": {
+    "name": "T-Cardio",
+    "email": "tcardio.health@gmail.com"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "build:portable": "electron-builder --win portable",
+    "build:nsis": "electron-builder --win nsis",
+    "build:mac": "electron-builder --mac",
+    "build:mac:arm": "electron-builder --mac --arm64",
+    "build:mac:x64": "electron-builder --mac --x64",
+    "build:all": "electron-builder --win --mac"
+  },
+  "build": {
+    "appId": "org.tcardio.medecin",
+    "productName": "T-Cardio Medecin",
+    "copyright": "Copyright 2026 T-Cardio",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "T-Cardio"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon-mac.png",
+      "category": "public.app-category.medical",
+      "darkModeSupport": true,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "T-Cardio-Medecin-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "background": null,
+      "icon": "assets/icon-mac.png",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "artifactName": "T-Cardio-Medecin-${version}-${arch}.${ext}",
+      "title": "T-Cardio Medecin"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "T-Cardio Medecin"
+    },
+    "portable": {
+      "artifactName": "T-Cardio-Medecin-Portable-${version}.${ext}"
+    }
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  },
+  "devDependencies": {
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.34.5"
+  }
+}

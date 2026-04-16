@@ -1,0 +1,86 @@
+name: Build Desktop Apps
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'mac'
+        type: choice
+        options:
+          - mac
+          - windows
+          - all
+
+jobs:
+  build-mac:
+    if: ${{ github.event.inputs.platform == 'mac' || github.event.inputs.platform == 'all' }}
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm install
+
+      - name: Build macOS (${{ matrix.arch }})
+        working-directory: desktop
+        run: npx electron-builder --mac --${{ matrix.arch }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: List outputs
+        working-directory: desktop/dist
+        run: ls -lah
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: T-Cardio-Medecin-mac-${{ matrix.arch }}-dmg
+          path: desktop/dist/*.dmg
+          if-no-files-found: ignore
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: T-Cardio-Medecin-mac-${{ matrix.arch }}-zip
+          path: desktop/dist/*.zip
+          if-no-files-found: ignore
+
+  build-windows:
+    if: ${{ github.event.inputs.platform == 'windows' || github.event.inputs.platform == 'all' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm install
+
+      - name: Build Windows
+        working-directory: desktop
+        run: npx electron-builder --win
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: T-Cardio-Medecin-windows
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.exe.blockmap

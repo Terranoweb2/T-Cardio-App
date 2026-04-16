@@ -1,12 +1,17 @@
 name: Build Desktop Apps
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/build-desktop.yml'
   workflow_dispatch:
     inputs:
       platform:
         description: 'Platform to build'
         required: true
-        default: 'mac'
+        default: 'all'
         type: choice
         options:
           - mac
@@ -15,7 +20,7 @@ on:
 
 jobs:
   build-mac:
-    if: ${{ github.event.inputs.platform == 'mac' || github.event.inputs.platform == 'all' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.platform == 'mac' || github.event.inputs.platform == 'all' }}
     runs-on: macos-latest
     strategy:
       matrix:

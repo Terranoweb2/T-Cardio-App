@@ -75,3 +75,14 @@ demo-video/
 
 # APK output folder
 apk-output/
+
+# Desktop build artifacts
+desktop/dist-mac/
+desktop/certs/
+*.exe
+
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# TypeScript build info
+*.tsbuildinfo

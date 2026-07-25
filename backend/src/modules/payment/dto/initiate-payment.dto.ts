@@ -21,4 +21,12 @@ export class InitiatePaymentDto {
   @IsOptional()
   @IsString()
   callbackUrl?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Numero Mobile Money du payeur (requis pour le paiement par API MTN)',
+  })
+  @IsOptional()
+  @IsString()
+  msisdn?: string;
 }

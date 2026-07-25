@@ -590,48 +590,77 @@ export class TasksService {
     }
   }
 
-  // ─── 7. Daily 9am — Subscription renewal reminder (7 days before expiry) ───
+  // ─── 7. Daily 9am — Subscription renewal reminders (J-7, J-3, J-1) ───
 
   @Cron('0 9 * * *')
   async handleSubscriptionRenewalReminder(): Promise<void> {
     const start = Date.now();
     this.logger.log('Starting subscription renewal reminder job');
 
+    // Only remind at these exact day thresholds. The cron runs daily and
+    // findExpiringSubscriptions(7) returns the whole 0–7 day window, so without
+    // this filter every patient would be emailed ~7 times. With a fixed 9am run
+    // each subscription crosses each threshold exactly once.
+    const REMINDER_DAYS = [7, 3, 1];
+    const renewUrl = 'https://t-cardio.org/abonnement';
+
     try {
       const expiring =
         await this.subscriptionService.findExpiringSubscriptions(7);
 
-      let sentCount = 0;
+      let emailCount = 0;
+      let pushCount = 0;
 
       for (const sub of expiring) {
+        if (!sub.endDate) continue;
+
+        const daysLeft = Math.ceil(
+          (sub.endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        );
+        if (!REMINDER_DAYS.includes(daysLeft)) continue;
+
+        const patientName = sub.patient?.firstName || 'Patient';
         const email = sub.patient?.user?.email;
-        if (!email) continue;
+        const userId = sub.patient?.userId;
+        const dayLabel = daysLeft === 1 ? '1 jour' : `${daysLeft} jours`;
 
-        try {
-          const daysLeft = Math.ceil(
-            (sub.endDate!.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-          );
-          const patientName = sub.patient?.firstName || 'Patient';
+        // ── Email with a clear renewal call-to-action ──
+        if (email) {
+          try {
+            await this.emailService.sendEmail(
+              email,
+              `Votre abonnement T-Cardio expire dans ${dayLabel}`,
+              this.buildRenewalEmailHtml(patientName, dayLabel, renewUrl),
+            );
+            emailCount++;
+          } catch (err) {
+            this.logger.warn(
+              `Failed to send renewal email to ${email}: ${err.message}`,
+            );
+          }
+        }
 
-          await this.emailService.sendEmail(
-            email,
-            'Renouvellement abonnement T-Cardio Pro',
-            `<h2>Rappel de renouvellement</h2>
-            <p>Bonjour ${patientName},</p>
-            <p>Votre abonnement T-Cardio Pro expire dans <strong>${daysLeft} jour(s)</strong>.</p>
-            <p>Renouvelez-le pour continuer a beneficier de nos services de teleconsultation et suivi cardiologique.</p>
-            <p>Cordialement,<br>L'equipe T-Cardio Pro</p>`,
-          );
-          sentCount++;
-        } catch (err) {
-          this.logger.warn(
-            `Failed to send renewal reminder to ${email}: ${err.message}`,
-          );
+        // ── Push notification (in addition to email) ──
+        if (userId) {
+          try {
+            const sent = await this.pushService.sendPush(userId, {
+              title: 'Abonnement bientot expire',
+              body: `Votre abonnement T-Cardio expire dans ${dayLabel}. Renouvelez-le pour garder l'acces a la teleconsultation.`,
+              icon: '/logo-T-Cardio.png',
+              tag: 'subscription-renewal',
+              data: { type: 'subscription_renewal', url: '/abonnement', daysLeft },
+            });
+            if (sent > 0) pushCount++;
+          } catch (err) {
+            this.logger.warn(
+              `Failed to send renewal push to user ${userId}: ${err.message}`,
+            );
+          }
         }
       }
 
       this.logger.log(
-        `Subscription renewal reminder job completed: ${sentCount}/${expiring.length} reminders sent (${Date.now() - start}ms)`,
+        `Subscription renewal reminder job completed: ${emailCount} email(s), ${pushCount} push(es) sent (${Date.now() - start}ms)`,
       );
     } catch (error) {
       this.logger.error(
@@ -639,6 +668,40 @@ export class TasksService {
         error.stack,
       );
     }
+  }
+
+  /**
+   * Build the HTML body for a subscription renewal reminder email,
+   * including a prominent renewal call-to-action button.
+   */
+  private buildRenewalEmailHtml(
+    patientName: string,
+    dayLabel: string,
+    renewUrl: string,
+  ): string {
+    return `
+      <div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1f2937;">
+        <h2 style="color:#dc2626;margin:0 0 16px;">Votre abonnement expire bientot</h2>
+        <p style="font-size:15px;line-height:1.6;">Bonjour ${patientName},</p>
+        <p style="font-size:15px;line-height:1.6;">
+          Votre abonnement <strong>T-Cardio Pro</strong> expire dans
+          <strong>${dayLabel}</strong>. Renouvelez-le des maintenant pour continuer
+          a beneficier de la teleconsultation, du suivi cardiologique et des alertes d'urgence.
+        </p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${renewUrl}"
+             style="background:#dc2626;color:#ffffff;text-decoration:none;padding:14px 32px;
+                    border-radius:10px;font-size:16px;font-weight:700;display:inline-block;">
+            Renouveler mon abonnement
+          </a>
+        </div>
+        <p style="font-size:13px;color:#6b7280;line-height:1.6;">
+          Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+          <a href="${renewUrl}" style="color:#2563eb;">${renewUrl}</a>
+        </p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">
+        <p style="font-size:13px;color:#9ca3af;">Cordialement,<br>L'equipe T-Cardio Pro</p>
+      </div>`;
   }
 
   // ─── 8. Monthly 1st at midnight — Log monthly stats for admin ───

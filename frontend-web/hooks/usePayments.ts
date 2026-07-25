@@ -24,40 +24,6 @@ export function useSubscriptionPlans() {
   });
 }
 
-export function useInitiatePayment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (payload: {
-      type: 'SUBSCRIPTION' | 'CREDIT_PURCHASE';
-      packageId: string;
-      callbackUrl?: string;
-    }) => {
-      const { data } = await api.post('/payments/initiate', payload);
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.history() });
-    },
-  });
-}
-
-export function useVerifyPayment() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (paymentId: string) => {
-      const { data } = await api.post(`/payments/${paymentId}/verify`);
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.credits.balance });
-      queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
-      queryClient.invalidateQueries({ queryKey: queryKeys.payments.history() });
-    },
-  });
-}
-
 export function usePaymentHistory(page = 1) {
   return useQuery({
     queryKey: queryKeys.payments.history(page),
@@ -66,5 +32,59 @@ export function usePaymentHistory(page = 1) {
       return data;
     },
     placeholderData: (prev) => prev,
+  });
+}
+
+// ─── MTN MoMo Collections API (automatic confirmation) ───
+
+/** Whether the live MTN MoMo API is configured (else use the manual USSD flow). */
+export function useMomoApiConfig() {
+  return useQuery({
+    queryKey: ['payments', 'momo', 'config'],
+    queryFn: async () => {
+      const { data } = await api.get('/payments/momo/config');
+      return data as { apiEnabled: boolean };
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+/** Initiate a payment via the MTN MoMo API (Request to Pay). */
+export function useRequestToPay() {
+  return useMutation({
+    mutationFn: async (payload: {
+      type: 'SUBSCRIPTION' | 'CREDIT_PURCHASE';
+      packageId: string;
+      msisdn: string;
+    }) => {
+      const { data } = await api.post('/payments/momo/request-to-pay', payload);
+      return data as {
+        success: boolean;
+        paymentId: string;
+        referenceId: string;
+        amount: number;
+        status: string;
+        message: string;
+      };
+    },
+  });
+}
+
+/** Poll/finalize a MoMo API payment while the payer approves on their phone. */
+export function useCheckMomoStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { data } = await api.post(`/payments/momo/${paymentId}/status`);
+      return data as { status: 'pending' | 'completed' | 'failed'; reason?: string };
+    },
+    onSuccess: (data) => {
+      if (data.status === 'completed') {
+        queryClient.invalidateQueries({ queryKey: queryKeys.credits.balance });
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.me });
+        queryClient.invalidateQueries({ queryKey: queryKeys.payments.history() });
+      }
+    },
   });
 }

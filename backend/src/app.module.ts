@@ -10,6 +10,7 @@ import aiConfig from './config/ai.config';
 import storageConfig from './config/storage.config';
 import redisConfig from './config/redis.config';
 import paymentConfig from './config/payment.config';
+import momoConfig from './config/momo.config';
 
 // Core modules
 import { PrismaModule } from './core/prisma/prisma.module';
@@ -55,7 +56,7 @@ import { MedicationsModule } from './modules/medications/medications.module';
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, authConfig, aiConfig, storageConfig, redisConfig, paymentConfig],
+      load: [databaseConfig, authConfig, aiConfig, storageConfig, redisConfig, paymentConfig, momoConfig],
       envFilePath: ['.env.local', '.env', '../.env'],
     }),
 

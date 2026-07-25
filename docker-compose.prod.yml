@@ -102,6 +102,14 @@ services:
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:tcardio.health@gmail.com}
+      MOMO_BASE_URL: ${MOMO_BASE_URL:-https://sandbox.momodeveloper.mtn.com}
+      MOMO_TARGET_ENVIRONMENT: ${MOMO_TARGET_ENVIRONMENT:-sandbox}
+      MOMO_CURRENCY: ${MOMO_CURRENCY:-EUR}
+      MOMO_COUNTRY_CODE: ${MOMO_COUNTRY_CODE:-225}
+      MOMO_SUBSCRIPTION_KEY: ${MOMO_SUBSCRIPTION_KEY:-}
+      MOMO_API_USER: ${MOMO_API_USER:-}
+      MOMO_API_KEY: ${MOMO_API_KEY:-}
+      MOMO_CALLBACK_URL: ${MOMO_CALLBACK_URL:-https://t-cardio.org/api/v1/payments/momo/callback}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:

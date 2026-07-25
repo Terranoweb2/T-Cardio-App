@@ -1,12 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('payment', () => ({
-  fedapay: {
-    secretKey: process.env.FEDAPAY_SECRET_KEY,
-    publicKey: process.env.FEDAPAY_PUBLIC_KEY,
-    environment: (process.env.FEDAPAY_ENV as 'sandbox' | 'live') || 'sandbox',
-    callbackUrl: process.env.FEDAPAY_CALLBACK_URL || 'https://t-cardio.org/api/v1/payments/webhook',
-  },
   plans: {
     BASIC: { priceXof: 2000, durationDays: 365, name: 'Basique' },
     PRO: { priceXof: 5000, durationDays: 365, name: 'Professionnel' },

@@ -6,8 +6,10 @@ import {
   Param,
   Query,
   UseGuards,
-  Req,
+  NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
 import { RolesGuard } from '../../core/guards/roles.guard';
@@ -40,29 +42,7 @@ export class PaymentController {
     return this.paymentService.getPlans();
   }
 
-  // ─── Webhook (no JWT auth — signature verified) ───
-
-  @Post('webhook')
-  @ApiOperation({ summary: 'Webhook FedaPay (callback)' })
-  async handleWebhook(@Body() payload: any) {
-    return this.paymentService.handleWebhook(payload);
-  }
-
   // ─── Authenticated Patient Endpoints ───
-
-  // FedaPay désactivé — utiliser /payments/momo/initiate à la place
-  @Post('initiate')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('PATIENT')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '[DESACTIVE] Utiliser /payments/momo/initiate' })
-  async initiate() {
-    return {
-      success: false,
-      message: 'Le paiement FedaPay est temporairement desactive. Veuillez utiliser le paiement MoMo.',
-      redirect: '/momo-pay',
-    };
-  }
 
   @Get('history')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -135,6 +115,66 @@ export class PaymentController {
     return { success: true, ...result };
   }
 
+  // ─── MTN MoMo Collections API (automatic confirmation) ───
+
+  @Get('momo/config')
+  @ApiOperation({ summary: 'Indique si le paiement MoMo automatique (API MTN) est actif' })
+  getMomoConfig() {
+    return { apiEnabled: this.paymentService.isMtnApiEnabled() };
+  }
+
+  @Post('momo/request-to-pay')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('PATIENT')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Initier un paiement via l\'API MTN MoMo (Request to Pay)' })
+  async requestToPay(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: InitiatePaymentDto,
+  ) {
+    const patient = await this.prisma.patient.findUnique({ where: { userId } });
+    if (!patient) {
+      return { success: false, message: 'Profil patient non trouve' };
+    }
+
+    const result = await this.paymentService.requestToPay(
+      patient.id,
+      dto.type,
+      dto.packageId,
+      dto.msisdn ?? '',
+    );
+
+    return { success: true, ...result };
+  }
+
+  @Post('momo/callback')
+  @HttpCode(200)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({ summary: 'Callback MTN MoMo (resultat de transaction, re-verifie)' })
+  async momoCallback(@Body() body: any) {
+    // The callback is unsigned: never trust the body, never leak whether a
+    // payment exists. Processing (re-verification) happens server-side; we
+    // always return a generic ack so this endpoint is not an existence oracle.
+    await this.paymentService.handleMomoApiCallback(body).catch(() => undefined);
+    return { received: true };
+  }
+
+  @Post('momo/:id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('PATIENT')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Verifier/finaliser le statut d\'un paiement MoMo API' })
+  async checkMomoStatus(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+  ) {
+    const patient = await this.prisma.patient.findUnique({ where: { userId } });
+    if (!patient) {
+      return { status: 'error', message: 'Patient non trouve' };
+    }
+    return this.paymentService.checkMomoApiPaymentStatus(id, patient.id);
+  }
+
   @Post('momo/:id/declare-paid')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('PATIENT')
@@ -202,27 +242,19 @@ export class PaymentController {
   @Roles('PATIENT', 'ADMIN')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Details d\'un paiement' })
-  async getPayment(@Param('id') id: string) {
-    return this.paymentService.getPayment(id);
-  }
-
-  @Post(':id/verify')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('PATIENT')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Verifier le statut d\'un paiement' })
-  async verifyPayment(
+  async getPayment(
     @Param('id') id: string,
     @CurrentUser('sub') userId: string,
+    @CurrentUser('role') role: string,
   ) {
-    const patient = await this.prisma.patient.findUnique({
-      where: { userId },
-    });
-
-    if (!patient) {
-      return { status: 'error', message: 'Patient non trouve' };
+    // Admins can read any payment; patients only their own (prevents IDOR).
+    if (role === 'ADMIN') {
+      return this.paymentService.getPayment(id);
     }
-
-    return this.paymentService.verifyPayment(id, patient.id);
+    const patient = await this.prisma.patient.findUnique({ where: { userId } });
+    if (!patient) {
+      throw new NotFoundException('Paiement non trouve');
+    }
+    return this.paymentService.getPayment(id, patient.id);
   }
 }

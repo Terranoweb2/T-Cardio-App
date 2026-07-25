@@ -2,29 +2,32 @@ import {
   Injectable,
   Logger,
   BadRequestException,
-  InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CreditService } from '../credit/credit.service';
 import { SubscriptionService } from '../subscription/subscription.service';
-import { PaymentStatus, PaymentType, SubscriptionPlan } from '@prisma/client';
+import { PaymentStatus, PaymentType, SubscriptionPlan, Payment } from '@prisma/client';
 import { InitiatePaymentType } from './dto/initiate-payment.dto';
-import { NotFoundException } from '@nestjs/common';
+import { MtnMomoService } from './mtn-momo.service';
 
-// FedaPay SDK (CommonJS)
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const FedaPay = require('fedapay');
-
+/**
+ * Payment service — local Mobile Money (MoMo) flow only.
+ *
+ * Payment is handled entirely in-house: the patient dials a USSD code, declares
+ * the payment, and an admin confirms reception from the dashboard. There is NO
+ * external payment gateway and therefore NO public webhook (which removes the
+ * forged-callback attack surface entirely).
+ *
+ * NOTE: the `fedapayPaymentMethod` Payment column is reused as the channel
+ * discriminator (value 'MOMO_LOCAL'). The column keeps its legacy name to avoid
+ * a DB migration; it no longer relates to any external provider.
+ */
 @Injectable()
 export class PaymentService {
   private readonly logger = new Logger(PaymentService.name);
-  private readonly fedapayConfig: {
-    secretKey: string;
-    publicKey: string;
-    environment: 'sandbox' | 'live';
-    callbackUrl: string;
-  };
   private readonly plans: Record<string, { priceXof: number; durationDays: number; name: string }>;
   private readonly creditPackages: Array<{
     id: string;
@@ -40,18 +43,67 @@ export class PaymentService {
     private readonly configService: ConfigService,
     private readonly creditService: CreditService,
     private readonly subscriptionService: SubscriptionService,
+    private readonly mtnMomo: MtnMomoService,
   ) {
-    this.fedapayConfig = this.configService.get('payment.fedapay')!;
     this.plans = this.configService.get('payment.plans')!;
     this.creditPackages = this.configService.get('payment.creditPackages')!;
+  }
 
-    // Configure FedaPay SDK
-    FedaPay.FedaPay.setApiKey(this.fedapayConfig.secretKey);
-    FedaPay.FedaPay.setEnvironment(this.fedapayConfig.environment);
+  /**
+   * Resolve the amount / description / payment type for a product selection.
+   * Shared by every payment-initiation path (USSD and MTN API).
+   */
+  private resolveProduct(type: InitiatePaymentType, packageId: string) {
+    if (type === InitiatePaymentType.SUBSCRIPTION) {
+      const plan = this.plans[packageId];
+      if (!plan) throw new BadRequestException(`Plan inconnu: ${packageId}`);
+      return {
+        amountXof: plan.priceXof,
+        description: `Abonnement ${plan.name} (${plan.priceXof} XOF/an)`,
+        paymentType: PaymentType.SUBSCRIPTION,
+      };
+    }
+    const pkg = this.creditPackages.find((p) => p.id === packageId);
+    if (!pkg) throw new BadRequestException(`Pack credits inconnu: ${packageId}`);
+    return {
+      amountXof: pkg.priceXof,
+      description: `Pack ${pkg.name} (${pkg.credits + pkg.bonus} credits)`,
+      paymentType: PaymentType.CREDIT_PURCHASE,
+    };
+  }
 
-    this.logger.log(
-      `FedaPay initialized: env=${this.fedapayConfig.environment}`,
-    );
+  /**
+   * Grant the value of a payment exactly once: activate the subscription or add
+   * the purchased credits. Caller MUST have already flipped the payment to
+   * COMPLETED atomically so this runs a single time.
+   */
+  private async applyGrantedValue(payment: Payment, creditLabelPrefix = ''): Promise<void> {
+    const metadata = (payment.metadata as any) || {};
+    const packageId = metadata.packageId;
+
+    if (payment.type === PaymentType.SUBSCRIPTION) {
+      const plan = (packageId as string)?.toUpperCase() as SubscriptionPlan;
+      const planConfig = this.plans[plan];
+      if (planConfig) {
+        await this.subscriptionService.activateSubscription(
+          payment.patientId,
+          plan,
+          payment.id,
+          planConfig.priceXof,
+        );
+      }
+    } else if (payment.type === PaymentType.CREDIT_PURCHASE) {
+      const pkg = this.creditPackages.find((p) => p.id === packageId);
+      if (pkg) {
+        const totalCredits = pkg.credits + pkg.bonus;
+        await this.creditService.addCredits(
+          payment.patientId,
+          totalCredits,
+          payment.id,
+          `${creditLabelPrefix}Pack ${pkg.name} (${pkg.credits} + ${pkg.bonus} bonus)`,
+        );
+      }
+    }
   }
 
   /**
@@ -69,271 +121,6 @@ export class PaymentService {
    */
   getCreditPackages() {
     return this.creditPackages;
-  }
-
-  /**
-   * Initiate a payment via FedaPay.
-   * Creates a local Payment record + FedaPay transaction, returns payment URL.
-   */
-  async initiatePayment(
-    patientId: string,
-    type: InitiatePaymentType,
-    packageId: string,
-    userEmail: string,
-    callbackUrl?: string,
-  ) {
-    let amountXof: number;
-    let description: string;
-    let paymentType: PaymentType;
-
-    if (type === InitiatePaymentType.SUBSCRIPTION) {
-      const plan = this.plans[packageId];
-      if (!plan) {
-        throw new BadRequestException(`Plan inconnu: ${packageId}`);
-      }
-      amountXof = plan.priceXof;
-      description = `Abonnement ${plan.name} - T-Cardio Pro (${amountXof} XOF/an)`;
-      paymentType = PaymentType.SUBSCRIPTION;
-    } else {
-      const pkg = this.creditPackages.find((p) => p.id === packageId);
-      if (!pkg) {
-        throw new BadRequestException(`Pack credits inconnu: ${packageId}`);
-      }
-      amountXof = pkg.priceXof;
-      description = `Achat credits ${pkg.name} - ${pkg.credits + pkg.bonus} credits`;
-      paymentType = PaymentType.CREDIT_PURCHASE;
-    }
-
-    // Create local Payment record (PENDING)
-    const payment = await this.prisma.payment.create({
-      data: {
-        patientId,
-        type: paymentType,
-        amountXof,
-        status: PaymentStatus.PENDING,
-        description,
-        metadata: { packageId, type },
-      },
-    });
-
-    try {
-      // Create FedaPay transaction
-      const transaction = await FedaPay.Transaction.create({
-        description,
-        amount: amountXof,
-        currency: { iso: 'XOF' },
-        callback_url:
-          callbackUrl || this.fedapayConfig.callbackUrl,
-        customer: {
-          email: userEmail,
-        },
-        custom_metadata: {
-          payment_id: payment.id,
-          patient_id: patientId,
-          type: paymentType,
-          package_id: packageId,
-        },
-      });
-
-      // Generate payment token/URL
-      const token = await transaction.generateToken();
-
-      // Update local payment with FedaPay references
-      await this.prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          fedapayTransactionId: String(transaction.id),
-          fedapayPaymentUrl: token.url,
-        },
-      });
-
-      this.logger.log(
-        `Payment initiated: id=${payment.id}, fedapay=${transaction.id}, amount=${amountXof} XOF`,
-      );
-
-      return {
-        paymentId: payment.id,
-        paymentUrl: token.url,
-        amount: amountXof,
-        description,
-      };
-    } catch (error) {
-      // Mark payment as failed
-      await this.prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: PaymentStatus.FAILED,
-          fedapayData: { error: error.message },
-        },
-      });
-
-      this.logger.error(`FedaPay transaction creation failed: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(
-        'Erreur lors de la creation du paiement. Veuillez reessayer.',
-      );
-    }
-  }
-
-  /**
-   * Handle FedaPay webhook callback.
-   * Called when payment status changes.
-   */
-  async handleWebhook(payload: any) {
-    this.logger.log(`Webhook received: ${JSON.stringify(payload).slice(0, 200)}`);
-
-    const entity = payload?.entity;
-    if (!entity) {
-      this.logger.warn('Webhook: no entity in payload');
-      return { status: 'ignored' };
-    }
-
-    const fedapayId = String(entity.id || entity.klass_id);
-    const fedapayStatus = entity.status;
-    const customMetadata = entity.custom_metadata || {};
-
-    // Find local payment
-    let payment = await this.prisma.payment.findUnique({
-      where: { fedapayTransactionId: fedapayId },
-    });
-
-    // Fallback: try to find by payment_id in custom_metadata
-    if (!payment && customMetadata.payment_id) {
-      payment = await this.prisma.payment.findUnique({
-        where: { id: customMetadata.payment_id },
-      });
-    }
-
-    if (!payment) {
-      this.logger.warn(`Webhook: payment not found for FedaPay ID ${fedapayId}`);
-      return { status: 'payment_not_found' };
-    }
-
-    // Already completed — ignore duplicate webhooks
-    if (payment.status === PaymentStatus.COMPLETED) {
-      this.logger.log(`Webhook: payment ${payment.id} already completed, ignoring`);
-      return { status: 'already_completed' };
-    }
-
-    // Map FedaPay status to local status
-    if (fedapayStatus === 'approved' || fedapayStatus === 'transferred') {
-      // Payment successful!
-      await this.prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: PaymentStatus.COMPLETED,
-          completedAt: new Date(),
-          fedapayPaymentMethod: entity.mode || entity.payment_method?.mode || null,
-          fedapayData: entity,
-        },
-      });
-
-      // Activate subscription or add credits
-      const metadata = (payment.metadata as any) || {};
-      const packageId = metadata.packageId || customMetadata.package_id;
-
-      if (payment.type === PaymentType.SUBSCRIPTION) {
-        const plan = (packageId as string)?.toUpperCase() as SubscriptionPlan;
-        const planConfig = this.plans[plan];
-        if (planConfig) {
-          await this.subscriptionService.activateSubscription(
-            payment.patientId,
-            plan,
-            payment.id,
-            planConfig.priceXof,
-          );
-        }
-      } else if (payment.type === PaymentType.CREDIT_PURCHASE) {
-        const pkg = this.creditPackages.find((p) => p.id === packageId);
-        if (pkg) {
-          const totalCredits = pkg.credits + pkg.bonus;
-          await this.creditService.addCredits(
-            payment.patientId,
-            totalCredits,
-            payment.id,
-            `Pack ${pkg.name} (${pkg.credits} + ${pkg.bonus} bonus)`,
-          );
-
-          // Add bonus as separate transaction if any
-          // Already included in total above — no separate bonus needed
-        }
-      }
-
-      this.logger.log(
-        `Payment completed: id=${payment.id}, type=${payment.type}, amount=${payment.amountXof} XOF`,
-      );
-
-      return { status: 'completed' };
-    } else if (
-      fedapayStatus === 'declined' ||
-      fedapayStatus === 'cancelled' ||
-      fedapayStatus === 'refunded'
-    ) {
-      const localStatus =
-        fedapayStatus === 'refunded'
-          ? PaymentStatus.REFUNDED
-          : PaymentStatus.FAILED;
-
-      await this.prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: localStatus,
-          fedapayData: entity,
-        },
-      });
-
-      this.logger.log(
-        `Payment ${fedapayStatus}: id=${payment.id}, fedapay=${fedapayId}`,
-      );
-
-      return { status: fedapayStatus };
-    }
-
-    return { status: 'pending' };
-  }
-
-  /**
-   * Verify a payment status by polling FedaPay.
-   */
-  async verifyPayment(paymentId: string, patientId: string) {
-    const payment = await this.prisma.payment.findFirst({
-      where: { id: paymentId, patientId },
-    });
-
-    if (!payment) {
-      throw new BadRequestException('Paiement non trouve');
-    }
-
-    if (payment.status === PaymentStatus.COMPLETED) {
-      return { status: 'completed', payment };
-    }
-
-    if (!payment.fedapayTransactionId) {
-      return { status: payment.status, payment };
-    }
-
-    try {
-      const transaction = await FedaPay.Transaction.retrieve(
-        parseInt(payment.fedapayTransactionId, 10),
-      );
-
-      if (
-        transaction.status === 'approved' ||
-        transaction.status === 'transferred'
-      ) {
-        // Process as webhook
-        await this.handleWebhook({ entity: transaction });
-
-        const updated = await this.prisma.payment.findUnique({
-          where: { id: paymentId },
-        });
-        return { status: 'completed', payment: updated };
-      }
-
-      return { status: transaction.status, payment };
-    } catch (error) {
-      this.logger.warn(`FedaPay verify failed: ${error.message}`);
-      return { status: payment.status, payment };
-    }
   }
 
   /**
@@ -358,15 +145,29 @@ export class PaymentService {
 
   /**
    * Get a single payment by ID.
+   *
+   * When `requesterPatientId` is provided (non-admin caller), the payment is
+   * only returned if it belongs to that patient — otherwise we behave as if it
+   * does not exist (prevents IDOR / cross-patient disclosure).
    */
-  async getPayment(paymentId: string) {
-    return this.prisma.payment.findUnique({
+  async getPayment(paymentId: string, requesterPatientId?: string) {
+    const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
         subscriptions: true,
         creditTransactions: true,
       },
     });
+
+    if (
+      requesterPatientId &&
+      payment &&
+      payment.patientId !== requesterPatientId
+    ) {
+      throw new NotFoundException('Paiement non trouve');
+    }
+
+    return payment;
   }
 
   /**
@@ -442,9 +243,10 @@ export class PaymentService {
    * Generate a unique reference for MoMo payments.
    */
   private generateMomoReference(): string {
-    const ts = Date.now().toString(36).toUpperCase();
-    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `TC-${ts}-${rand}`;
+    // Unguessable, collision-free reference (admin matches it against the MoMo
+    // transfer). Uses crypto UUID rather than Math.random + timestamp.
+    const hex = randomUUID().replace(/-/g, '');
+    return `TC-${hex.slice(0, 6).toUpperCase()}-${hex.slice(6, 10).toUpperCase()}`;
   }
 
   /**
@@ -491,6 +293,7 @@ export class PaymentService {
         amountXof,
         status: PaymentStatus.PENDING,
         description,
+        // Channel discriminator (legacy column name, see class doc)
         fedapayPaymentMethod: 'MOMO_LOCAL',
         metadata: {
           packageId,
@@ -546,8 +349,8 @@ export class PaymentService {
         metadata: {
           ...metadata,
           declaredPaidAt: new Date().toISOString(),
-          // Store the complete USSD code for admin — never exposed to patient
-          ...(completeUssdCode ? { completeUssdCode } : {}),
+          // SECURITY: the PIN / full USSD code is NEVER persisted. It is returned
+          // in the HTTP response below for the native dialer, then discarded.
         },
       },
     });
@@ -584,42 +387,25 @@ export class PaymentService {
       throw new BadRequestException('Seuls les paiements en attente peuvent etre confirmes');
     }
 
-    // Mark as completed
-    await this.prisma.payment.update({
-      where: { id: payment.id },
+    // Atomically claim the completion so a double-click / concurrent confirm
+    // can never credit the patient twice.
+    const claimed = await this.prisma.payment.updateMany({
+      where: { id: payment.id, status: PaymentStatus.PENDING },
       data: {
         status: PaymentStatus.COMPLETED,
         completedAt: new Date(),
       },
     });
 
-    // Activate subscription or add credits
-    const metadata = (payment.metadata as any) || {};
-    const packageId = metadata.packageId;
-
-    if (payment.type === PaymentType.SUBSCRIPTION) {
-      const plan = (packageId as string)?.toUpperCase() as SubscriptionPlan;
-      const planConfig = this.plans[plan];
-      if (planConfig) {
-        await this.subscriptionService.activateSubscription(
-          payment.patientId,
-          plan,
-          payment.id,
-          planConfig.priceXof,
-        );
-      }
-    } else if (payment.type === PaymentType.CREDIT_PURCHASE) {
-      const pkg = this.creditPackages.find((p) => p.id === packageId);
-      if (pkg) {
-        const totalCredits = pkg.credits + pkg.bonus;
-        await this.creditService.addCredits(
-          payment.patientId,
-          totalCredits,
-          payment.id,
-          `MoMo - Pack ${pkg.name} (${pkg.credits} + ${pkg.bonus} bonus)`,
-        );
-      }
+    if (claimed.count === 0) {
+      throw new BadRequestException('Ce paiement vient d\'etre traite');
     }
+
+    // Grant from the authoritative just-claimed row, not the pre-claim snapshot.
+    const confirmed = await this.prisma.payment.findUnique({
+      where: { id: payment.id },
+    });
+    await this.applyGrantedValue(confirmed ?? payment, 'MoMo - ');
 
     this.logger.log(
       `MoMo payment confirmed by admin: id=${payment.id}, type=${payment.type}, amount=${payment.amountXof} XOF`,
@@ -688,5 +474,228 @@ export class PaymentService {
       data,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  // ─── MTN MoMo Collections API (automatic confirmation) ───
+
+  /**
+   * Whether the live MTN MoMo API is configured. When false, callers should
+   * use the manual USSD flow (initiateMomoPayment) instead.
+   */
+  isMtnApiEnabled(): boolean {
+    return this.mtnMomo.isEnabled();
+  }
+
+  /**
+   * Initiate a payment via the MTN MoMo Collections API (Request to Pay).
+   * MTN pushes a PIN prompt to the payer's phone; confirmation arrives later
+   * via callback and/or status polling — no admin action required.
+   */
+  async requestToPay(
+    patientId: string,
+    type: InitiatePaymentType,
+    packageId: string,
+    msisdn: string,
+  ) {
+    if (!this.mtnMomo.isEnabled()) {
+      throw new BadRequestException(
+        'Le paiement MoMo automatique n\'est pas disponible pour le moment.',
+      );
+    }
+    const normalizedMsisdn = this.mtnMomo.normalizeMsisdn(msisdn || '');
+    if (normalizedMsisdn.length < 11 || normalizedMsisdn.length > 15) {
+      throw new BadRequestException('Numero de telephone invalide.');
+    }
+
+    const { amountXof, description, paymentType } = this.resolveProduct(
+      type,
+      packageId,
+    );
+
+    // X-Reference-Id (MTN transaction id) — stored in the unique
+    // fedapayTransactionId column (legacy name, reused as external txn id).
+    const referenceId = randomUUID();
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        patientId,
+        type: paymentType,
+        amountXof,
+        status: PaymentStatus.PENDING,
+        description: `MTN MoMo - ${description}`,
+        fedapayPaymentMethod: 'MTN_MOMO_API',
+        fedapayTransactionId: referenceId,
+        metadata: {
+          packageId,
+          type,
+          channel: 'MTN_MOMO_API',
+          msisdn: normalizedMsisdn,
+        },
+      },
+    });
+
+    try {
+      await this.mtnMomo.requestToPay({
+        referenceId,
+        amount: amountXof,
+        externalId: payment.id,
+        msisdn,
+        payerMessage: description,
+        payeeNote: 'T-Cardio Pro',
+      });
+    } catch (error) {
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.FAILED,
+          fedapayData: { error: (error as Error).message },
+        },
+      });
+      this.logger.error(
+        `MoMo requestToPay failed: payment=${payment.id} — ${(error as Error).message}`,
+      );
+      throw new BadRequestException(
+        'Echec de la demande de paiement. Verifiez votre numero et reessayez.',
+      );
+    }
+
+    this.logger.log(
+      `MoMo API payment initiated: id=${payment.id}, ref=${referenceId}, amount=${amountXof}`,
+    );
+
+    return {
+      paymentId: payment.id,
+      referenceId,
+      amount: amountXof,
+      status: 'PENDING',
+      message: 'Demande envoyee. Validez le paiement sur votre telephone (code PIN MoMo).',
+    };
+  }
+
+  /**
+   * Poll the MTN API for a payment's outcome and finalize it if resolved.
+   * Safe to call repeatedly from the client while waiting for the payer to
+   * approve on their phone.
+   */
+  async checkMomoApiPaymentStatus(paymentId: string, patientId: string) {
+    const payment = await this.prisma.payment.findFirst({
+      where: { id: paymentId, patientId },
+    });
+
+    if (!payment) {
+      throw new BadRequestException('Paiement non trouve');
+    }
+    if (payment.status === PaymentStatus.COMPLETED) {
+      return { status: 'completed', paymentId: payment.id };
+    }
+    if (payment.status === PaymentStatus.FAILED) {
+      return { status: 'failed', paymentId: payment.id };
+    }
+    if (!payment.fedapayTransactionId) {
+      throw new BadRequestException('Reference MoMo manquante');
+    }
+
+    const result = await this.mtnMomo.getTransactionStatus(
+      payment.fedapayTransactionId,
+    );
+    return this.finalizeFromMtnStatus(payment, result);
+  }
+
+  /**
+   * Handle an MTN callback. The callback is NOT cryptographically signed, so
+   * the body is NEVER trusted: we look the payment up by our own externalId and
+   * RE-VERIFY the outcome with an authenticated status call before granting value.
+   */
+  async handleMomoApiCallback(body: any) {
+    // Validate identifiers as UUIDs before any DB / MTN work — stops an
+    // unauthenticated caller from driving lookups/outbound calls with junk.
+    const isUuid = (s: any): s is string =>
+      typeof s === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+    const externalId = isUuid(body?.externalId) ? body.externalId : undefined; // = our payment.id
+    const referenceId = isUuid(body?.referenceId)
+      ? body.referenceId
+      : isUuid(body?.X_Reference_Id)
+        ? body.X_Reference_Id
+        : undefined;
+
+    if (!externalId && !referenceId) {
+      this.logger.warn('MoMo callback: no valid identifier in payload');
+      return { status: 'ignored' };
+    }
+
+    let payment = externalId
+      ? await this.prisma.payment.findUnique({ where: { id: externalId } })
+      : null;
+    if (!payment && referenceId) {
+      payment = await this.prisma.payment.findUnique({
+        where: { fedapayTransactionId: referenceId },
+      });
+    }
+
+    if (!payment) {
+      this.logger.warn('MoMo callback: payment not found');
+      return { status: 'not_found' };
+    }
+    if (payment.status === PaymentStatus.COMPLETED) {
+      return { status: 'already_completed' };
+    }
+    if (!payment.fedapayTransactionId) {
+      return { status: 'no_reference' };
+    }
+
+    // Re-verify authoritatively — do not trust the callback payload.
+    const result = await this.mtnMomo.getTransactionStatus(
+      payment.fedapayTransactionId,
+    );
+    return this.finalizeFromMtnStatus(payment, result);
+  }
+
+  /**
+   * Apply an MTN transaction status to a local payment, granting value exactly
+   * once on success via an atomic claim.
+   */
+  private async finalizeFromMtnStatus(
+    payment: Payment,
+    result: { status: string; financialTransactionId?: string; reason?: string },
+  ) {
+    if (result.status === 'SUCCESSFUL') {
+      const claimed = await this.prisma.payment.updateMany({
+        where: { id: payment.id, status: { not: PaymentStatus.COMPLETED } },
+        data: {
+          status: PaymentStatus.COMPLETED,
+          completedAt: new Date(),
+          fedapayData: result as any,
+        },
+      });
+
+      if (claimed.count === 0) {
+        return { status: 'completed', paymentId: payment.id };
+      }
+
+      // Grant from the authoritative just-claimed row, not the pre-claim snapshot.
+      const claimedPayment = await this.prisma.payment.findUnique({
+        where: { id: payment.id },
+      });
+      await this.applyGrantedValue(claimedPayment ?? payment, 'MTN MoMo - ');
+      this.logger.log(
+        `MoMo API payment completed: id=${payment.id}, fin_txn=${result.financialTransactionId}`,
+      );
+      return { status: 'completed', paymentId: payment.id };
+    }
+
+    if (result.status === 'FAILED') {
+      await this.prisma.payment.updateMany({
+        where: { id: payment.id, status: PaymentStatus.PENDING },
+        data: { status: PaymentStatus.FAILED, fedapayData: result as any },
+      });
+      this.logger.log(
+        `MoMo API payment failed: id=${payment.id}, reason=${result.reason}`,
+      );
+      return { status: 'failed', paymentId: payment.id, reason: result.reason };
+    }
+
+    return { status: 'pending', paymentId: payment.id };
   }
 }
